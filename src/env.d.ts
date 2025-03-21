@@ -5,3 +5,9 @@ declare namespace NodeJS {
     VUE_ROUTER_BASE: string | undefined;
   }
 }
+
+interface ImportMetaEnv {
+  readonly VITE_APP_NAME: string;
+  readonly VITE_APP_VERSION: string;
+  readonly VITE_APP_API_URL: string;
+}
