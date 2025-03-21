@@ -4,6 +4,9 @@ on:
     branches:
       - staging
       - develop
+permissions:
+  contents: read
+  deployments: write
 jobs:
   package:
     runs-on: ubuntu-latest
