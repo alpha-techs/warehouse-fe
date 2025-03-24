@@ -5,6 +5,7 @@ on:
       - staging
       - develop
 permissions:
+  actions: read
   contents: read
   deployments: write
 jobs:
