@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import OutboundForm from 'components/inventory/OutboundForm.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useOutboundStore } from 'stores/outbound-store'
 import OutboundItemListForm from 'components/inventory/OutboundItemListForm.vue'
@@ -9,6 +9,12 @@ const saving = ref(false)
 const loading = ref(false)
 
 const router = useRouter()
+
+onMounted(() => {
+  loading.value = true
+  useOutboundStore().resetFormModel()
+  loading.value = false
+})
 
 const onSave = async() => {
   saving.value = true

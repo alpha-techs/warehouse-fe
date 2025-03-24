@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CustomerForm from 'components/customer/CustomerForm.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCustomerStore } from 'stores/customer-store'
 
@@ -8,6 +8,12 @@ const saving = ref(false)
 const loading = ref(false)
 
 const router = useRouter()
+
+onMounted(() => {
+  loading.value = true
+  useCustomerStore().resetFormModel()
+  loading.value = false
+})
 
 const onSave = async() => {
   saving.value = true

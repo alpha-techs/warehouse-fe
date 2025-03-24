@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import WarehouseForm from 'components/warehouse/WarehouseForm.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWarehouseStore } from 'stores/warehouse-store'
 
@@ -8,6 +8,12 @@ const saving = ref(false)
 const loading = ref(false)
 
 const router = useRouter()
+
+onMounted(() => {
+  loading.value = true
+  useWarehouseStore().resetFormModel()
+  loading.value = false
+})
 
 const onSave = async() => {
   saving.value = true

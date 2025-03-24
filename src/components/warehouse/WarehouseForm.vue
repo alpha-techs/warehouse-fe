@@ -36,6 +36,26 @@ const { formModel: warehouse } = storeToRefs(useWarehouseStore());
     <q-item class="col-12">
       <q-item-section>
         <q-input
+          :model-value="warehouse.tel"
+          @update:model-value="warehouse.tel = ($event as string || undefined)"
+          label="電話番号"
+          :readonly="readonly"
+        />
+      </q-item-section>
+    </q-item>
+    <q-item class="col-12">
+      <q-item-section>
+        <q-input
+          :model-value="warehouse.fax"
+          @update:model-value="warehouse.fax = ($event as string || undefined)"
+          label="FAX番号"
+          :readonly="readonly"
+        />
+      </q-item-section>
+    </q-item>
+    <q-item class="col-12">
+      <q-item-section>
+        <q-input
           :model-value="warehouse.address!.postalCode"
           @update:model-value="warehouse.address!.postalCode = ($event as string || undefined)"
           label="郵便番号"

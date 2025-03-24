@@ -52,6 +52,10 @@ export const useWarehouseStore = defineStore('warehouse', {
         id: item.id!,
         name: item.name!,
       }))?? [];
-    }
+    },
+    async updateWarehouse(): Promise<void> {
+      const id = this.formModel.id!
+      await apiClient.warehouse.updateWarehouse(id, this.formModel)
+    },
   }
 })

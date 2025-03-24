@@ -6,6 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useInboundStore } from 'stores/inbound-store'
 
 const loading = ref(false)
+const saving = ref(false)
 const router = useRouter()
 
 const inboundId = computed(() => {
@@ -25,19 +26,22 @@ const reload = async () => {
   });
 };
 
-const backToList = async () => {
+const cancel = async () => {
   await router.push({ name: 'inbound-list' });
 }
 
-const toEdit = async () => {
-  await router.push({ name: 'inbound-edit', params: { id: inboundId.value } });
+const save = async () => {
+  saving.value = true;
+  await useInboundStore().updateInbound();
+  saving.value = false;
+  await reload();
 }
 </script>
 
 <template>
   <q-page padding>
     <q-card bordered>
-      <q-linear-progress indeterminate v-if="loading" />
+      <q-linear-progress indeterminate v-if="loading || saving" />
       <q-card-section>
         <inbound-form v-if="!loading" />
       </q-card-section>
@@ -49,13 +53,18 @@ const toEdit = async () => {
       <q-card-actions align="right">
         <q-btn
           style="width: 100px"
-          color="primary"
-          label="一覧へ"
-          @click="backToList"
+          color="negative"
+          label="取消"
+          @click="cancel"
           :disable="loading"
         />
-        <q-btn style="width: 100px" color="negative" label="編集" @click="toEdit" />
-        <q-btn style="width: 100px" color="negative" label="削除" />
+        <q-btn
+          style="width: 100px"
+          color="primary"
+          label="保存"
+          @click="save"
+          :disable="loading"
+        />
       </q-card-actions>
     </q-card>
   </q-page>

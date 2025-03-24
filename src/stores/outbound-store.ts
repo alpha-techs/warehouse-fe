@@ -54,6 +54,10 @@ export const useOutboundStore = defineStore('outbound', {
       const resp = await apiClient.inventory.rejectOutbound(id)
       this.formModel = resp.data
       return resp.data
-    }
+    },
+    async updateOutbound(): Promise<void> {
+      const id = this.formModel.id!
+      await apiClient.inventory.updateOutbound(id, this.formModel)
+    },
   }
 })

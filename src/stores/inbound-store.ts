@@ -56,6 +56,10 @@ export const useInboundStore = defineStore('inbound', {
       const resp = await apiClient.inventory.rejectInbound(id)
       this.formModel = resp.data
       return resp.data
-    }
+    },
+    async updateInbound(): Promise<void> {
+      const id = this.formModel.id!
+      await apiClient.inventory.updateInbound(id, this.formModel)
+    },
   }
 });

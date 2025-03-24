@@ -125,8 +125,24 @@ const remove = async (row: any) => {
               <template #[`body-cell-actions`]="{ key, row }">
                 <q-td class="text-right">
                   <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_visibility" @click="toDetail(key)" />
-                  <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_edit" @click="toEdit(key)" />
-                  <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_delete" @click="remove(row)" />
+                  <q-btn
+                    class="q-ml-sm"
+                    size="sm"
+                    flat
+                    dense
+                    icon="sym_r_edit"
+                    @click="toEdit(key)"
+                    v-if="row.status != 'approved'"
+                  />
+                  <q-btn
+                    class="q-ml-sm"
+                    size="sm"
+                    flat
+                    dense
+                    icon="sym_r_delete"
+                    @click="remove(row)"
+                    v-if="['draft', 'pending'].includes(row.status)"
+                  />
                 </q-td>
               </template>
             </q-table>

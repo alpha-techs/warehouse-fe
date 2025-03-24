@@ -161,7 +161,7 @@ const { formModel: product } = storeToRefs(useProductStore());
           :model-value="product.hasSubPackage"
           @update:model-value="product.hasSubPackage = $event"
           label="個包装の有無"
-          :readonly="readonly"
+          :disable="readonly"
         />
       </q-item-section>
     </q-item>
@@ -181,7 +181,7 @@ const { formModel: product } = storeToRefs(useProductStore());
           :model-value="product.isFixedWeight"
           @update:model-value="product.isFixedWeight = $event"
           label="定貫"
-          :readonly="readonly"
+          :disable="readonly"
         />
       </q-item-section>
     </q-item>

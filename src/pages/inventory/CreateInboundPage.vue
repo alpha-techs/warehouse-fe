@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import InboundForm from 'components/inventory/InboundForm.vue'
 import InboundItemListForm from 'components/inventory/InboundItemListForm.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useInboundStore } from 'stores/inbound-store'
 
@@ -9,6 +9,12 @@ const saving = ref(false)
 const loading = ref(false)
 
 const router = useRouter()
+
+onMounted(() => {
+  loading.value = true
+  useInboundStore().resetFormModel()
+  loading.value = false
+})
 
 const onSave = async() => {
   saving.value = true

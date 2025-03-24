@@ -57,6 +57,10 @@ export const useProductStore = defineStore('product', {
         id: item.id!,
         name: item.name!,
       })) ?? [];
-    }
+    },
+    async updateProduct(): Promise<void> {
+      const id = this.formModel.id!
+      await apiClient.product.updateProduct(id, this.formModel)
+    },
   }
 })

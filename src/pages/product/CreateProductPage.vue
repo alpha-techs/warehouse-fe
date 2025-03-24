@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ProductForm from 'components/product/ProductForm.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useProductStore } from 'stores/product-store'
 import { useRouter } from 'vue-router'
 
@@ -8,6 +8,12 @@ const saving = ref(false)
 const loading = ref(false)
 
 const router = useRouter()
+
+onMounted (() => {
+  loading.value = true
+  useProductStore().resetFormModel()
+  loading.value = false
+})
 
 const onSave = async() => {
   saving.value = true

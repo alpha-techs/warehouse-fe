@@ -1,11 +1,29 @@
 <script setup lang="ts">
 import CustomerForm from 'components/customer/CustomerForm.vue'
-import { nextTick, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useCustomerStore } from 'stores/customer-store'
 
 const loading = ref(false)
 const saving = ref(false)
 const router = useRouter()
+
+const customerId = computed(() => {
+  const id = useRoute().params.id as string
+  return Number.parseInt(id)
+})
+
+onMounted(async () => {
+  await reload();
+})
+
+const reload = async () => {
+  loading.value = true;
+  await useCustomerStore().getCustomerById(customerId.value);
+  await nextTick(() => {
+    loading.value = false;
+  })
+}
 
 const cancel = async () => {
   await router.push({ name: 'customer-list' });
@@ -13,9 +31,9 @@ const cancel = async () => {
 
 const save = async () => {
   saving.value = true;
-  await nextTick();
+  await useCustomerStore().updateCustomer();
   saving.value = false;
-  await router.push({ name: 'customer-list' });
+  await reload();
 }
 </script>
 

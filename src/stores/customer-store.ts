@@ -54,6 +54,10 @@ export const useCustomerStore = defineStore('customer', {
         id: item.id!,
         name: item.name!,
       }))?? [];
-    }
+    },
+    async updateCustomer(): Promise<void> {
+      const id = this.formModel.id!
+      await apiClient.customer.updateCustomer(id, this.formModel)
+    },
   }
 })

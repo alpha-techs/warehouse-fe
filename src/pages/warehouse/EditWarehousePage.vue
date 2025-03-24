@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import WarehouseForm from 'components/warehouse/WarehouseForm.vue'
+import { useWarehouseStore } from 'stores/warehouse-store'
 
 const loading = ref(false)
 const saving = ref(false)
 const router = useRouter()
+
+const warehouseId = computed(() => {
+  const id = useRoute().params.id as string
+  return Number.parseInt(id)
+})
+
+onMounted(async () => {
+  await reload();
+})
 
 const cancel = async () => {
   await router.push({ name: 'warehouse-list' });
@@ -13,9 +23,17 @@ const cancel = async () => {
 
 const save = async () => {
   saving.value = true;
-  await nextTick();
+  await useWarehouseStore().updateWarehouse();
   saving.value = false;
-  await router.push({ name: 'warehouse-list' });
+  await reload();
+}
+
+const reload = async () => {
+  loading.value = true;
+  await useWarehouseStore().getWarehouseById(warehouseId.value);
+  await nextTick(() => {
+    loading.value = false;
+  });
 }
 </script>
 
