@@ -61,5 +61,38 @@ export const useInboundStore = defineStore('inbound', {
       const id = this.formModel.id!
       await apiClient.inventory.updateInbound(id, this.formModel)
     },
+    getStatusBadgeAttribute(): { color: string, label: string } {
+      switch (this.formModel.status) {
+        case 'draft':
+          return {
+            color: 'teal',
+            label: '下書き',
+          }
+        case 'pending':
+          return {
+            color: 'warning',
+            label: '未確認',
+          }
+        case 'approved':
+          return {
+            color: 'green',
+            label: '確認済',
+          }
+        case 'rejected':
+          return {
+            color: 'red',
+            label: '拒否',
+          }
+        case 'cancelled':
+          return {
+            color: 'grey',
+            label: '取消',
+          }
+      }
+      return {
+        color: 'grey',
+        label: '未定義',
+      }
+    },
   }
 });

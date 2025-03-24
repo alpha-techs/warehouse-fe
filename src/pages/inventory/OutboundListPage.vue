@@ -142,7 +142,7 @@ const remove = async (row: any) => {
                     dense
                     icon="sym_r_delete"
                     @click="remove(row)"
-                    v-if="['draft', 'pending'].includes(row.status)"
+                    v-if="row.status != 'approved'"
                   />
                 </q-td>
               </template>
