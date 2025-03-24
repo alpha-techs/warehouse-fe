@@ -25,5 +25,9 @@ export const useInventoryStore = defineStore('inventory', {
         ...defaultPagination,
       }
     },
+    resetList() {
+      this.inventoryListPagination = {...defaultPagination}
+      this.inventoryList = []
+    },
   }
 })

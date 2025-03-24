@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, useTemplateRef } from 'vue'
 import type { PropType } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useOutboundStore } from 'stores/outbound-store'
 import type { InboundItem, InventoryItem } from 'src/api/Api'
 import PickInventoryItemDialog from 'components/inventory/PickInventoryItemDialog.vue'
+import type { ComponentExposed } from 'vue-component-type-helpers'
 
 defineProps({
   show: {
@@ -30,7 +31,10 @@ const submit = () => {
   emit('update:show', false);
 }
 
-const showSubDialog = () => {
+const subDialog = useTemplateRef<ComponentExposed<typeof PickInventoryItemDialog>>('subDialog')
+
+const showSubDialog = async () => {
+  await subDialog.value?.reload();
   dialogMode.value = 'add';
   showDialog.value = true;
 }
@@ -137,5 +141,6 @@ const onSubmit = (data: InventoryItem) => {
     :mode="dialogMode"
     @update:show="showDialog = $event"
     @submit="onSubmit"
+    ref="subDialog"
   />
 </template>

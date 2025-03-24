@@ -63,6 +63,7 @@ const showDialog = ref(false);
 const dialogMode = ref<'add' | 'edit'>('add');
 
 const showAddingDialog = () => {
+  useOutboundStore().resetItemModel();
   dialogMode.value = 'add';
   showDialog.value = true;
 };

@@ -9,13 +9,17 @@ const emptyOutbound: Outbound = {
   status: 'pending',
 }
 
+const emptyOutboundItem: OutboundItem = {}
+
+const emptyInventoryItem: InventoryItem = {}
+
 export const useOutboundStore = defineStore('outbound', {
   state: () => ({
     outboundList: [] as Outbound[],
     outboundListPagination: {...defaultPagination},
     formModel: _.cloneDeep(emptyOutbound),
-    itemModel: {} as OutboundItem,
-    inventoryItemModel: {} as InventoryItem,
+    itemModel: _.cloneDeep(emptyOutboundItem),
+    inventoryItemModel: _.cloneDeep(emptyInventoryItem),
   }),
   actions: {
     async getOutboundList(
@@ -33,6 +37,12 @@ export const useOutboundStore = defineStore('outbound', {
     },
     resetFormModel() {
       this.formModel = _.cloneDeep(emptyOutbound)
+    },
+    resetItemModel() {
+      this.itemModel = _.cloneDeep(emptyOutboundItem)
+    },
+    resetInventoryItemModel() {
+      this.inventoryItemModel = _.cloneDeep(emptyInventoryItem)
     },
     async createOutbound(): Promise<Outbound> {
       const resp = await apiClient.inventory.createOutbound(this.formModel)

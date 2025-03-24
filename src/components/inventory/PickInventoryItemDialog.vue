@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import type { PropType } from 'vue'
 import type { InventoryItem } from 'src/api/Api'
 import { storeToRefs } from 'pinia'
 import { useInventoryStore } from 'stores/inventory-store'
-import type { QTableProps } from 'quasar'
+import type { QTable, QTableProps } from 'quasar'
 import { useRouter } from 'vue-router'
 
 defineProps({
@@ -87,8 +87,14 @@ const selectedRows = ref<InventoryItem[]>([])
 
 const router = useRouter()
 
-onMounted(async () => {
+const reload = async () => {
+  selectedRows.value = []
+  useInventoryStore().resetList()
   await useInventoryStore().getInventoryList()
+}
+
+defineExpose({
+  reload,
 })
 </script>
 

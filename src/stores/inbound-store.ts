@@ -36,6 +36,9 @@ export const useInboundStore = defineStore('inbound', {
     resetFormModel() {
       this.formModel = _.cloneDeep(emptyInbound)
     },
+    resetItemModel() {
+      this.itemModel = _.cloneDeep(emptyItem)
+    },
     async createInbound(): Promise<Inbound> {
       const resp = await apiClient.inventory.createInbound(this.formModel)
       return resp.data
