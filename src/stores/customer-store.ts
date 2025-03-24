@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { defaultPagination } from 'src/utils/pagination'
 import type { Customer, CustomerContact } from 'src/api/Api'
 import { apiClient } from 'src/utils/api-client'
+import _ from 'lodash'
 
 const emptyCustomer: Customer = {
   address: {} as Customer['address'],
@@ -12,7 +13,7 @@ export const useCustomerStore = defineStore('customer', {
   state: () => ({
     customerList: [] as Customer[],
     customerListPagination: {...defaultPagination},
-    formModel: {...emptyCustomer},
+    formModel: _.cloneDeep(emptyCustomer),
     customerOptions: [] as {
       id: number,
       name: string,
@@ -34,7 +35,7 @@ export const useCustomerStore = defineStore('customer', {
       }
     },
     resetFormModel() {
-      this.formModel = {...emptyCustomer }
+      this.formModel = _.cloneDeep(emptyCustomer)
     },
     async createCustomer(): Promise<Customer> {
       const resp = await apiClient.customer.createCustomer(this.formModel)

@@ -2,6 +2,7 @@ import { apiClient } from 'src/utils/api-client'
 import { defineStore } from 'pinia'
 import type { Warehouse } from 'src/api/Api'
 import { defaultPagination } from 'src/utils/pagination'
+import _ from 'lodash'
 
 const emptyWarehouse: Warehouse = {
   address: {} as Warehouse['address'],
@@ -11,7 +12,7 @@ export const useWarehouseStore = defineStore('warehouse', {
   state: () => ({
     warehouseList: [] as Warehouse[],
     warehouseListPagination: {...defaultPagination},
-    formModel: {...emptyWarehouse},
+    formModel: _.cloneDeep(emptyWarehouse),
     warehouseOptions: [] as {
       id: number,
       name: string,
@@ -32,7 +33,7 @@ export const useWarehouseStore = defineStore('warehouse', {
       }
     },
     resetFormModel() {
-      this.formModel = { ...emptyWarehouse }
+      this.formModel = _.cloneDeep(emptyWarehouse)
     },
     async createWarehouse(): Promise<Warehouse> {
       const resp = await apiClient.warehouse.createWarehouse(this.formModel)

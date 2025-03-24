@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import type { Product } from 'src/api/Api'
 import { apiClient } from 'src/utils/api-client'
 import { defaultPagination } from 'src/utils/pagination'
+import _ from 'lodash'
 
 const emptyProduct: Product = {
   dimension: {} as Product['dimension'],
@@ -13,7 +14,7 @@ export const useProductStore = defineStore('product', {
   state: () => ({
     productList: [] as Product[],
     productListPagination: {...defaultPagination},
-    formModel: {...emptyProduct},
+    formModel: _.cloneDeep(emptyProduct),
     productOptions: [] as {
       id: number,
       name: string,
@@ -37,7 +38,7 @@ export const useProductStore = defineStore('product', {
       }
     },
     resetFormModel() {
-      this.formModel = {...emptyProduct}
+      this.formModel = _.cloneDeep(emptyProduct)
     },
     async createProduct(): Promise<Product> {
       const resp = await apiClient.product.createProduct(this.formModel)

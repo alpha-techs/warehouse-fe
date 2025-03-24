@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import type { Inbound, InboundItem } from 'src/api/Api'
 import { defaultPagination } from 'src/utils/pagination'
 import { apiClient } from 'src/utils/api-client'
+import _ from 'lodash'
 
 const emptyInbound: Inbound = {
   items: [],
@@ -15,8 +16,8 @@ export const useInboundStore = defineStore('inbound', {
   state: () => ({
     inboundList: [] as Inbound[],
     inboundListPagination: {...defaultPagination},
-    formModel: {...emptyInbound},
-    itemModel: {...emptyItem},
+    formModel: _.cloneDeep(emptyInbound),
+    itemModel: _.cloneDeep(emptyItem),
   }),
   actions: {
     async getInboundList(
@@ -33,7 +34,7 @@ export const useInboundStore = defineStore('inbound', {
       }
     },
     resetFormModel() {
-      this.formModel = {...emptyInbound}
+      this.formModel = _.cloneDeep(emptyInbound)
     },
     async createInbound(): Promise<Inbound> {
       const resp = await apiClient.inventory.createInbound(this.formModel)
