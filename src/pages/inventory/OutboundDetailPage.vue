@@ -81,8 +81,8 @@ const reject = async () => {
             label="拒否"
             @click="reject"
           />
+          <q-separator vertical class="q-mx-lg" />
         </template>
-        <q-separator vertical class="q-mx-lg" />
         <q-btn
           style="width: 100px"
           color="primary"

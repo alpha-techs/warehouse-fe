@@ -45,6 +45,12 @@ const columns: QTableProps['columns'] = [
     align: 'left',
   },
   {
+    label: '備考',
+    name: 'note',
+    field: 'note',
+    align: 'left',
+  },
+  {
     label: '操作',
     name: 'actions',
     field: 'actions',
