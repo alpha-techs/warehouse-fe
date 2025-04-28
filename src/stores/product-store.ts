@@ -15,10 +15,7 @@ export const useProductStore = defineStore('product', {
     productList: [] as Product[],
     productListPagination: {...defaultPagination},
     formModel: _.cloneDeep(emptyProduct),
-    productOptions: [] as {
-      id: number,
-      name: string,
-    }[],
+    productOptions: [] as Product[],
   }),
   actions: {
     async getProductList(
@@ -54,10 +51,7 @@ export const useProductStore = defineStore('product', {
     },
     async getProductOptions(name?: string): Promise<void> {
       const resp = await apiClient.products.listProducts({name});
-      this.productOptions = resp.data.items?.map(item => ({
-        id: item.id!,
-        name: item.name!,
-      })) ?? [];
+      this.productOptions = resp.data.items ?? [];
     },
     async updateProduct(): Promise<void> {
       const id = this.formModel.id!

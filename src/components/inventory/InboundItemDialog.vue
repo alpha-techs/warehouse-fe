@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
-import type { InboundItem } from 'src/api/Api'
+import type { InboundItem, Product } from 'src/api/Api'
 import { storeToRefs } from 'pinia'
 import { useInboundStore } from 'stores/inbound-store'
 import { useProductStore } from 'stores/product-store'
@@ -39,6 +39,26 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
     doneFn(() => {});
   }
 }
+
+const onChangeProduct = (product: Product) => {
+  model.value.product = product;
+  model.value.perItemWeight = product.dimension?.totalWeight;
+  model.value.perItemWeightUnit = product.dimension?.weightUnit;
+}
+
+const onChangeQuantity = (quantity: any) => {
+  const intValue = parseInt(quantity);
+  if (isNaN(intValue)) {
+    model.value.quantity = 0;
+    return;
+  }
+  model.value.quantity = intValue;
+  if (model.value.perItemWeightUnit) {
+    model.value.totalWeight = model.value.perItemWeight! * model.value.quantity;
+  } else {
+    model.value.totalWeight = undefined;
+  }
+}
 </script>
 
 <template>
@@ -58,7 +78,7 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
               <q-item-section>
                 <q-select
                   :model-value="model.product"
-                  @update:model-value="model.product = $event"
+                  @update:model-value="onChangeProduct"
                   label="商品"
                   :options="productOptions"
                   option-label="name"
@@ -74,7 +94,7 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
               <q-item-section>
                 <q-input
                   :model-value="model.quantity"
-                  @update:model-value="model.quantity = ($event as number || undefined)"
+                  @update:model-value="onChangeQuantity"
                   label="数量"
                 />
               </q-item-section>
