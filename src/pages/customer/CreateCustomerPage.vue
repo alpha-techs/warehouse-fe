@@ -17,10 +17,13 @@ onMounted(() => {
 
 const onSave = async() => {
   saving.value = true
-  await useCustomerStore().createCustomer()
+  const newCustomer = await useCustomerStore().createCustomer()
   saving.value = false
   await router.push({
-    name: 'customer-list',
+    name: 'customer-detail',
+    params: {
+      id: newCustomer.id,
+    },
   })
 }
 </script>

@@ -126,8 +126,7 @@ export interface Customer {
   fax?: string;
   /** 地址 */
   address?: Address;
-  /** 联系人列表 */
-  contacts?: CustomerContact[];
+  contact?: CustomerContact;
 }
 
 export type CreateCustomerReq = Customer;

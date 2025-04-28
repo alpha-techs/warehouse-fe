@@ -6,7 +6,7 @@ import _ from 'lodash'
 
 const emptyCustomer: Customer = {
   address: {} as Customer['address'],
-  contacts: [] as CustomerContact[],
+  contact: {} as CustomerContact,
 }
 
 export const useCustomerStore = defineStore('customer', {
