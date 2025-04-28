@@ -21,14 +21,26 @@ const columns: QTableProps['columns'] = [
   },
   {
     label: '規格',
-    name: 'dimension',
-    field: 'dimension',
+    name: 'dimensionDescription',
+    field: 'dimensionDescription',
+    align: 'left',
+  },
+  {
+    label: 'サイズ',
+    name: 'size',
+    field: 'size',
     align: 'right',
   },
   {
-    label: '重量',
-    name: 'weight',
-    field: 'weight',
+    label: '個別重量',
+    name: 'unitWeight',
+    field: 'unitWeight',
+    align: 'right',
+  },
+  {
+    label: '総重量',
+    name: 'totalWeight',
+    field: 'totalWeight',
     align: 'right',
   },
   {
@@ -95,17 +107,29 @@ const remove = async (row: any) => {
                   @click="toCreate()"
                 />
               </template>
-              <template #[`body-cell-dimension`]="{ row }">
+              <template #[`body-cell-dimensionDescription`]="{ row }">
+                <q-td>
+                  {{ row.dimension.description }}
+                </q-td>
+              </template>
+              <template #[`body-cell-size`]="{ row }">
                 <q-td class="text-right">
                   <template v-if="row.dimension.length && row.dimension.width && row.dimension.height">
                     {{ row.dimension.width }} x {{ row.dimension.height }} x {{ row.dimension.length }} ({{ row.dimension.lengthUnit }})
                   </template>
                 </q-td>
               </template>
-              <template #[`body-cell-weight`]="{ row }">
+              <template #[`body-cell-unitWeight`]="{ row }">
                 <q-td class="text-right">
-                  <template v-if="row.dimension.weight">
-                    {{ row.dimension.weight }} ({{ row.dimension.weightUnit }})
+                  <template v-if="row.dimension.unitWeight">
+                    {{ row.dimension.unitWeight }} ({{ row.dimension.weightUnit }})
+                  </template>
+                </q-td>
+              </template>
+              <template #[`body-cell-totalWeight`]="{ row }">
+                <q-td class="text-right">
+                  <template v-if="row.dimension.totalWeight">
+                    {{ row.dimension.totalWeight }} ({{ row.dimension.weightUnit }})
                   </template>
                 </q-td>
               </template>

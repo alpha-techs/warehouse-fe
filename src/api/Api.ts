@@ -79,8 +79,10 @@ export interface Product {
     height?: number;
     /** 长度单位 */
     lengthUnit?: "cm" | "m";
-    /** 重量 */
-    weight?: number;
+    /** 单件重量 */
+    unitWeight?: number;
+    /** 总重量 */
+    totalWeight?: number;
     /** 重量单位 */
     weightUnit?: "kg" | "g";
   };
