@@ -5984,10 +5984,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-component-type-helpers@npm:^2.2.8":
-  version: 2.2.8
-  resolution: "vue-component-type-helpers@npm:2.2.8"
-  checksum: 10c0/c1dfd755ddee15d38057404f101ee607757f88de18e0dd03ad2677be7b0688d86e79e9dab54df9800347abe9826246fc4abbcb54e7827d9289808ba288347bfd
+"vue-component-type-helpers@npm:^2.2.10":
+  version: 2.2.10
+  resolution: "vue-component-type-helpers@npm:2.2.10"
+  checksum: 10c0/f4d2219941a6bb987dc813e5e132fa9f8880163efc73faa6871713241dae0358cbfb6ecbee3b7e6e2ef65c02e5b5a8204c6e44c4a7d213499957e4d36f8c99c7
   languageName: node
   linkType: hard
 
@@ -6094,7 +6094,7 @@ __metadata:
     vite: "npm:^6.3.3"
     vite-plugin-checker: "npm:^0.9.1"
     vue: "npm:^3.4.18"
-    vue-component-type-helpers: "npm:^2.2.8"
+    vue-component-type-helpers: "npm:^2.2.10"
     vue-eslint-parser: "npm:^10.1.3"
     vue-router: "npm:^4.5.1"
     vue-tsc: "npm:^2.2.8"
