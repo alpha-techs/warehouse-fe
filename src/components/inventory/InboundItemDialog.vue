@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
-import type { InboundItem } from 'src/api/Api'
+import type { InboundItem, Product } from 'src/api/Api'
 import { storeToRefs } from 'pinia'
 import { useInboundStore } from 'stores/inbound-store'
 import { useProductStore } from 'stores/product-store'
+import Big from 'big.js'
 
 defineProps({
   show: {
@@ -39,6 +40,26 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
     doneFn(() => {});
   }
 }
+
+const onChangeProduct = (product: Product | undefined): void => {
+  model.value.product = product;
+  model.value.perItemWeight = product?.dimension?.totalWeight;
+  model.value.perItemWeightUnit = product?.dimension?.weightUnit;
+}
+
+const onChangeQuantity = (quantity: any) => {
+  const intValue = parseInt(quantity);
+  if (isNaN(intValue)) {
+    model.value.quantity = 0;
+    return;
+  }
+  model.value.quantity = intValue;
+  if (model.value.perItemWeightUnit) {
+    model.value.totalWeight = new Big(model.value.perItemWeight!).times(model.value.quantity).toNumber();
+  } else {
+    model.value.totalWeight = undefined;
+  }
+}
 </script>
 
 <template>
@@ -49,7 +70,7 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
       persistent
     >
       <q-card class="card">
-        <q-card-section class="bg-primary">
+        <q-card-section class="bg-primary text-white">
           <div class="text-h6">入庫商品</div>
         </q-card-section>
         <q-card-section>
@@ -58,7 +79,7 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
               <q-item-section>
                 <q-select
                   :model-value="model.product"
-                  @update:model-value="model.product = $event"
+                  @update:model-value="onChangeProduct"
                   label="商品"
                   :options="productOptions"
                   option-label="name"
@@ -74,7 +95,7 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
               <q-item-section>
                 <q-input
                   :model-value="model.quantity"
-                  @update:model-value="model.quantity = ($event as number || undefined)"
+                  @update:model-value="onChangeQuantity"
                   label="数量"
                 />
               </q-item-section>
@@ -112,7 +133,7 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
                 />
               </q-item-section>
             </q-item>
-            <q-item class="col-3">
+            <q-item class="col-6">
               <q-item-section>
                 <q-input
                   :model-value="model.manufactureDate"
@@ -121,7 +142,7 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
                 />
               </q-item-section>
             </q-item>
-            <q-item class="col-3">
+            <q-item class="col-6">
               <q-item-section>
                 <q-input
                   :model-value="model.bestBeforeDate"
@@ -130,7 +151,7 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
                 />
               </q-item-section>
             </q-item>
-            <q-item class="col-3">
+            <q-item class="col-6">
               <q-item-section>
                 <q-input
                   :model-value="model.lotNumber"
@@ -139,7 +160,7 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
                 />
               </q-item-section>
             </q-item>
-            <q-item class="col-3">
+            <q-item class="col-6">
               <q-item-section>
                 <q-input
                   :model-value="model.shipName"

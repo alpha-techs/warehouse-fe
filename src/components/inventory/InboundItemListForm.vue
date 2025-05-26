@@ -94,10 +94,30 @@ const showAddingDialog = () => {
 };
 
 const onSubmit = (data: InboundItem) => {
-  if (inbound.value.items == undefined) {
-    inbound.value.items = [];
+  if (dialogMode.value === 'add') {
+    if (inbound.value.items == undefined) {
+      inbound.value.items = [];
+    }
+    inbound.value.items.push(data);
+  } else {
+    const index = inbound.value.items?.findIndex(item => item.id === data.id);
+    if (index != undefined && index >= 0) {
+      inbound.value.items![index] = data;
+    }
   }
-  inbound.value.items.push(data);
+}
+
+const onEditItem = (data: InboundItem) => {
+  useInboundStore().resetItemModel(data);
+  dialogMode.value = 'edit';
+  showDialog.value = true;
+}
+
+const onDeleteItem = (data: InboundItem) => {
+  const index = inbound.value.items?.findIndex(item => item.id === data.id);
+  if (index != undefined && index >= 0) {
+    inbound.value.items?.splice(index, 1);
+  }
 }
 </script>
 
@@ -136,6 +156,12 @@ const onSubmit = (data: InboundItem) => {
     <template #[`body-cell-totalWeight`]="{ row }: { row: InboundItem}">
       <td class="text-right">
         {{ row.totalWeight }} <template v-if="row.perItemWeightUnit">({{ row.perItemWeightUnit }})</template>
+      </td>
+    </template>
+    <template #[`body-cell-actions`]="{ row }: { row: InboundItem}">
+      <td class="text-right">
+        <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_edit" @click="onEditItem(row)"/>
+        <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_delete" @click="onDeleteItem(row)"/>
       </td>
     </template>
   </q-table>

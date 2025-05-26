@@ -20,6 +20,18 @@ const columns: QTableProps['columns'] = [
     field: 'address',
   },
   {
+    name: 'contact',
+    label: '担当者',
+    align: 'left',
+    field: 'contact',
+  },
+  {
+    name: 'contactTel',
+    label: '担当者電話番号',
+    align: 'left',
+    field: 'contactTel',
+  },
+  {
     name: 'actions',
     label: '操作',
     align: 'right',
@@ -88,11 +100,21 @@ const remove = async (row: any) => {
                   {{ row.address?.postalCode }} {{ row.address?.detailAddress1 }} {{ row.address?.detailAddress2 }}
                 </q-td>
               </template>
+              <template #[`body-cell-contact`]="{ row }">
+                <q-td>
+                  {{ row.contact?.name }}
+                </q-td>
+              </template>
+              <template #[`body-cell-contactTel`]="{ row }">
+                <q-td>
+                  {{ row.contact?.tel }}
+                </q-td>
+              </template>
               <template #[`body-cell-actions`]="{ key, row }">
                 <q-td class="text-right">
                   <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_visibility" @click="toDetail(key)" />
                   <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_edit" @click="toEdit(key)" />
-                  <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_delete" @click="remove(row)" />
+                  <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_delete" @click="remove(row)" v-if="row.id != 1" />
                 </q-td>
               </template>
             </q-table>

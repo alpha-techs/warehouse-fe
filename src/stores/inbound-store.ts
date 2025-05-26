@@ -12,12 +12,21 @@ const emptyInbound: Inbound = {
 
 const emptyItem: InboundItem = {}
 
+interface GetInboundItemListQuery {
+  page?: number;
+  itemsPerPage?: number;
+  lotNumber?: string;
+}
+
 export const useInboundStore = defineStore('inbound', {
   state: () => ({
     inboundList: [] as Inbound[],
     inboundListPagination: {...defaultPagination},
     formModel: _.cloneDeep(emptyInbound),
     itemModel: _.cloneDeep(emptyItem),
+    inboundItemListQuery: {} as GetInboundItemListQuery,
+    inboundItemList: [] as InboundItem[],
+    inboundItemListPagination: {...defaultPagination},
   }),
   actions: {
     async getInboundList(
@@ -29,15 +38,15 @@ export const useInboundStore = defineStore('inbound', {
       const resp = await apiClient.inventory.listInbounds(query)
       this.inboundList = resp.data.items ?? []
       this.inboundListPagination = {
-        ...resp.data.pagination,
         ...defaultPagination,
+        ...resp.data.pagination,
       }
     },
     resetFormModel() {
       this.formModel = _.cloneDeep(emptyInbound)
     },
-    resetItemModel() {
-      this.itemModel = _.cloneDeep(emptyItem)
+    resetItemModel(itemModel: InboundItem = emptyItem) {
+      this.itemModel = _.cloneDeep(itemModel)
     },
     async createInbound(): Promise<Inbound> {
       const resp = await apiClient.inventory.createInbound(this.formModel)
@@ -64,6 +73,16 @@ export const useInboundStore = defineStore('inbound', {
     async updateInbound(): Promise<void> {
       const id = this.formModel.id!
       await apiClient.inventory.updateInbound(id, this.formModel)
+    },
+    async getInboundItemList(
+      query?: GetInboundItemListQuery,
+    ): Promise<void> {
+      const resp = await apiClient.inventory.listInboundItems(query)
+      this.inboundItemList = resp.data.items ?? []
+      this.inboundItemListPagination = {
+        ...defaultPagination,
+        ...resp.data.pagination,
+      }
     },
     getStatusBadgeAttribute(): { color: string, label: string } {
       switch (this.formModel.status) {

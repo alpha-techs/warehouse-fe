@@ -128,17 +128,27 @@ const { formModel: product } = storeToRefs(useProductStore());
         </q-select>
       </q-item-section>
     </q-item>
-    <q-item class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+    <q-item class="col-lg-4 col-md-4 col-sm-6 col-xs-6">
       <q-item-section>
         <q-input
-          :model-value="product.dimension!.weight"
-          @update:model-value="product.dimension!.weight = ($event as number || undefined)"
-          label="重さ"
+          :model-value="product.dimension!.unitWeight"
+          @update:model-value="product.dimension!.unitWeight = ($event as number || undefined)"
+          label="総重量"
           :readonly="readonly"
         />
       </q-item-section>
     </q-item>
-    <q-item class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+    <q-item class="col-lg-4 col-md-4 col-sm-6 col-xs-6">
+      <q-item-section>
+        <q-input
+          :model-value="product.dimension!.totalWeight"
+          @update:model-value="product.dimension!.totalWeight = ($event as number || undefined)"
+          label="個別重量"
+          :readonly="readonly"
+        />
+      </q-item-section>
+    </q-item>
+    <q-item class="col-lg-4 col-md-4 col-sm-6 col-xs-6">
       <q-item-section>
         <q-select
           :model-value="product.dimension?.weightUnit"

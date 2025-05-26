@@ -18,15 +18,9 @@ const columns: QTableProps['columns'] = [
     align: 'left',
   },
   {
-    label: 'お客様',
-    name: 'customer',
-    field: 'customer',
-    align: 'left',
-  },
-  {
-    label: 'オーダー番号',
-    name: 'inboundOrderId',
-    field: 'inboundOrderId',
+    label: 'LOT番号',
+    name: 'lotNumber',
+    field: 'lotNumber',
     align: 'left',
   },
   {
@@ -42,9 +36,15 @@ const columns: QTableProps['columns'] = [
     align: 'left',
   },
   {
-    label: 'LOT番号',
-    name: 'lotNumber',
-    field: 'lotNumber',
+    label: '規格',
+    name: 'dimensionDescription',
+    field: 'dimensionDescription',
+    align: 'left',
+  },
+  {
+    label: '賞味期限',
+    name: 'bestBeforeDate',
+    field: 'bestBeforeDate',
     align: 'left',
   },
   {
@@ -118,22 +118,25 @@ const changeOwner = (rows: InventoryItem[]) => {
               <template #[`body-cell-warehouse`]="{ row }: { row: InventoryItem }">
                 <q-td>
                   <a :href="router.resolve({ name: 'warehouse-detail', params: { id: row.warehouse!.id }}).href" v-if="row.warehouse">
-                    {{ row.warehouse!.name }}
-                  </a>
-                </q-td>
-              </template>
-              <template #[`body-cell-customer`]="{ row }: { row: InventoryItem }">
-                <q-td>
-                  <a :href="router.resolve({ name: 'customer-detail', params: { id: row.customer!.id }}).href" v-if="row.customer">
-                    {{ row.customer!.name }}
+                    {{ row.warehouse?.name ?? '-' }}
                   </a>
                 </q-td>
               </template>
               <template #[`body-cell-product`]="{ row }: { row: InventoryItem }">
                 <q-td>
                   <a :href="router.resolve({ name: 'product-detail', params: { id: row.product!.id }}).href" v-if="row.product">
-                    {{ row.product!.name }}
+                    {{ row.product?.name ?? '-' }}
                   </a>
+                </q-td>
+              </template>
+              <template #[`body-cell-dimensionDescription`]="{ row }: { row: InventoryItem }">
+                <q-td>
+                  {{ row.product?.dimension?.description }}
+                </q-td>
+              </template>
+              <template #[`body-cell-bestBeforeDate`]="{ row }: { row: InventoryItem }">
+                <q-td>
+                  {{ row.bestBeforeDate }}
                 </q-td>
               </template>
               <template #[`body-cell-actions`]>

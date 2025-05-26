@@ -50,7 +50,7 @@ const toEdit = async () => {
           :disable="loading"
         />
         <q-btn style="width: 100px" color="negative" label="編集" @click="toEdit" />
-        <q-btn style="width: 100px" color="negative" label="削除" />
+        <q-btn style="width: 100px" color="negative" label="削除" v-if="customerId != 1" />
       </q-card-actions>
     </q-card>
   </q-page>
