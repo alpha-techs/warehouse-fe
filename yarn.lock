@@ -5,14 +5,14 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@babel/code-frame@npm:^7.26.2":
-  version: 7.26.2
-  resolution: "@babel/code-frame@npm:7.26.2"
+"@babel/code-frame@npm:^7.27.1":
+  version: 7.27.1
+  resolution: "@babel/code-frame@npm:7.27.1"
   dependencies:
-    "@babel/helper-validator-identifier": "npm:^7.25.9"
+    "@babel/helper-validator-identifier": "npm:^7.27.1"
     js-tokens: "npm:^4.0.0"
-    picocolors: "npm:^1.0.0"
-  checksum: 10c0/7d79621a6849183c415486af99b1a20b84737e8c11cd55b6544f688c51ce1fd710e6d869c3dd21232023da272a79b91efb3e83b5bc2dc65c1187c5fcd1b72ea8
+    picocolors: "npm:^1.1.1"
+  checksum: 10c0/5dd9a18baa5fce4741ba729acc3a3272c49c25cb8736c4b18e113099520e7ef7b545a4096a26d600e4416157e63e87d66db46aa3fbf0a5f2286da2705c12da00
   languageName: node
   linkType: hard
 
@@ -27,6 +27,13 @@ __metadata:
   version: 7.25.9
   resolution: "@babel/helper-validator-identifier@npm:7.25.9"
   checksum: 10c0/4fc6f830177b7b7e887ad3277ddb3b91d81e6c4a24151540d9d1023e8dc6b1c0505f0f0628ae653601eb4388a8db45c1c14b2c07a9173837aef7e4116456259d
+  languageName: node
+  linkType: hard
+
+"@babel/helper-validator-identifier@npm:^7.27.1":
+  version: 7.27.1
+  resolution: "@babel/helper-validator-identifier@npm:7.27.1"
+  checksum: 10c0/c558f11c4871d526498e49d07a84752d1800bf72ac0d3dad100309a2eaba24efbf56ea59af5137ff15e3a00280ebe588560534b0e894a4750f8b1411d8f78b84
   languageName: node
   linkType: hard
 
@@ -4364,7 +4371,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picocolors@npm:^1.0.0, picocolors@npm:^1.1.1":
+"picocolors@npm:^1.1.1":
   version: 1.1.1
   resolution: "picocolors@npm:1.1.1"
   checksum: 10c0/e2e3e8170ab9d7c7421969adaa7e1b31434f789afb9b3f115f6b96d91945041ac3ceb02e9ec6fe6510ff036bcc0bf91e69a1772edc0b707e12b19c0f2d6bcf58
@@ -5586,7 +5593,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinyglobby@npm:^0.2.10, tinyglobby@npm:^0.2.12":
+"tinyglobby@npm:^0.2.10":
   version: 0.2.12
   resolution: "tinyglobby@npm:0.2.12"
   dependencies:
@@ -5837,18 +5844,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-checker@npm:^0.9.1":
-  version: 0.9.1
-  resolution: "vite-plugin-checker@npm:0.9.1"
+"vite-plugin-checker@npm:^0.9.3":
+  version: 0.9.3
+  resolution: "vite-plugin-checker@npm:0.9.3"
   dependencies:
-    "@babel/code-frame": "npm:^7.26.2"
+    "@babel/code-frame": "npm:^7.27.1"
     chokidar: "npm:^4.0.3"
     npm-run-path: "npm:^6.0.0"
     picocolors: "npm:^1.1.1"
     picomatch: "npm:^4.0.2"
     strip-ansi: "npm:^7.1.0"
     tiny-invariant: "npm:^1.3.3"
-    tinyglobby: "npm:^0.2.12"
+    tinyglobby: "npm:^0.2.13"
     vscode-uri: "npm:^3.1.0"
   peerDependencies:
     "@biomejs/biome": ">=1.7"
@@ -5860,7 +5867,7 @@ __metadata:
     vite: ">=2.0.0"
     vls: "*"
     vti: "*"
-    vue-tsc: ~2.2.2
+    vue-tsc: ~2.2.10
   peerDependenciesMeta:
     "@biomejs/biome":
       optional: true
@@ -5880,7 +5887,7 @@ __metadata:
       optional: true
     vue-tsc:
       optional: true
-  checksum: 10c0/d666065eed29907ef153b370c87f3421d94e0a02f2578ad5ead699d096da5b575389083ac423d4b3ffa772e2b66694918e58c3691075e9ae9364ef78b2a73342
+  checksum: 10c0/e466b121c6a4d839d34d75127235c662a1567080b7d1d6acf2d3aef8405662151a348b89f2b064b6065fb7f863bf9f4aa6de839248af6c36dbc6239f9a8e765c
   languageName: node
   linkType: hard
 
@@ -6108,7 +6115,7 @@ __metadata:
     quasar: "npm:^2.18.1"
     typescript: "npm:~5.8.3"
     vite: "npm:^6.3.3"
-    vite-plugin-checker: "npm:^0.9.1"
+    vite-plugin-checker: "npm:^0.9.3"
     vue: "npm:^3.4.18"
     vue-component-type-helpers: "npm:^2.2.10"
     vue-eslint-parser: "npm:^10.1.3"
