@@ -93,7 +93,7 @@ const remove = async (row: any) => {
               row-key="id"
             >
               <template #top-left>
-                <div class="text-h6">入庫一覧</div>
+                <div class="text-h6">入庫依頼一覧</div>
               </template>
               <template #top-right>
                 <q-btn

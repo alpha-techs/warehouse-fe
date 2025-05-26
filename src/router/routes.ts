@@ -95,6 +95,11 @@ const routes: RouteRecordRaw[] = [
           component: () => import('pages/inventory/EditInboundPage.vue')
       },
       {
+          path: 'inventory/inboundItems',
+          name: 'inbound-item-list',
+          component: () => import('pages/inventory/InboundItemListPage.vue')
+      },
+      {
           path: 'inventory/outbounds',
           name: 'outbound-list',
           component: () => import('pages/inventory/OutboundListPage.vue')

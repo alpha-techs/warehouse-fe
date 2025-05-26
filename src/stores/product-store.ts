@@ -30,8 +30,8 @@ export const useProductStore = defineStore('product', {
       const resp = await apiClient.products.listProducts(query)
       this.productList = resp.data.items ?? []
       this.productListPagination = {
-        ...resp.data.pagination,
         ...defaultPagination,
+        ...resp.data.pagination,
       }
     },
     resetFormModel() {

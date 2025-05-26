@@ -78,7 +78,7 @@ export interface Product {
     /** 高度 */
     height?: number;
     /** 长度单位 */
-    lengthUnit?: "cm" | "m";
+    lengthUnit?: "mm" | "cm" | "m";
     /** 单件重量 */
     unitWeight?: number;
     /** 总重量 */
@@ -282,11 +282,31 @@ export type ListInboundsResp = Pagination & {
   items?: Inbound[];
 };
 
+export type ListInboundItemsRest = Pagination & {
+  items?: InboundItem[];
+};
+
 export interface InboundItem {
   /** 入库物品ID */
   id?: number;
   /** 入库记录ID */
   inboundId?: number;
+  inbound?: {
+    /** 入库记录ID */
+    id?: number;
+    /** 入库订单ID */
+    inboundOrderId?: string;
+    /** 入库日期 */
+    inboundDate?: string;
+    warehouse?: {
+      /** 仓库ID */
+      id?: number;
+      /** 仓库名称 */
+      name?: string;
+    };
+  };
+  /** 商品ID */
+  productId?: number;
   product?: {
     /** 商品ID */
     id?: number;
@@ -1116,6 +1136,41 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<Inbound, any>({
         path: `/inventory/inbound/${id}/cancel`,
         method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name ListInboundItems
+     * @summary 入库商品列表
+     * @request GET:/inventory/inboundItems
+     * @secure
+     */
+    listInboundItems: (
+      query?: {
+        /**
+         * 页码
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** 批次号 */
+        lotNumber?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListInboundsResp, any>({
+        path: `/inventory/inboundItems`,
+        method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,

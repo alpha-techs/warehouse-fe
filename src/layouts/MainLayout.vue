@@ -69,7 +69,18 @@ const linksList: EssentialLinkProps[] = [
   {
     title: '入庫管理',
     icon:'sym_r_move_to_inbox',
-    link: router.resolve({ name: 'inbound-list' }).href,
+    subMenu: [
+      {
+        'title': '入庫商品一覧',
+        'icon': 'sym_r_package_2',
+        'link': router.resolve({ name: 'inbound-item-list' }).href,
+      },
+      {
+        'title': '入庫依頼一覧',
+        'icon': 'sym_r_directions_boat',
+        'link': router.resolve({ name: 'inbound-list' }).href,
+      }
+    ],
   },
   {
     title: '出庫管理',

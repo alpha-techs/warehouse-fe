@@ -4,6 +4,7 @@ import type { InboundItem, Product } from 'src/api/Api'
 import { storeToRefs } from 'pinia'
 import { useInboundStore } from 'stores/inbound-store'
 import { useProductStore } from 'stores/product-store'
+import Big from 'big.js'
 
 defineProps({
   show: {
@@ -40,10 +41,10 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
   }
 }
 
-const onChangeProduct = (product: Product) => {
+const onChangeProduct = (product: Product | undefined): void => {
   model.value.product = product;
-  model.value.perItemWeight = product.dimension?.totalWeight;
-  model.value.perItemWeightUnit = product.dimension?.weightUnit;
+  model.value.perItemWeight = product?.dimension?.totalWeight;
+  model.value.perItemWeightUnit = product?.dimension?.weightUnit;
 }
 
 const onChangeQuantity = (quantity: any) => {
@@ -54,7 +55,7 @@ const onChangeQuantity = (quantity: any) => {
   }
   model.value.quantity = intValue;
   if (model.value.perItemWeightUnit) {
-    model.value.totalWeight = model.value.perItemWeight! * model.value.quantity;
+    model.value.totalWeight = new Big(model.value.perItemWeight!).times(model.value.quantity).toNumber();
   } else {
     model.value.totalWeight = undefined;
   }
@@ -69,7 +70,7 @@ const onChangeQuantity = (quantity: any) => {
       persistent
     >
       <q-card class="card">
-        <q-card-section class="bg-primary">
+        <q-card-section class="bg-primary text-white">
           <div class="text-h6">入庫商品</div>
         </q-card-section>
         <q-card-section>
@@ -132,7 +133,7 @@ const onChangeQuantity = (quantity: any) => {
                 />
               </q-item-section>
             </q-item>
-            <q-item class="col-3">
+            <q-item class="col-6">
               <q-item-section>
                 <q-input
                   :model-value="model.manufactureDate"
@@ -141,7 +142,7 @@ const onChangeQuantity = (quantity: any) => {
                 />
               </q-item-section>
             </q-item>
-            <q-item class="col-3">
+            <q-item class="col-6">
               <q-item-section>
                 <q-input
                   :model-value="model.bestBeforeDate"
@@ -150,7 +151,7 @@ const onChangeQuantity = (quantity: any) => {
                 />
               </q-item-section>
             </q-item>
-            <q-item class="col-3">
+            <q-item class="col-6">
               <q-item-section>
                 <q-input
                   :model-value="model.lotNumber"
@@ -159,7 +160,7 @@ const onChangeQuantity = (quantity: any) => {
                 />
               </q-item-section>
             </q-item>
-            <q-item class="col-3">
+            <q-item class="col-6">
               <q-item-section>
                 <q-input
                   :model-value="model.shipName"
