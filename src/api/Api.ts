@@ -262,12 +262,6 @@ export interface Inbound {
     /** 客户名称 */
     name?: string;
   };
-  customerContact?: {
-    /** 客户联系人ID */
-    id?: number;
-    /** 客户联系人名称 */
-    name?: string;
-  };
   /** 入库物品列表 */
   items?: InboundItem[];
   /** 保管费用计划列表 */
@@ -282,7 +276,7 @@ export type ListInboundsResp = Pagination & {
   items?: Inbound[];
 };
 
-export type ListInboundItemsRest = Pagination & {
+export type ListInboundItemsResp = Pagination & {
   items?: InboundItem[];
 };
 
@@ -417,6 +411,99 @@ export interface OutboundItem {
   /** 备注 */
   note?: string;
 }
+
+export interface Container {
+  /** 集装箱ID */
+  id?: number;
+  /** 集装箱号 */
+  containerNumber?: string;
+  /** 船公司 */
+  shippingLine?: string;
+  /** 船名 */
+  vesselName?: string;
+  /** 航次号 */
+  voyageNumber?: string;
+  /**
+   * 到港日期
+   * @format date
+   */
+  arrivalDate?: string;
+  /**
+   * 清关日期
+   * @format date
+   */
+  clearanceDate?: string;
+  /**
+   * 卸货日期
+   * @format date
+   */
+  dischargeDate?: string;
+  /**
+   * 空箱归还日期
+   * @format date
+   */
+  returnDate?: string;
+  /** 集装箱物品列表 */
+  items?: ContainerItem[];
+  /**
+   * 集装箱状态
+   * shipping: 在途
+   * arrived: 已到港
+   * customsClearance: 清关中
+   * discharging: 卸货中
+   * discharged: 已卸货
+   * empty: 空箱
+   * returned: 已归还
+   * canceled: 已取消
+   */
+  status?:
+    | "shipping"
+    | "arrived"
+    | "customsClearance"
+    | "discharging"
+    | "discharged"
+    | "empty"
+    | "returned"
+    | "canceled";
+}
+
+export interface ContainerItem {
+  /** 集装箱货物ID */
+  id?: number;
+  /** 集装箱ID */
+  containerId?: number;
+  container?: Container;
+  /** 货物ID */
+  productId?: number;
+  product?: {
+    /** 商品ID */
+    id?: number;
+    /** 商品名称 */
+    name?: string;
+  };
+  /** 数量 */
+  quantity?: number;
+  /**
+   * 生产日期
+   * @format date
+   */
+  manufactureDate?: string;
+  /**
+   * 最佳风味期限
+   * @format date
+   */
+  bestBeforeDate?: string;
+}
+
+export type ListContainersResp = Pagination & {
+  items?: Container[];
+};
+
+export type CreateContainerReq = Container;
+
+export type CreateContainerResp = Container;
+
+export type GetContainerResp = Container;
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
@@ -1167,7 +1254,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ListInboundsResp, any>({
+      this.request<ListInboundItemsResp, any>({
         path: `/inventory/inboundItems`,
         method: "GET",
         query: query,
@@ -1372,6 +1459,130 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/inventory/list`,
         method: "GET",
         query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
+  containers = {
+    /**
+     * No description
+     *
+     * @tags 集装箱
+     * @name ListContainers
+     * @summary 获取集装箱列表
+     * @request GET:/containers
+     * @secure
+     */
+    listContainers: (
+      query?: {
+        /**
+         * 页码
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** 集装箱号 */
+        containerNumber?: string;
+        /** 集装箱状态 */
+        "statuses[]"?: (
+          | "shipping"
+          | "arrived"
+          | "customsClearance"
+          | "discharging"
+          | "discharged"
+          | "empty"
+          | "returned"
+          | "canceled"
+          )[];
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListContainersResp, any>({
+        path: `/containers`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
+  container = {
+    /**
+     * No description
+     *
+     * @tags 集装箱
+     * @name CreateContainer
+     * @summary 创建集装箱
+     * @request POST:/container
+     * @secure
+     */
+    createContainer: (data: CreateContainerReq, params: RequestParams = {}) =>
+      this.request<CreateContainerResp, any>({
+        path: `/container`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 集装箱
+     * @name GetContainer
+     * @summary 获取集装箱详情
+     * @request GET:/container/{id}
+     * @secure
+     */
+    getContainer: (id: number, params: RequestParams = {}) =>
+      this.request<GetCustomerResp, any>({
+        path: `/container/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 集装箱
+     * @name UpdateContainer
+     * @summary 更新集装箱
+     * @request PUT:/container/{id}
+     * @secure
+     */
+    updateContainer: (id: number, data: Container, params: RequestParams = {}) =>
+      this.request<GetContainerResp, any>({
+        path: `/container/${id}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 集装箱
+     * @name DeleteContainer
+     * @summary 删除集装箱
+     * @request DELETE:/container/{id}
+     * @secure
+     */
+    deleteContainer: (id: number, params: RequestParams = {}) =>
+      this.request<object, any>({
+        path: `/container/${id}`,
+        method: "DELETE",
         secure: true,
         format: "json",
         ...params,

@@ -70,6 +70,26 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/customer/EditCustomerPage.vue')
       },
       {
+        path: 'containers',
+        name: 'container-list',
+        component: () => import('pages/container/ContainerListPage.vue')
+      },
+      {
+        path: 'containers/new',
+        name: 'container-create',
+        component: () => import('pages/container/CreateContainerPage.vue')
+      },
+      {
+        path: 'containers/:id',
+        name: 'container-detail',
+        component: () => import('pages/container/ContainerDetailPage.vue')
+      },
+      {
+        path: 'containers/:id/edit',
+        name: 'container-edit',
+        component: () => import('pages/container/EditContainerPage.vue')
+      },
+      {
           path: 'inventory',
           name: 'inventory-list',
           component: () => import('pages/inventory/InventoryListPage.vue')
