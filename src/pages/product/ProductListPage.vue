@@ -11,6 +11,7 @@ const tableRef = useTemplateRef<QTable | undefined>('tableRef');
 const {
   productList: rows,
   productListPagination,
+  productListQuery: searchParams,
 } = storeToRefs(useProductStore())
 
 const columns: QTableProps['columns'] = [
@@ -85,10 +86,12 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
   try {
     loading.value = true;
     const { page, rowsPerPage } = _pagination;
-    await useProductStore().getProductList({
+    const query = {
+      ...searchParams.value,
       page,
       itemsPerPage: rowsPerPage,
-    })
+    }
+    await useProductStore().getProductList(query)
     pagination.value = {
       page: productListPagination.value.page,
       rowsPerPage: productListPagination.value.itemsPerPage,
@@ -131,6 +134,10 @@ const toEdit = async (key: number) => {
 const remove = async (row: any) => {
   await useProductStore().removeProductById(row.id)
 }
+
+const search = () => {
+  tableRef.value?.requestServerInteraction({ pagination: { ...pagination.value, page: 1 }})
+}
 </script>
 
 <template>
@@ -150,16 +157,40 @@ const remove = async (row: any) => {
               @request="onRequest"
               ref="tableRef"
             >
-              <template #top-left>
-                <div class="text-h6">商品一覧</div>
-              </template>
-              <template #top-right>
-                <q-btn
-                  label="新規"
-                  color="primary"
-                  icon="sym_r_add"
-                  @click="toCreate()"
-                />
+              <template #top>
+                <div class="row" style="width: 100%">
+                  <div class="text-h6">商品一覧</div>
+                  <q-space />
+                  <div style="display: flex; align-items: center;">
+                    <q-btn
+                      size="sm"
+                      label="新規"
+                      color="primary"
+                      icon="sym_r_add"
+                      @click="toCreate()"
+                    />
+                  </div>
+                </div>
+                <div class="row" style="width: 100%">
+                  <q-input
+                    class="q-pr-sm"
+                    v-model="searchParams.name"
+                    label="商品名"
+                    dense
+                    @keyup.enter="search"
+                    style="width: 180px;"
+                  ></q-input>
+                  <q-space/>
+                  <div style="display: flex; align-items: center;">
+                    <q-btn
+                      size="sm"
+                      label="検索"
+                      color="primary"
+                      icon="sym_r_search"
+                      @click="search"
+                    />
+                  </div>
+                </div>
               </template>
               <template #[`body-cell-dimensionDescription`]="{ row }">
                 <q-td>

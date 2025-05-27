@@ -128,16 +128,44 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
               ref="tableRef"
             >
               <template #top>
-                <div class="row">
+                <div class="row" style="width: 100%">
                   <div class="text-h6 col-12">入庫商品一覧</div>
-                  <div class="col-12">
-                    <q-input
-                      v-model="searchParams.lotNumber"
-                      label="LOT番号"
-                      dense
-                      @keyup.enter="search"
-                      style="width: 100px"
-                    ></q-input>
+                  <q-input
+                    class="q-px-sm"
+                    v-model="searchParams.lotNumber"
+                    label="LOT番号"
+                    dense
+                    @keyup.enter="search"
+                    style="width: 100px;"
+                  ></q-input>
+                  <q-input
+                    class="q-px-sm"
+                    v-model="searchParams.lotNumber"
+                    label="入庫日(From)"
+                    dense
+                    @keyup.enter="search"
+                    style="width: 120px;"
+                  ></q-input>
+                  <div style="display: flex; align-items: center;">
+                    <span>～</span>
+                  </div>
+                  <q-input
+                    class="q-px-sm"
+                    v-model="searchParams.lotNumber"
+                    label="入庫日(To)"
+                    dense
+                    @keyup.enter="search"
+                    style="width: 120px;"
+                  ></q-input>
+                  <q-space/>
+                  <div style="display: flex; align-items: center;">
+                    <q-btn
+                      size="sm"
+                      label="検索"
+                      color="primary"
+                      icon="sym_r_search"
+                      @click="search"
+                    />
                   </div>
                 </div>
               </template>

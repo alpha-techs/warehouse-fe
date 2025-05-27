@@ -10,22 +10,25 @@ const emptyProduct: Product = {
   isFixedWeight: true,
 }
 
+interface GetProductListQuery {
+  page: number
+  itemsPerPage: number
+  name?: string
+  sku?: string
+  isActive?: boolean
+}
+
 export const useProductStore = defineStore('product', {
   state: () => ({
     productList: [] as Product[],
     productListPagination: {...defaultPagination},
     formModel: _.cloneDeep(emptyProduct),
     productOptions: [] as Product[],
+    productListQuery: {} as GetProductListQuery,
   }),
   actions: {
     async getProductList(
-      query?: {
-        page?: number;
-        itemsPerPage?: number;
-        name?: string;
-        sku?: string;
-        isActive?: boolean;
-      }
+      query?: GetProductListQuery,
     ): Promise<void> {
       const resp = await apiClient.products.listProducts(query)
       this.productList = resp.data.items ?? []
