@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useProductStore } from 'stores/product-store'
 import { storeToRefs } from 'pinia'
-import type { QTable, QTableProps } from 'quasar'
+import type { QTableProps} from 'quasar';
+import { QTable, useQuasar } from 'quasar'
 import { computed, onMounted, type Ref, ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FePagination } from 'src/utils/pagination'
+import type { Product } from 'src/api/Api'
 
 const loading = ref(false);
 const tableRef = useTemplateRef<QTable | undefined>('tableRef');
@@ -12,7 +14,8 @@ const {
   productList: rows,
   productListPagination,
   productListQuery: searchParams,
-} = storeToRefs(useProductStore())
+} = storeToRefs(useProductStore());
+const $q = useQuasar();
 
 const columns: QTableProps['columns'] = [
   {
@@ -131,8 +134,27 @@ const toEdit = async (key: number) => {
   });
 }
 
-const remove = async (row: any) => {
-  await useProductStore().removeProductById(row.id)
+const remove = (row: Product) => {
+  $q.dialog({
+    title: '商品削除',
+    message: `商品「${row.name}」を削除しますか？`,
+    ok: { label: '確認', color: 'negative'},
+    cancel: { label: 'キャンセル', color: 'grey-8'},
+    persistent: true,
+  }).onOk(() => {
+    void (async () => {
+      if (!row.id) {
+        return;
+      }
+      try {
+        await useProductStore().removeProductById(row.id)
+      } catch (e) {
+        console.error(e);
+      }
+      tableRef.value?.requestServerInteraction();
+    })();
+  });
+
 }
 
 const search = () => {
@@ -218,7 +240,7 @@ const search = () => {
                   </template>
                 </q-td>
               </template>
-              <template #[`body-cell-actions`]="{ key, row }">
+              <template #[`body-cell-actions`]="{ key, row }: { key: number, row: Product}">
                 <q-td class="text-right">
                   <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_visibility" @click="toDetail(key)" />
                   <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_edit" @click="toEdit(key)" />
