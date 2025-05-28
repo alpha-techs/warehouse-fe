@@ -107,6 +107,9 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
   try {
     loading.value = true;
     const { page, rowsPerPage } = _pagination;
+    if (!searchParams.value['statuses[]']) {
+      delete searchParams.value['statuses[]'];
+    }
     const query = {
       ...searchParams.value,
       page,
@@ -199,16 +202,27 @@ const search = () => {
                 <div class="row" style="width: 100%">
                   <q-input class="q-pr-sm" v-model="searchParams.containerNumber" label="コンテナ番号" dense
                     @keyup.enter="search" style="width: 180px;"></q-input>
-                  <q-select class="q-pr-sm" v-model="searchParams['statuses[]']" label="状態" dense multiple :options="[
-                    { label: '輸送中', value: 'shipping' },
-                    { label: '入港済', value: 'arrived' },
-                    { label: '通関中', value: 'customsClearance' },
-                    { label: '荷揚げ中', value: 'discharging' },
-                    { label: '荷揚げ済', value: 'discharged' },
-                    { label: '空コンテナ', value: 'empty' },
-                    { label: '返却済', value: 'returned' },
-                    { label: 'キャンセル', value: 'canceled' },
-                  ]" emit-value map-options style="width: 180px;"></q-select>
+                  <q-select
+                    class="q-pr-sm"
+                    v-model="searchParams['statuses[]']"
+                    label="状態"
+                    dense
+                    multiple
+                    clearable
+                    :options="[
+                      { label: '輸送中', value: 'shipping' },
+                      { label: '入港済', value: 'arrived' },
+                      { label: '通関中', value: 'customsClearance' },
+                      { label: '荷揚げ中', value: 'discharging' },
+                      { label: '荷揚げ済', value: 'discharged' },
+                      { label: '空コンテナ', value: 'empty' },
+                      { label: '返却済', value: 'returned' },
+                      { label: 'キャンセル', value: 'canceled' },
+                    ]"
+                    emit-value
+                    map-options
+                    style="width: 140px;"
+                  />
                   <q-space />
                   <div style="display: flex; align-items: center;">
                     <q-btn size="sm" label="検索" color="primary" icon="sym_r_search" @click="search" />
@@ -226,7 +240,7 @@ const search = () => {
                     empty: 'grey',
                     returned: 'grey-8',
                     canceled: 'red',
-                  }[row.status || '']" text-color="white" dense>
+                  }[row.status || '']" text-color="white" >
                     {{
                       {
                         shipping: '輸送中',
