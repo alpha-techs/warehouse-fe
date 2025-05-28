@@ -23,56 +23,56 @@ const { formModel: container } = storeToRefs(useContainerStore());
                 <q-input v-model="container.id" label="管理番号" readonly />
             </q-item-section>
         </q-item>
-        <q-item class="col-12">
+        <q-item class="col-sm-6 col-xs-12">
             <q-item-section>
                 <q-input :model-value="container.containerNumber"
                     @update:model-value="container.containerNumber = ($event as string || undefined)" label="コンテナ番号"
                     :readonly="readonly" />
             </q-item-section>
         </q-item>
-        <q-item class="col-12">
+        <q-item class="col-sm-6 col-xs-12">
             <q-item-section>
                 <q-input :model-value="container.shippingLine"
                     @update:model-value="container.shippingLine = ($event as string || undefined)" label="船会社"
                     :readonly="readonly" />
             </q-item-section>
         </q-item>
-        <q-item class="col-12">
+        <q-item class="col-sm-6 col-xs-12">
             <q-item-section>
                 <q-input :model-value="container.vesselName"
                     @update:model-value="container.vesselName = ($event as string || undefined)" label="船名"
                     :readonly="readonly" />
             </q-item-section>
         </q-item>
-        <q-item class="col-12">
+        <q-item class="col-sm-6 col-xs-12">
             <q-item-section>
                 <q-input :model-value="container.voyageNumber"
                     @update:model-value="container.voyageNumber = ($event as string || undefined)" label="航海番号"
                     :readonly="readonly" />
             </q-item-section>
         </q-item>
-        <q-item class="col-12">
+        <q-item class="col-sm-6 col-xs-12">
             <q-item-section>
                 <q-input :model-value="container.arrivalDate"
                     @update:model-value="container.arrivalDate = ($event as string || undefined)" label="入港日"
                     type="date" :readonly="readonly" />
             </q-item-section>
         </q-item>
-        <q-item class="col-12">
+        <q-item class="col-sm-6 col-xs-12">
             <q-item-section>
                 <q-input :model-value="container.clearanceDate"
                     @update:model-value="container.clearanceDate = ($event as string || undefined)" label="通関日"
                     type="date" :readonly="readonly" />
             </q-item-section>
         </q-item>
-        <q-item class="col-12">
+        <q-item class="col-sm-6 col-xs-12">
             <q-item-section>
                 <q-input :model-value="container.dischargeDate"
                     @update:model-value="container.dischargeDate = ($event as string || undefined)" label="荷揚げ日"
                     type="date" :readonly="readonly" />
             </q-item-section>
         </q-item>
-        <q-item class="col-12">
+        <q-item class="col-sm-6 col-xs-12">
             <q-item-section>
                 <q-input :model-value="container.returnDate"
                     @update:model-value="container.returnDate = ($event as string || undefined)" label="空コンテナ返却日"
