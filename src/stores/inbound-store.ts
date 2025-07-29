@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Inbound, InboundItem, Product } from 'src/api/Api'
+import type { Inbound, InboundItem, Product, Warehouse } from 'src/api/Api'
 import { defaultPagination } from 'src/utils/pagination'
 import { apiClient } from 'src/utils/api-client'
 import _ from 'lodash'
@@ -21,8 +21,19 @@ interface GetInboundItemListQuery {
   inboundDateTo?: string;
 }
 
+interface GetInboundListQuery {
+  page?: number;
+  itemsPerPage?: number;
+  inboundOrderId?: string;
+  inboundDateFrom?: string;
+  inboundDateTo?: string;
+  warehouse?: Warehouse;
+  status?: string;
+}
+
 export const useInboundStore = defineStore('inbound', {
   state: () => ({
+    inboundListQuery: {} as GetInboundListQuery,
     inboundList: [] as Inbound[],
     inboundListPagination: {...defaultPagination},
     formModel: _.cloneDeep(emptyInbound),
@@ -33,12 +44,14 @@ export const useInboundStore = defineStore('inbound', {
   }),
   actions: {
     async getInboundList(
-      query?: {
-        page?: number;
-        itemsPerPage?: number;
-      }
+      query?: GetInboundListQuery,
     ): Promise<void> {
-      const resp = await apiClient.inventory.listInbounds(query)
+      const payload = {
+        ...query,
+        warehouse: undefined,
+        warehouseId: query?.warehouse?.id
+      }
+      const resp = await apiClient.inventory.listInbounds(payload)
       this.inboundList = resp.data.items ?? []
       this.inboundListPagination = {
         ...defaultPagination,

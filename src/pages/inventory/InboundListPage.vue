@@ -4,15 +4,35 @@ import { useInboundStore } from 'stores/inbound-store'
 import type { QTable, QTableProps } from 'quasar'
 import { useRouter } from 'vue-router'
 import { computed, onMounted, type Ref, ref, useTemplateRef } from 'vue'
-import type { Inbound } from 'src/api/Api'
+import type { Inbound, Warehouse } from 'src/api/Api'
 import type { FePagination } from 'src/utils/pagination'
+import { useWarehouseStore } from 'stores/warehouse-store'
+import { toastFormError } from 'src/utils/error-handler'
 
 const loading = ref(false);
 const tableRef = useTemplateRef<QTable | undefined>('tableRef');
 const {
   inboundList: rows,
   inboundListPagination,
+  inboundListQuery: searchParams,
 } = storeToRefs(useInboundStore())
+
+const {
+  warehouseOptions
+} = storeToRefs(useWarehouseStore())
+const onFilterWarehouse = async (inputValue: string, doneFn: (callbackFn: () => void) => void) => {
+  if (!inputValue || !inputValue.length) {
+    await useWarehouseStore().getWarehouseOptions()
+    doneFn(() => {});
+  } else {
+    await useWarehouseStore().getWarehouseOptions(inputValue)
+    doneFn(() => {});
+  }
+}
+const onChangeWarehouse = (warehouse: Warehouse | undefined): void => {
+  searchParams.value.warehouse = warehouse;
+}
+
 const columns: QTableProps['columns'] = [
   {
     label: 'オーダー番号',
@@ -56,6 +76,12 @@ onMounted( () => {
   tableRef.value?.requestServerInteraction();
 })
 
+const search = () => {
+  tableRef.value?.requestServerInteraction(
+    { pagination: { ...pagination.value, page: 1 } },
+  );
+}
+
 const pagination: Ref<FePagination> = ref({
   sortBy: undefined,
   descending: false,
@@ -79,6 +105,7 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
     loading.value = true;
     const { page, rowsPerPage } = _pagination;
     const query = {
+      ...searchParams.value,
       page,
       itemsPerPage: rowsPerPage,
     }
@@ -91,7 +118,7 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
       descending: false,
     }
   } catch (error) {
-    console.error(error);
+    await toastFormError(error);
   } finally {
     loading.value = false;
   }
@@ -144,16 +171,70 @@ const remove = async (row: any) => {
               @request="onRequest"
               ref="tableRef"
             >
-              <template #top-left>
-                <div class="text-h6">入庫依頼一覧</div>
-              </template>
-              <template #top-right>
-                <q-btn
-                  label="新規"
-                  color="primary"
-                  icon="sym_r_add"
-                  @click="toCreate()"
-                />
+              <template #top>
+                <div class="row" style="width: 100%">
+                  <div class="text-h6 col-12">入庫依頼一覧</div>
+                  <q-input
+                    class="q-px-sm"
+                    v-model="searchParams.inboundOrderId"
+                    label="オーダー番号"
+                    dense
+                    @keyup.enter="search"
+                    style="width: 120px;"
+                  ></q-input>
+                  <q-select
+                    class="q-px-sm"
+                    :model-value="searchParams.warehouse"
+                    @update:model-value="onChangeWarehouse"
+                    label="倉庫"
+                    dense
+                    :options="warehouseOptions"
+                    option-label="name"
+                    option-value="id"
+                    @filter="onFilterWarehouse"
+                    clearable
+                    use-input
+                    input-style="width: 0px"
+                  >
+                  </q-select>
+                  <q-input
+                    class="q-px-sm"
+                    v-model="searchParams.inboundDateFrom"
+                    label="入庫日(From)"
+                    dense
+                    @keyup.enter="search"
+                    style="width: 120px;"
+                  ></q-input>
+                  <div style="display: flex; align-items: center;">
+                    <span>～</span>
+                  </div>
+                  <q-input
+                    class="q-px-sm"
+                    v-model="searchParams.inboundDateTo"
+                    label="入庫日(To)"
+                    dense
+                    @keyup.enter="search"
+                    style="width: 120px;"
+                  ></q-input>
+                  <q-space/>
+                  <div style="display: flex; align-items: center;">
+                    <q-btn
+                      class="q-mx-sm"
+                      size="sm"
+                      label="検索"
+                      color="primary"
+                      icon="sym_r_search"
+                      @click="search"
+                    />
+                    <q-btn
+                      size="sm"
+                      label="新規"
+                      color="primary"
+                      icon="sym_r_add"
+                      @click="toCreate()"
+                    />
+                  </div>
+                </div>
               </template>
               <template #[`body-cell-warehouse`]="{ row }: { row: Inbound }">
                 <q-td>

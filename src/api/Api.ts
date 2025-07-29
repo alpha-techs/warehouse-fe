@@ -371,6 +371,10 @@ export type ListOutboundsResp = Pagination & {
   items?: Outbound[];
 };
 
+export type ListOutboundItemsResp = Pagination & {
+  items?: OutboundItem[];
+};
+
 export interface OutboundItem {
   /** 出库物品ID */
   id?: number;
@@ -1086,6 +1090,22 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
          * @default 20
          */
         itemsPerPage?: number;
+        /** 入库订单ID */
+        inboundOrderId?: string;
+        /**
+         * 入库日期(From)
+         * @format date
+         */
+        inboundDateFrom?: string;
+        /**
+         * 入库日期(To)
+         * @format date
+         */
+        inboundDateTo?: string;
+        /** 仓库ID */
+        warehouseId?: number;
+        /** 入库状态 */
+        status?: string;
       },
       params: RequestParams = {},
     ) =>
@@ -1432,6 +1452,53 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<Outbound, any>({
         path: `/inventory/outbound/${id}/cancel`,
         method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name ListOutboundItems
+     * @summary 出库商品列表
+     * @request GET:/inventory/outboundItems
+     * @secure
+     */
+    listOutboundItems: (
+      query?: {
+        /**
+         * 页码
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** 批次号 */
+        lotNumber?: string;
+        /** 商品ID */
+        productId?: number;
+        /**
+         * 出库日期(From)
+         * @format date
+         */
+        outboundDateFrom?: string;
+        /**
+         * 出库日期(To)
+         * @format date
+         */
+        outboundDateTo?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListOutboundItemsResp, any>({
+        path: `/inventory/outboundItems`,
+        method: "GET",
+        query: query,
         secure: true,
         format: "json",
         ...params,
