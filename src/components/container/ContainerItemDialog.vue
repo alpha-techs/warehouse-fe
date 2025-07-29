@@ -39,7 +39,6 @@ const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => vo
     doneFn(() => { });
   }
 }
-
 const onChangeProduct = (product: Product | undefined): void => {
   model.value.product = product;
 }

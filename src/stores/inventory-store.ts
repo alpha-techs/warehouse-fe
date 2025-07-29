@@ -21,8 +21,8 @@ export const useInventoryStore = defineStore('inventory', {
       const resp = await apiClient.inventory.listInventory(query)
       this.inventoryList = resp.data.items?? []
       this.inventoryListPagination = {
-        ...resp.data.pagination,
         ...defaultPagination,
+        ...resp.data.pagination,
       }
     },
     resetList() {

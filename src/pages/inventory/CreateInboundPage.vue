@@ -4,6 +4,7 @@ import InboundItemListForm from 'components/inventory/InboundItemListForm.vue'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useInboundStore } from 'stores/inbound-store'
+import { toastFormError } from 'src/utils/error-handler'
 
 const saving = ref(false)
 const loading = ref(false)
@@ -18,11 +19,16 @@ onMounted(() => {
 
 const onSave = async() => {
   saving.value = true
-  await useInboundStore().createInbound()
-  saving.value = false
-  await router.push({
-    name: 'inbound-list',
-  })
+  try {
+    await useInboundStore().createInbound()
+    await router.push({
+      name: 'inbound-list',
+    })
+  } catch (error) {
+    await toastFormError(error)
+  } finally {
+    saving.value = false
+  }
 }
 </script>
 

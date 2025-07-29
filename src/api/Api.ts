@@ -1251,6 +1251,18 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         itemsPerPage?: number;
         /** 批次号 */
         lotNumber?: string;
+        /** 商品ID */
+        productId?: number;
+        /**
+         * 入库日期(From)
+         * @format date
+         */
+        inboundDateFrom?: string;
+        /**
+         * 入库日期(To)
+         * @format date
+         */
+        inboundDateTo?: string;
       },
       params: RequestParams = {},
     ) =>
