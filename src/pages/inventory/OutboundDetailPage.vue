@@ -5,6 +5,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useOutboundStore } from 'stores/outbound-store'
 import { storeToRefs } from 'pinia'
+import { toastFormError } from 'src/utils/error-handler'
 
 const loading = ref(false)
 const router = useRouter()
@@ -41,7 +42,11 @@ const toEdit = async () => {
 }
 
 const approve = async () => {
-  await useOutboundStore().approveOutboundById(outboundId.value);
+  try {
+    await useOutboundStore().approveOutboundById(outboundId.value);
+  } catch (error) {
+    await toastFormError(error);
+  }
 }
 
 const reject = async () => {

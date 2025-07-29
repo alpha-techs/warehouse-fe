@@ -4,6 +4,7 @@ import InboundItemListForm from 'components/inventory/InboundItemListForm.vue'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useInboundStore } from 'stores/inbound-store'
+import { toastFormError } from 'src/utils/error-handler'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -32,9 +33,14 @@ const cancel = async () => {
 
 const save = async () => {
   saving.value = true;
-  await useInboundStore().updateInbound();
-  saving.value = false;
-  await reload();
+  try {
+    await useInboundStore().updateInbound();
+    await reload();
+  } catch (error) {
+    await toastFormError(error);
+  } finally {
+    saving.value = false;
+  }
 }
 </script>
 

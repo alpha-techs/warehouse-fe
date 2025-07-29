@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { InventoryItem, Outbound, OutboundItem } from 'src/api/Api'
+import type { Customer, InventoryItem, Outbound, OutboundItem, Warehouse } from 'src/api/Api'
 import { defaultPagination } from 'src/utils/pagination'
 import { apiClient } from 'src/utils/api-client'
 import _ from 'lodash'
@@ -13,8 +13,20 @@ const emptyOutboundItem: OutboundItem = {}
 
 const emptyInventoryItem: InventoryItem = {}
 
+interface GetOutboundListQuery {
+  page?: number;
+  itemsPerPage?: number;
+  outboundOrderId?: string;
+  outboundDateFrom?: string;
+  outboundDateTo?: string;
+  warehouse?: Warehouse;
+  customer?: Customer;
+  status?: string;
+}
+
 export const useOutboundStore = defineStore('outbound', {
   state: () => ({
+    outboundListQuery: {} as GetOutboundListQuery,
     outboundList: [] as Outbound[],
     outboundListPagination: {...defaultPagination},
     formModel: _.cloneDeep(emptyOutbound),
@@ -23,23 +35,28 @@ export const useOutboundStore = defineStore('outbound', {
   }),
   actions: {
     async getOutboundList(
-      query?: {
-        page?: number;
-        itemsPerPage?: number;
-      }
+      query?: GetOutboundListQuery
     ): Promise<void> {
-      const resp = await apiClient.inventory.listOutbounds(query)
+      const payload = {
+        ...query,
+        warehouse: undefined,
+        warehouseId: query?.warehouse?.id,
+        customer: undefined,
+        customerId: query?.customer?.id,
+      }
+      const resp = await apiClient.inventory.listOutbounds(payload)
       this.outboundList = resp.data.items ?? []
       this.outboundListPagination = {
-        ...resp.data.pagination,
         ...defaultPagination,
+        ...resp.data.pagination,
       }
     },
     resetFormModel() {
       this.formModel = _.cloneDeep(emptyOutbound)
     },
-    resetItemModel() {
-      this.itemModel = _.cloneDeep(emptyOutboundItem)
+    resetItemModel(itemModel: OutboundItem = emptyOutboundItem) {
+      console.log(itemModel)
+      this.itemModel = _.cloneDeep(itemModel)
     },
     resetInventoryItemModel() {
       this.inventoryItemModel = _.cloneDeep(emptyInventoryItem)

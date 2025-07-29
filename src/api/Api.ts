@@ -384,6 +384,18 @@ export interface OutboundItem {
   inboundItemId?: number;
   /** 库存物品ID */
   inventoryItemId?: number;
+  warehouse?: {
+    /** 仓库ID */
+    id?: number;
+    /** 仓库名称 */
+    name?: string;
+  };
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
   product?: {
     /** 商品ID */
     id?: number;

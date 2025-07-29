@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useOutboundStore } from 'stores/outbound-store'
 import OutboundForm from 'components/inventory/OutboundForm.vue'
 import OutboundItemListForm from 'components/inventory/OutboundItemListForm.vue'
+import { toastFormError } from 'src/utils/error-handler'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -32,9 +33,14 @@ const cancel = async () => {
 
 const save = async () => {
   saving.value = true;
-  await useOutboundStore().updateOutbound();
-  saving.value = false;
-  await reload();
+  try {
+    await useOutboundStore().updateOutbound();
+    await reload();
+  } catch (error) {
+    await toastFormError(error);
+  } finally {
+    saving.value = false;
+  }
 }
 </script>
 
