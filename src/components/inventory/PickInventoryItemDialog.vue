@@ -4,7 +4,7 @@ import type { PropType } from 'vue'
 import type { InventoryItem } from 'src/api/Api'
 import { storeToRefs } from 'pinia'
 import { useInventoryStore } from 'stores/inventory-store'
-import type { QTable, QTableProps } from 'quasar'
+import type { QTableProps } from 'quasar'
 import { useRouter } from 'vue-router'
 
 defineProps({
@@ -104,6 +104,7 @@ defineExpose({
       :model-value="show"
       @update:model-value="$emit('update:show', $event)"
       persistent
+      full-width
     >
       <q-card class="card">
         <q-card-section class="q-pa-none">

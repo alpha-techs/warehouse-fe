@@ -7,6 +7,7 @@ import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import type { InboundItem, Product } from 'src/api/Api'
 import type { FePagination } from 'src/utils/pagination'
 import { useProductStore } from 'stores/product-store'
+import { toastFormError } from 'src/utils/error-handler'
 
 const loading = ref(false);
 const tableRef = useTemplateRef<QTable | undefined>('tableRef');
@@ -122,7 +123,7 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
       descending: false,
     }
   } catch (error) {
-    console.error(error);
+    await toastFormError(error);
   } finally {
     loading.value = false;
   }
@@ -167,6 +168,7 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
                     @filter="onFilterProduct"
                     clearable
                     use-input
+                    input-style="width: 0px"
                   >
                   </q-select>
                   <q-input

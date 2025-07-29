@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useOutboundStore } from 'stores/outbound-store'
 import OutboundItemListForm from 'components/inventory/OutboundItemListForm.vue'
+import { toastFormError } from 'src/utils/error-handler'
 
 const saving = ref(false)
 const loading = ref(false)
@@ -18,11 +19,16 @@ onMounted(() => {
 
 const onSave = async() => {
   saving.value = true
-  await useOutboundStore().createOutbound()
-  saving.value = false
-  await router.push({
-    name: 'outbound-list',
-  })
+  try {
+    await useOutboundStore().createOutbound()
+    await router.push({
+      name: 'outbound-list',
+    })
+  } catch (error) {
+    await toastFormError(error)
+  } finally {
+    saving.value = false
+  }
 }
 </script>
 

@@ -5,7 +5,9 @@ import type { QTableProps } from 'quasar'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-const { warehouseList: rows } = storeToRefs(useWarehouseStore())
+const {
+  warehouseList: rows
+} = storeToRefs(useWarehouseStore())
 const columns: QTableProps['columns'] = [
   {
     name: 'name',

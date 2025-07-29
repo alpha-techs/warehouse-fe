@@ -63,7 +63,7 @@ const onSubmit = (data: InventoryItem) => {
     >
       <q-card class="card">
         <q-card-section class="bg-primary">
-          <div class="text-h6">出庫商品</div>
+          <div class="text-h6 text-white">出庫商品</div>
         </q-card-section>
         <q-card-section>
           <q-list class="row">
