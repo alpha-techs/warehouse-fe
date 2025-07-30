@@ -90,7 +90,18 @@ const linksList: EssentialLinkProps[] = [
   {
     title: '出庫管理',
     icon:'sym_r_outbox',
-    link: router.resolve({ name: 'outbound-list' }).href,
+    subMenu: [
+      {
+        'title': '出庫商品一覧',
+        'icon': 'sym_r_conveyor_belt',
+        'link': router.resolve({ name: 'outbound-item-list' }).href,
+      },
+      {
+        'title': '出庫依頼一覧',
+        'icon': 'sym_r_delivery_truck_speed',
+        'link': router.resolve({ name: 'outbound-list' }).href,
+      }
+    ],
   }
 ];
 

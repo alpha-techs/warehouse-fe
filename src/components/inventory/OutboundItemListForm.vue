@@ -17,7 +17,9 @@ const props = defineProps({
   },
 });
 
-const { formModel: outbound } = storeToRefs(useOutboundStore())
+const {
+  formModel: outbound
+} = storeToRefs(useOutboundStore())
 
 const columns: QTableProps['columns'] = [
   {
@@ -67,6 +69,7 @@ const visibleColumns = computed(() => {
 
 const showDialog = ref(false);
 const dialogMode = ref<'add' | 'edit'>('add');
+const editItemIndex = ref<number>(-1);
 
 const showAddingDialog = () => {
   useOutboundStore().resetItemModel();
@@ -78,7 +81,32 @@ const onSubmit = (data: OutboundItem) => {
   if (outbound.value.items == undefined) {
     outbound.value.items = [];
   }
-  outbound.value.items.push(data);
+
+  if (dialogMode.value === 'add') {
+    outbound.value.items.push(data);
+  } else {
+    if (outbound.value.items[editItemIndex.value]) {
+      outbound.value.items[editItemIndex.value] = data;
+    }
+  }
+
+  if (outbound.value.warehouse == undefined) {
+    outbound.value.warehouse = data.warehouse;
+  }
+}
+
+const onEditItem = (data: OutboundItem, rowIndex: number) => {
+  useOutboundStore().resetItemModel(data);
+  dialogMode.value = 'edit';
+  editItemIndex.value = rowIndex
+  showDialog.value = true;
+}
+
+const onDeleteItem = (data: OutboundItem) => {
+  const index = outbound.value.items?.findIndex(item => item.id === data.id);
+  if (index != undefined && index >= 0) {
+    outbound.value.items?.splice(index, 1);
+  }
 }
 </script>
 
@@ -112,6 +140,12 @@ const onSubmit = (data: OutboundItem) => {
     <template #[`body-cell-dimension`]="{ row }: { row: OutboundItem }">
       <td>
         {{ row.product?.dimension?.description }}
+      </td>
+    </template>
+    <template #[`body-cell-actions`]="{ row, rowIndex }: { row: OutboundItem, rowIndex: number }">
+      <td class="text-right">
+        <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_edit" @click="onEditItem(row, rowIndex)"/>
+        <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_delete" @click="onDeleteItem(row)"/>
       </td>
     </template>
   </q-table>

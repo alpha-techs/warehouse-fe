@@ -1,12 +1,52 @@
 <script setup lang="ts">
-import type { Inbound } from 'src/api/Api'
+import type { Customer, Inbound, Warehouse } from 'src/api/Api'
 import { storeToRefs } from 'pinia'
 import { useOutboundStore } from 'stores/outbound-store'
-import type { QTableProps } from 'quasar'
-import { onMounted } from 'vue'
+import type { QTable, QTableProps } from 'quasar'
+import { computed, onMounted, type Ref, ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
+import { useWarehouseStore } from 'stores/warehouse-store'
+import { useCustomerStore } from 'stores/customer-store'
+import type { FePagination } from 'src/utils/pagination'
+import { toastFormError } from 'src/utils/error-handler'
 
-const { outboundList: rows } = storeToRefs(useOutboundStore())
+const loading = ref(false);
+const tableRef = useTemplateRef<QTable | undefined>('tableRef');
+const {
+  outboundList: rows,
+  outboundListPagination,
+  outboundListQuery: searchParams,
+} = storeToRefs(useOutboundStore())
+
+const {
+  warehouseOptions
+} = storeToRefs(useWarehouseStore())
+const onFilterWarehouse = async (inputValue: string, doneFn: (callbackFn: () => void) => void) => {
+  if (!inputValue || !inputValue.length) {
+    await useWarehouseStore().getWarehouseOptions()
+    doneFn(() => {});
+  } else {
+    await useWarehouseStore().getWarehouseOptions(inputValue)
+    doneFn(() => {});
+  }
+}
+const onChangeWarehouse = (warehouse: Warehouse | undefined): void => {
+  searchParams.value.warehouse = warehouse;
+}
+
+const { customerOptions } = storeToRefs(useCustomerStore())
+const onFilterCustomer = async (inputValue: string, doneFn: (callbackFn: () => void) => void) => {
+  if (!inputValue || !inputValue.length) {
+    await useCustomerStore().getCustomerOptions()
+    doneFn(() => {});
+  } else {
+    await useCustomerStore().getCustomerOptions(inputValue)
+    doneFn(() => {});
+  }
+}
+const onChangeCustomer = (customer: Customer | undefined): void => {
+  searchParams.value.customer = customer;
+}
 
 const columns: QTableProps['columns'] = [
   {
@@ -47,9 +87,57 @@ const columns: QTableProps['columns'] = [
   }
 ]
 
-onMounted(async () => {
-  await useOutboundStore().getOutboundList()
+onMounted (() => {
+  tableRef.value?.requestServerInteraction();
 })
+
+const search = () => {
+  tableRef.value?.requestServerInteraction(
+    { pagination: { ...pagination.value, page: 1 } },
+  );
+}
+
+const pagination: Ref<FePagination> = ref({
+  sortBy: undefined,
+  descending: false,
+  page: 1,
+  rowsPerPage: 15,
+  rowsNumber: 0,
+});
+
+const maxPage = computed(() => {
+  if (!pagination.value.rowsPerPage || !pagination.value.rowsNumber) {
+    return 0;
+  }
+  return Math.ceil(pagination.value.rowsNumber / pagination.value.rowsPerPage)
+})
+const onPageChange = () => {
+  tableRef.value?.requestServerInteraction({ pagination: pagination.value });
+};
+
+const onRequest = async ({ pagination: _pagination }: { pagination: { page: number, rowsPerPage: number} }) => {
+  try {
+    loading.value = true;
+    const { page, rowsPerPage } = _pagination;
+    const query = {
+      ...searchParams.value,
+      page,
+      itemsPerPage: rowsPerPage,
+    }
+    await useOutboundStore().getOutboundList(query)
+    pagination.value = {
+      page: outboundListPagination.value.page,
+      rowsPerPage: outboundListPagination.value.itemsPerPage,
+      rowsNumber: outboundListPagination.value.totalItems,
+      sortBy: undefined,
+      descending: false,
+    }
+  } catch (error) {
+    await toastFormError(error);
+  } finally {
+    loading.value = false;
+  }
+}
 
 const router = useRouter()
 const toCreate = async () => {
@@ -89,20 +177,94 @@ const remove = async (row: any) => {
         <q-card bordered>
           <q-card-section class="q-pa-none">
             <q-table
+              flat
               :columns="columns"
               :rows="rows"
               row-key="id"
+              hide-pagination
+              v-model:pagination="pagination"
+              @request="onRequest"
+              ref="tableRef"
             >
-              <template #top-left>
-                <div class="text-h6">出庫一覧</div>
-              </template>
-              <template #top-right>
-                <q-btn
-                  label="新規"
-                  color="primary"
-                  icon="sym_r_add"
-                  @click="toCreate()"
-                />
+              <template #top>
+                <div class="row" style="width: 100%">
+                  <div class="text-h6 col-12">出庫依頼一覧</div>
+                  <q-input
+                    class="q-px-sm"
+                    v-model="searchParams.outboundOrderId"
+                    label="オーダー番号"
+                    dense
+                    @keyup.enter="search"
+                    style="width: 120px;"
+                  ></q-input>
+                  <q-select
+                    class="q-px-sm"
+                    :model-value="searchParams.warehouse"
+                    @update:model-value="onChangeWarehouse"
+                    label="倉庫"
+                    dense
+                    :options="warehouseOptions"
+                    option-label="name"
+                    option-value="id"
+                    @filter="onFilterWarehouse"
+                    clearable
+                    use-input
+                    input-style="width: 0px"
+                  >
+                  </q-select>
+                  <q-select
+                    class="q-px-sm"
+                    :model-value="searchParams.customer"
+                    @update:model-value="onChangeCustomer"
+                    label="お客様"
+                    dense
+                    :options="customerOptions"
+                    option-label="name"
+                    option-value="id"
+                    @filter="onFilterCustomer"
+                    clearable
+                    use-input
+                    input-style="width: 0px"
+                  >
+                  </q-select>
+                  <q-input
+                    class="q-px-sm"
+                    v-model="searchParams.outboundDateFrom"
+                    label="出庫日(From)"
+                    dense
+                    @keyup.enter="search"
+                    style="width: 120px;"
+                  ></q-input>
+                  <div style="display: flex; align-items: center;">
+                    <span>～</span>
+                  </div>
+                  <q-input
+                    class="q-px-sm"
+                    v-model="searchParams.outboundDateTo"
+                    label="出庫日(To)"
+                    dense
+                    @keyup.enter="search"
+                    style="width: 120px;"
+                  ></q-input>
+                  <q-space/>
+                  <div style="display: flex; align-items: center;">
+                    <q-btn
+                      class="q-mx-sm"
+                      size="sm"
+                      label="検索"
+                      color="primary"
+                      icon="sym_r_search"
+                      @click="search"
+                    />
+                    <q-btn
+                      size="sm"
+                      label="新規"
+                      color="primary"
+                      icon="sym_r_add"
+                      @click="toCreate()"
+                    />
+                  </div>
+                </div>
               </template>
               <template #[`body-cell-warehouse`]="{ row }: { row: Inbound }">
                 <q-td>
@@ -147,6 +309,16 @@ const remove = async (row: any) => {
                 </q-td>
               </template>
             </q-table>
+            <q-separator/>
+            <div class="row justify-center q-my-md">
+              <q-pagination
+                v-model="pagination.page"
+                color="primary"
+                :max="maxPage"
+                max-pages="9"
+                @update:model-value="onPageChange"
+              />
+            </div>
           </q-card-section>
         </q-card>
       </div>

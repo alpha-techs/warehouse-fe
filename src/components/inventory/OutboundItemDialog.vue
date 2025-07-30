@@ -23,10 +23,14 @@ const emit = defineEmits<{
   submit: [value: InboundItem]
 }>();
 
-const { itemModel: model, inventoryItemModel } = storeToRefs(useOutboundStore())
+const {
+  itemModel: model,
+  inventoryItemModel,
+  formModel: outboundModel,
+} = storeToRefs(useOutboundStore())
 
 const submit = () => {
-  const value = {...model.value};
+  const value = { ...model.value };
   emit('submit', value);
   emit('update:show', false);
 }
@@ -34,18 +38,19 @@ const submit = () => {
 const subDialog = useTemplateRef<ComponentExposed<typeof PickInventoryItemDialog>>('subDialog')
 
 const showSubDialog = async () => {
-  await subDialog.value?.reload();
-  dialogMode.value = 'add';
   showDialog.value = true;
+  await subDialog.value?.reload({
+    warehouse: outboundModel.value.warehouse,
+  });
 }
 
 const showDialog = ref(false);
-const dialogMode = ref<'add' | 'edit'>('add');
 
 const onSubmit = (data: InventoryItem) => {
   inventoryItemModel.value = data
   model.value.inventoryItemId = data.id
   model.value.inboundItemId = data.inboundItemId
+  model.value.warehouse = data.warehouse
   model.value.product = data.product
   model.value.lotNumber = data.lotNumber
   model.value.quantity = 0
@@ -56,24 +61,16 @@ const onSubmit = (data: InventoryItem) => {
 
 <template>
   <div class="q-pa-md q-gutter-sm">
-    <q-dialog
-      :model-value="show"
-      @update:model-value="$emit('update:show', $event)"
-      persistent
-    >
+    <q-dialog :model-value="show" @update:model-value="$emit('update:show', $event)" persistent>
       <q-card class="card">
         <q-card-section class="bg-primary">
-          <div class="text-h6">出庫商品</div>
+          <div class="text-h6 text-white">出庫商品</div>
         </q-card-section>
         <q-card-section>
           <q-list class="row">
             <q-item class="col-12">
               <q-item-section>
-                <q-input
-                  :model-value="model.product?.name"
-                  label="商品"
-                  readonly
-                >
+                <q-input :model-value="model.product?.name" label="商品" readonly>
                   <template v-slot:after>
                     <q-btn color="primary" round dense flat icon="sym_r_ink_selection" @click="showSubDialog" />
                   </template>
@@ -82,49 +79,31 @@ const onSubmit = (data: InventoryItem) => {
             </q-item>
             <q-item class="col-12">
               <q-item-section>
-                <q-input
-                  :model-value="model.product?.dimension?.description"
-                  label="規格"
-                  readonly
-                />
+                <q-input :model-value="model.product?.dimension?.description" label="規格" readonly />
               </q-item-section>
             </q-item>
             <q-item class="col-12">
               <q-item-section>
-                <q-input
-                  :model-value="model.lotNumber"
-                  label="LOT番号"
-                  readonly
-                />
+                <q-input :model-value="model.lotNumber" label="LOT番号" readonly />
               </q-item-section>
             </q-item>
             <q-item class="col-6">
               <q-item-section>
-                <q-input
-                  :model-value="model.quantity"
-                  @update:model-value="model.quantity = ($event as number || undefined)"
-                  label="出庫数"
-                />
+                <q-input :model-value="model.quantity"
+                  @update:model-value="model.quantity = ($event as number || undefined)" label="出庫数" />
               </q-item-section>
             </q-item>
             <q-item class="col-6">
               <q-item-section>
-                <q-input
-                  :model-value="model.inventoryQuantity"
-                  @update:model-value="model.inventoryQuantity = ($event as number || undefined)"
-                  label="在庫数"
-                  readonly
-                />
+                <q-input :model-value="model.inventoryQuantity"
+                  @update:model-value="model.inventoryQuantity = ($event as number || undefined)" label="在庫数"
+                  readonly />
               </q-item-section>
             </q-item>
             <q-item class="col-12">
               <q-item-section>
-                <q-input
-                  :model-value="model.note"
-                  @update:model-value="model.note = ($event as string || undefined)"
-                  label="備考"
-                  autogrow
-                />
+                <q-input :model-value="model.note" @update:model-value="model.note = ($event as string || undefined)"
+                  label="備考" autogrow />
               </q-item-section>
             </q-item>
           </q-list>
@@ -136,11 +115,6 @@ const onSubmit = (data: InventoryItem) => {
       </q-card>
     </q-dialog>
   </div>
-  <pick-inventory-item-dialog
-    :show="showDialog"
-    :mode="dialogMode"
-    @update:show="showDialog = $event"
-    @submit="onSubmit"
-    ref="subDialog"
-  />
+  <pick-inventory-item-dialog :show="showDialog" @update:show="showDialog = $event" @submit="onSubmit"
+    ref="subDialog" />
 </template>

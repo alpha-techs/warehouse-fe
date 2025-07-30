@@ -26,6 +26,7 @@ export const toastFormError = async (error: any) => {
     color: 'negative',
     position: 'top',
     icon: 'error',
+    multiLine: true,
     actions: [
       {
         color: 'white',

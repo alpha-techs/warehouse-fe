@@ -4,8 +4,10 @@ import { storeToRefs } from 'pinia'
 import { useInboundStore } from 'stores/inbound-store'
 import type { Ref} from 'vue';
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
-import type { InboundItem } from 'src/api/Api'
+import type { InboundItem, Product } from 'src/api/Api'
 import type { FePagination } from 'src/utils/pagination'
+import { useProductStore } from 'stores/product-store'
+import { toastFormError } from 'src/utils/error-handler'
 
 const loading = ref(false);
 const tableRef = useTemplateRef<QTable | undefined>('tableRef');
@@ -14,6 +16,23 @@ const {
   inboundItemListPagination,
   inboundItemListQuery: searchParams,
 } = storeToRefs(useInboundStore())
+
+const {
+  productOptions
+} = storeToRefs(useProductStore())
+
+const onFilterProduct = async (inputValue: string, doneFn: (callbackFn: () => void) => void) => {
+  if (!inputValue || !inputValue.length) {
+    await useProductStore().getProductOptions()
+    doneFn(() => { });
+  } else {
+    await useProductStore().getProductOptions(inputValue)
+    doneFn(() => { });
+  }
+}
+const onChangeProduct = (product: Product | undefined): void => {
+  searchParams.value.product = product;
+}
 
 const columns: QTableProps['columns'] = [
   {
@@ -104,7 +123,7 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
       descending: false,
     }
   } catch (error) {
-    console.error(error);
+    await toastFormError(error);
   } finally {
     loading.value = false;
   }
@@ -138,9 +157,23 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
                     @keyup.enter="search"
                     style="width: 100px;"
                   ></q-input>
+                  <q-select
+                    :model-value="searchParams.product"
+                    @update:model-value="onChangeProduct"
+                    label="商品"
+                    dense
+                    :options="productOptions"
+                    option-label="name"
+                    option-value="id"
+                    @filter="onFilterProduct"
+                    clearable
+                    use-input
+                    input-style="width: 0px"
+                  >
+                  </q-select>
                   <q-input
                     class="q-px-sm"
-                    v-model="searchParams.lotNumber"
+                    v-model="searchParams.inboundDateFrom"
                     label="入庫日(From)"
                     dense
                     @keyup.enter="search"
@@ -151,7 +184,7 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
                   </div>
                   <q-input
                     class="q-px-sm"
-                    v-model="searchParams.lotNumber"
+                    v-model="searchParams.inboundDateTo"
                     label="入庫日(To)"
                     dense
                     @keyup.enter="search"

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Inbound, InboundItem } from 'src/api/Api'
+import type { Inbound, InboundItem, Product, Warehouse } from 'src/api/Api'
 import { defaultPagination } from 'src/utils/pagination'
 import { apiClient } from 'src/utils/api-client'
 import _ from 'lodash'
@@ -16,10 +16,24 @@ interface GetInboundItemListQuery {
   page?: number;
   itemsPerPage?: number;
   lotNumber?: string;
+  product?: Product;
+  inboundDateFrom?: string;
+  inboundDateTo?: string;
+}
+
+interface GetInboundListQuery {
+  page?: number;
+  itemsPerPage?: number;
+  inboundOrderId?: string;
+  inboundDateFrom?: string;
+  inboundDateTo?: string;
+  warehouse?: Warehouse;
+  status?: string;
 }
 
 export const useInboundStore = defineStore('inbound', {
   state: () => ({
+    inboundListQuery: {} as GetInboundListQuery,
     inboundList: [] as Inbound[],
     inboundListPagination: {...defaultPagination},
     formModel: _.cloneDeep(emptyInbound),
@@ -30,12 +44,14 @@ export const useInboundStore = defineStore('inbound', {
   }),
   actions: {
     async getInboundList(
-      query?: {
-        page?: number;
-        itemsPerPage?: number;
-      }
+      query?: GetInboundListQuery,
     ): Promise<void> {
-      const resp = await apiClient.inventory.listInbounds(query)
+      const payload = {
+        ...query,
+        warehouse: undefined,
+        warehouseId: query?.warehouse?.id
+      }
+      const resp = await apiClient.inventory.listInbounds(payload)
       this.inboundList = resp.data.items ?? []
       this.inboundListPagination = {
         ...defaultPagination,
@@ -77,7 +93,12 @@ export const useInboundStore = defineStore('inbound', {
     async getInboundItemList(
       query?: GetInboundItemListQuery,
     ): Promise<void> {
-      const resp = await apiClient.inventory.listInboundItems(query)
+      const payload = {
+        ...query,
+        product: undefined,
+        productId: query?.product?.id
+      }
+      const resp = await apiClient.inventory.listInboundItems(payload)
       this.inboundItemList = resp.data.items ?? []
       this.inboundItemListPagination = {
         ...defaultPagination,
@@ -85,7 +106,10 @@ export const useInboundStore = defineStore('inbound', {
       }
     },
     getStatusBadgeAttribute(): { color: string, label: string } {
-      switch (this.formModel.status) {
+      return this.getStatusBadgeAttributeFromStatus(this.formModel.status)
+    },
+    getStatusBadgeAttributeFromStatus: (status?: string): { color: string; label: string } => {
+      switch (status) {
         case 'draft':
           return {
             color: 'teal',
@@ -116,6 +140,6 @@ export const useInboundStore = defineStore('inbound', {
         color: 'grey',
         label: '未定義',
       }
-    },
+    }
   }
 });

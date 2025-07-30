@@ -1,5 +1,12 @@
 import { defineStore } from 'pinia'
-import type { InventoryItem, Outbound, OutboundItem } from 'src/api/Api'
+import type {
+  Customer,
+  InventoryItem,
+  Outbound,
+  OutboundItem,
+  Warehouse,
+  Product,
+} from 'src/api/Api'
 import { defaultPagination } from 'src/utils/pagination'
 import { apiClient } from 'src/utils/api-client'
 import _ from 'lodash'
@@ -13,33 +20,78 @@ const emptyOutboundItem: OutboundItem = {}
 
 const emptyInventoryItem: InventoryItem = {}
 
+interface GetOutboundItemListQuery {
+  page?: number
+  itemsPerPage?: number
+  lotNumber?: string
+  product?: Product
+  outboundDateFrom?: string
+  outboundDateTo?: string
+}
+
+interface GetOutboundListQuery {
+  page?: number
+  itemsPerPage?: number
+  outboundOrderId?: string
+  outboundDateFrom?: string
+  outboundDateTo?: string
+  warehouse?: Warehouse
+  customer?: Customer
+  status?: string
+}
+
 export const useOutboundStore = defineStore('outbound', {
   state: () => ({
+    outboundListQuery: {} as GetOutboundListQuery,
     outboundList: [] as Outbound[],
-    outboundListPagination: {...defaultPagination},
+    outboundListPagination: { ...defaultPagination },
+    preFormModel: _.cloneDeep(emptyOutbound),
     formModel: _.cloneDeep(emptyOutbound),
     itemModel: _.cloneDeep(emptyOutboundItem),
     inventoryItemModel: _.cloneDeep(emptyInventoryItem),
+    outboundItemListQuery: {} as GetOutboundItemListQuery,
+    outboundItemList: [] as OutboundItem[],
+    outboundItemListPagination: { ...defaultPagination },
   }),
   actions: {
-    async getOutboundList(
-      query?: {
-        page?: number;
-        itemsPerPage?: number;
+    async getOutboundList(query?: GetOutboundListQuery): Promise<void> {
+      const payload = {
+        ...query,
+        warehouse: undefined,
+        warehouseId: query?.warehouse?.id,
+        customer: undefined,
+        customerId: query?.customer?.id,
       }
-    ): Promise<void> {
-      const resp = await apiClient.inventory.listOutbounds(query)
+      const resp = await apiClient.inventory.listOutbounds(payload)
       this.outboundList = resp.data.items ?? []
       this.outboundListPagination = {
-        ...resp.data.pagination,
         ...defaultPagination,
+        ...resp.data.pagination,
       }
     },
-    resetFormModel() {
-      this.formModel = _.cloneDeep(emptyOutbound)
+    async getOutboundItemList(query?: GetOutboundItemListQuery): Promise<void> {
+      const payload = {
+        ...query,
+        product: undefined,
+        productId: query?.product?.id,
+      }
+      const resp = await apiClient.inventory.listOutboundItems(payload)
+      this.outboundItemList = resp.data.items ?? []
+      this.outboundItemListPagination = {
+        ...defaultPagination,
+        ...resp.data.pagination,
+      }
     },
-    resetItemModel() {
-      this.itemModel = _.cloneDeep(emptyOutboundItem)
+    setPreFormModel(outbound: Outbound) {
+      this.preFormModel = _.cloneDeep(outbound)
+    },
+    resetFormModel() {
+      this.formModel = _.cloneDeep(this.preFormModel)
+      this.preFormModel = _.cloneDeep(emptyOutbound)
+    },
+    resetItemModel(itemModel: OutboundItem = emptyOutboundItem) {
+      console.log(itemModel)
+      this.itemModel = _.cloneDeep(itemModel)
     },
     resetInventoryItemModel() {
       this.inventoryItemModel = _.cloneDeep(emptyInventoryItem)
@@ -70,7 +122,7 @@ export const useOutboundStore = defineStore('outbound', {
       const id = this.formModel.id!
       await apiClient.inventory.updateOutbound(id, this.formModel)
     },
-    getStatusBadgeAttribute(): { color: string, label: string } {
+    getStatusBadgeAttribute(): { color: string; label: string } {
       switch (this.formModel.status) {
         case 'draft':
           return {
@@ -103,5 +155,5 @@ export const useOutboundStore = defineStore('outbound', {
         label: '未定義',
       }
     },
-  }
+  },
 })
