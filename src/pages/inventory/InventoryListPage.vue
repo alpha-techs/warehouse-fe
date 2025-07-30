@@ -3,12 +3,13 @@ import { storeToRefs } from 'pinia'
 import { useInventoryStore } from 'stores/inventory-store'
 import type { QTable, QTableProps } from 'quasar'
 import { computed, onMounted, type Ref, ref, useTemplateRef } from 'vue'
-import type { InventoryItem, Product, Warehouse } from 'src/api/Api'
+import type { InventoryItem, Outbound, OutboundItem, Product, Warehouse } from 'src/api/Api'
 import { useRouter } from 'vue-router'
 import type { FePagination } from 'src/utils/pagination'
 import { useProductStore } from 'stores/product-store'
 import { useWarehouseStore } from 'stores/warehouse-store'
 import { toastFormError } from 'src/utils/error-handler'
+import { useOutboundStore } from 'stores/outbound-store'
 
 const loading = ref(false);
 const tableRef = useTemplateRef<QTable | undefined>('tableRef');
@@ -165,11 +166,39 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
 
 const toDetail = () => {}
 
-const outbound = (rows: InventoryItem[]) => {
-  console.log(rows)
-}
-const changeOwner = (rows: InventoryItem[]) => {
-  console.log(rows)
+const outbound = async (rows: InventoryItem[]) => {
+  if (!rows || !rows.length) {
+    return;
+  }
+
+  // check all rows has the same warehouse
+  const warehouse = rows[0]!.warehouse;
+  if (!warehouse || !rows.every(row => row.warehouse?.id === warehouse.id)) {
+    await toastFormError('出庫商品は全て同じ倉庫にある必要があります')
+    return;
+  }
+
+  const outboundItems: Array<OutboundItem> = rows.map(row => ({
+    inboundItemId: row.inboundItemId,
+    inventoryItemId: row.id,
+    warehouse: row.warehouse,
+    customer: row.customer,
+    product: row.product,
+    lotNumber: row.lotNumber,
+    inventoryQuantity: row.leftQuantity,
+    quantity: 0,
+  }))
+
+  const outboundModel: Outbound = {
+    warehouse: warehouse,
+    items: outboundItems,
+  }
+
+  useOutboundStore().setPreFormModel(outboundModel)
+
+  await router.push({
+    name: 'outbound-create',
+  })
 }
 </script>
 
@@ -269,18 +298,10 @@ const changeOwner = (rows: InventoryItem[]) => {
                       <q-btn
                         size="sm"
                         label="出庫"
-                        color="primary"
-                        class="float-right q-mx-sm"
+                        color="red"
+                        class="float-right"
                         icon="sym_r_outbound"
                         @click="outbound(selectedRows)"
-                      />
-                      <q-btn
-                        size="sm"
-                        label="名義変更"
-                        color="primary"
-                        class="float-right"
-                        icon="sym_r_swap_horizontal_circle"
-                        @click="changeOwner(selectedRows)"
                       />
                     </div>
                   </template>

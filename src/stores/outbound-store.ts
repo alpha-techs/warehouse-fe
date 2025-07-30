@@ -45,6 +45,7 @@ export const useOutboundStore = defineStore('outbound', {
     outboundListQuery: {} as GetOutboundListQuery,
     outboundList: [] as Outbound[],
     outboundListPagination: { ...defaultPagination },
+    preFormModel: _.cloneDeep(emptyOutbound),
     formModel: _.cloneDeep(emptyOutbound),
     itemModel: _.cloneDeep(emptyOutboundItem),
     inventoryItemModel: _.cloneDeep(emptyInventoryItem),
@@ -81,8 +82,12 @@ export const useOutboundStore = defineStore('outbound', {
         ...resp.data.pagination,
       }
     },
+    setPreFormModel(outbound: Outbound) {
+      this.preFormModel = _.cloneDeep(outbound)
+    },
     resetFormModel() {
-      this.formModel = _.cloneDeep(emptyOutbound)
+      this.formModel = _.cloneDeep(this.preFormModel)
+      this.preFormModel = _.cloneDeep(emptyOutbound)
     },
     resetItemModel(itemModel: OutboundItem = emptyOutboundItem) {
       console.log(itemModel)
