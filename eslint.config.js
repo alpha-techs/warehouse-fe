@@ -44,11 +44,19 @@ export default [
   {
     files: ['**/*.ts', '**/*.vue'],
     rules: {
-      '@typescript-eslint/consistent-type-imports': [
+      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+      'vue/max-attributes-per-line': [
         'error',
-        { prefer: 'type-imports' }
+        {
+          singleline: 1,
+          multiline: {
+            max: 1,
+            allowFirstLine: false,
+          },
+        },
       ],
-    }
+      'vue/singleline-html-element-content-newline': 'error',
+    },
   },
   // https://github.com/vuejs/eslint-config-typescript
   ...vueTsEslintConfig({

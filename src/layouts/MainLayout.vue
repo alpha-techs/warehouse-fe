@@ -47,6 +47,11 @@ import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink
 const router = useRouter();
 const linksList: EssentialLinkProps[] = [
   {
+    title: 'ダッシュボード',
+    icon: 'sym_r_dashboard',
+    link: router.resolve({ name: 'dashboard' }).href,
+  },
+  {
     title: '商品管理',
     icon: 'sym_r_dns',
     link: router.resolve({ name: 'product-list' }).href,
