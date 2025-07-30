@@ -32,6 +32,27 @@ export interface Pagination {
   };
 }
 
+export interface DashboardStats {
+  /** 总库存数量 */
+  totalInventoryCount?: number;
+  /** 本月入库数量 */
+  monthlyInboundCount?: number;
+  /** 本月出库数量 */
+  monthlyOutboundCount?: number;
+  /** 待处理入库单数量 */
+  pendingInboundCount?: number;
+  /** 待处理出库单数量 */
+  pendingOutboundCount?: number;
+  /** 仓库数量 */
+  warehouseCount?: number;
+  /** 客户数量 */
+  customerCount?: number;
+  /** 商品数量 */
+  productCount?: number;
+}
+
+export type DashboardStatsResp = DashboardStats;
+
 export interface Warehouse {
   /** 仓库ID */
   id?: number;
@@ -223,11 +244,17 @@ export interface InventoryItem {
   leftQuantity?: number;
   /** 剩余子件数 */
   leftSubQuantity?: number;
+  /** 是否静音 */
+  muted?: boolean;
 }
 
 export type InventoryItemDetailResp = InventoryItem & {
   inboundItem?: InboundItem;
   outboundItems?: OutboundItem[];
+};
+
+export type AgedInventoryItemListResp = Pagination & {
+  items?: InventoryItem[];
 };
 
 export type ListInventoryResp = Pagination & {
@@ -765,6 +792,25 @@ export class HttpClient<SecurityDataType = unknown> {
  * @baseUrl https://development.gigantic-server.com/v1
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+  dashboard = {
+    /**
+     * No description
+     *
+     * @tags 仪表盘
+     * @name GetDashboardStats
+     * @summary 获取仪表盘统计数据
+     * @request GET:/dashboard/stats
+     * @secure
+     */
+    getDashboardStats: (params: RequestParams = {}) =>
+      this.request<DashboardStatsResp, any>({
+        path: `/dashboard/stats`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
   warehouses = {
     /**
      * No description
@@ -1596,6 +1642,42 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<InventoryItemDetailResp, any>({
         path: `/inventory/item/${id}`,
         method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 仪表盘
+     * @name GetAgedInventoryItemList
+     * @summary 获取库存过久商品列表
+     * @request GET:/inventory/agedItems
+     * @secure
+     */
+    getAgedInventoryItemList: (params: RequestParams = {}) =>
+      this.request<AgedInventoryItemListResp, any>({
+        path: `/inventory/agedItems`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name MuteAgedInventoryItem
+     * @summary 静音库存物品
+     * @request POST:/inventory/agedItems/{id}/mute
+     * @secure
+     */
+    muteAgedInventoryItem: (id: number, params: RequestParams = {}) =>
+      this.request<InventoryItem, any>({
+        path: `/inventory/agedItems/${id}/mute`,
+        method: "POST",
         secure: true,
         format: "json",
         ...params,
