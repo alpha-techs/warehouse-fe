@@ -380,6 +380,29 @@ export interface OutboundItem {
   id?: number;
   /** 出库记录ID */
   outboundId?: number;
+  outbound?: {
+    /** 出库记录ID */
+    id?: number;
+    /** 出库订单ID */
+    outboundOrderId?: string;
+    /**
+     * 出库日期
+     * @format date
+     */
+    outboundDate?: string;
+    warehouse?: {
+      /** 仓库ID */
+      id?: number;
+      /** 仓库名称 */
+      name?: string;
+    };
+    customer?: {
+      /** 客户ID */
+      id?: number;
+      /** 客户名称 */
+      name?: string;
+    };
+  };
   /** 入库物品ID */
   inboundItemId?: number;
   /** 库存物品ID */

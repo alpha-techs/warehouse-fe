@@ -188,7 +188,7 @@ const remove = async (row: any) => {
             >
               <template #top>
                 <div class="row" style="width: 100%">
-                  <div class="text-h6 col-12">入庫依頼一覧</div>
+                  <div class="text-h6 col-12">出庫依頼一覧</div>
                   <q-input
                     class="q-px-sm"
                     v-model="searchParams.outboundOrderId"

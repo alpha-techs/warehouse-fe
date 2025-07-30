@@ -90,55 +90,60 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/container/EditContainerPage.vue')
       },
       {
-          path: 'inventory',
-          name: 'inventory-list',
-          component: () => import('pages/inventory/InventoryListPage.vue')
+        path: 'inventory',
+        name: 'inventory-list',
+        component: () => import('pages/inventory/InventoryListPage.vue')
       },
       {
-          path: 'inventory/inbounds',
-          name: 'inbound-list',
-          component: () => import('pages/inventory/InboundListPage.vue')
+        path: 'inventory/inbounds',
+        name: 'inbound-list',
+        component: () => import('pages/inventory/InboundListPage.vue')
       },
       {
-          path: 'inventory/inbound/new',
-          name: 'inbound-create',
-          component: () => import('pages/inventory/CreateInboundPage.vue')
+        path: 'inventory/inbound/new',
+        name: 'inbound-create',
+        component: () => import('pages/inventory/CreateInboundPage.vue')
       },
       {
-          path: 'inventory/inbound/:id',
-          name: 'inbound-detail',
-          component: () => import('pages/inventory/InboundDetailPage.vue')
+        path: 'inventory/inbound/:id',
+        name: 'inbound-detail',
+        component: () => import('pages/inventory/InboundDetailPage.vue')
       },
       {
-          path: 'inventory/inbound/:id/edit',
-          name: 'inbound-edit',
-          component: () => import('pages/inventory/EditInboundPage.vue')
+        path: 'inventory/inbound/:id/edit',
+        name: 'inbound-edit',
+        component: () => import('pages/inventory/EditInboundPage.vue')
       },
       {
-          path: 'inventory/inboundItems',
-          name: 'inbound-item-list',
-          component: () => import('pages/inventory/InboundItemListPage.vue')
+        path: 'inventory/inboundItems',
+        name: 'inbound-item-list',
+        component: () => import('pages/inventory/InboundItemListPage.vue')
       },
       {
-          path: 'inventory/outbounds',
-          name: 'outbound-list',
-          component: () => import('pages/inventory/OutboundListPage.vue')
+        path: 'inventory/outbounds',
+        name: 'outbound-list',
+        component: () => import('pages/inventory/OutboundListPage.vue')
       },
       {
-          path: 'inventory/outbound/new',
-          name: 'outbound-create',
-          component: () => import('pages/inventory/CreateOutboundPage.vue')
+        path: 'inventory/outbound/new',
+        name: 'outbound-create',
+        component: () => import('pages/inventory/CreateOutboundPage.vue')
       },
       {
-          path: 'inventory/outbound/:id',
-          name: 'outbound-detail',
-          component: () => import('pages/inventory/OutboundDetailPage.vue')
+        path: 'inventory/outbound/:id',
+        name: 'outbound-detail',
+        component: () => import('pages/inventory/OutboundDetailPage.vue')
       },
       {
-          path: 'inventory/outbound/:id/edit',
-          name: 'outbound-edit',
-          component: () => import('pages/inventory/EditOutboundPage.vue')
+        path: 'inventory/outbound/:id/edit',
+        name: 'outbound-edit',
+        component: () => import('pages/inventory/EditOutboundPage.vue')
       },
+      {
+        path: 'inventory/outboundItems',
+        name: 'outbound-item-list',
+        component: () => import('pages/inventory/OutboundItemListPage.vue')
+      }
     ],
   },
 

@@ -267,6 +267,7 @@ const changeOwner = (rows: InventoryItem[]) => {
                     <q-space/>
                     <div style="display: flex; align-items: center;">
                       <q-btn
+                        size="sm"
                         label="出庫"
                         color="primary"
                         class="float-right q-mx-sm"
@@ -274,9 +275,10 @@ const changeOwner = (rows: InventoryItem[]) => {
                         @click="outbound(selectedRows)"
                       />
                       <q-btn
+                        size="sm"
                         label="名義変更"
                         color="primary"
-                        class="float-right q-mx-sm"
+                        class="float-right"
                         icon="sym_r_swap_horizontal_circle"
                         @click="changeOwner(selectedRows)"
                       />
