@@ -20,13 +20,14 @@
           </div>
         </div>
       </div>
-      
+
       <!-- 简单的进度条显示 -->
       <div class="q-mt-md">
         <div class="text-caption q-mb-xs">入庫 vs 出庫比率</div>
         <q-linear-progress
           :value="inboundRatio"
           color="primary"
+          track-color="negative"
           class="q-mb-xs"
         />
         <div class="text-caption text-grey-7">
@@ -55,7 +56,7 @@ const props = withDefaults(defineProps<Props>(), {
   inboundCount: 0,
   outboundCount: 0,
   inboundWeight: 0,
-  outboundWeight: 0
+  outboundWeight: 0,
 })
 
 // 计算入库出库比例
@@ -64,4 +65,4 @@ const inboundRatio = computed(() => {
   if (total === 0) return 0
   return props.inboundCount / total
 })
-</script> 
+</script>

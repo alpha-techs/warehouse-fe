@@ -156,6 +156,7 @@
                   <q-chip
                     :color="getStatusColor(props.row)"
                     :label="getStatusLabel(props.row)"
+                    :text-color="getStatusTextColor(props.row)"
                     size="sm"
                   />
                 </q-td>
@@ -314,6 +315,14 @@ const getStatusLabel = (item: InventoryItem) => {
   if (days > 180) return '6ヶ月超過'
   if (days > 90) return '3ヶ月超過'
   return '正常'
+}
+
+// ステータステキストカラー取得
+const getStatusTextColor = (item: InventoryItem) => {
+  const days = getInboundDays(item.inboundDate || '')
+  if (days > 180) return 'white'
+  if (days > 90) return 'black'
+  return 'black'
 }
 
 // ミュート可否判定
