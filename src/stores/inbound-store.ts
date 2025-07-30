@@ -106,7 +106,10 @@ export const useInboundStore = defineStore('inbound', {
       }
     },
     getStatusBadgeAttribute(): { color: string, label: string } {
-      switch (this.formModel.status) {
+      return this.getStatusBadgeAttributeFromStatus(this.formModel.status)
+    },
+    getStatusBadgeAttributeFromStatus: (status?: string): { color: string; label: string } => {
+      switch (status) {
         case 'draft':
           return {
             color: 'teal',
@@ -137,6 +140,6 @@ export const useInboundStore = defineStore('inbound', {
         color: 'grey',
         label: '未定義',
       }
-    },
+    }
   }
 });

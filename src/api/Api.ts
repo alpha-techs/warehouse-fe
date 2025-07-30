@@ -225,6 +225,11 @@ export interface InventoryItem {
   leftSubQuantity?: number;
 }
 
+export type InventoryItemDetailResp = InventoryItem & {
+  inboundItem?: InboundItem;
+  outboundItems?: OutboundItem[];
+};
+
 export type ListInventoryResp = Pagination & {
   items?: InventoryItem[];
 };
@@ -1573,6 +1578,24 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/inventory/list`,
         method: "GET",
         query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name GetInventoryItemDetail
+     * @summary 获取库存物品详情
+     * @request GET:/inventory/item/{id}
+     * @secure
+     */
+    getInventoryItemDetail: (id: number, params: RequestParams = {}) =>
+      this.request<InventoryItemDetailResp, any>({
+        path: `/inventory/item/${id}`,
+        method: "GET",
         secure: true,
         format: "json",
         ...params,

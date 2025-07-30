@@ -43,10 +43,10 @@ const {
 const onFilterWarehouse = async (inputValue: string, doneFn: (callbackFn: () => void) => void) => {
   if (!inputValue || !inputValue.length) {
     await useWarehouseStore().getWarehouseOptions()
-    doneFn(() => {});
+    doneFn(() => { });
   } else {
     await useWarehouseStore().getWarehouseOptions(inputValue)
-    doneFn(() => {});
+    doneFn(() => { });
   }
 }
 const onChangeWarehouse = (warehouse: Warehouse | undefined): void => {
@@ -140,7 +140,7 @@ const onPageChange = () => {
   tableRef.value?.requestServerInteraction({ pagination: pagination.value });
 };
 
-const onRequest = async ({ pagination: _pagination }: { pagination: { page: number, rowsPerPage: number} }) => {
+const onRequest = async ({ pagination: _pagination }: { pagination: { page: number, rowsPerPage: number } }) => {
   try {
     loading.value = true;
     const { page, rowsPerPage } = _pagination;
@@ -164,7 +164,9 @@ const onRequest = async ({ pagination: _pagination }: { pagination: { page: numb
   }
 }
 
-const toDetail = () => {}
+const toDetail = async (row: InventoryItem) => {
+  await router.push({ name: 'inventory-item-detail', params: { id: row.id } });
+}
 
 const outbound = async (rows: InventoryItem[]) => {
   if (!rows || !rows.length) {
@@ -208,115 +210,56 @@ const outbound = async (rows: InventoryItem[]) => {
       <div class="col-12">
         <q-card bordered>
           <q-card-section class="q-pa-none">
-            <q-table
-              flat
-              :columns="columns"
-              :rows="rows"
-              row-key="id"
-              hide-pagination
-              selection="multiple"
-              v-model:selected="selectedRows"
-              v-model:pagination="pagination"
-              @request="onRequest"
-              ref="tableRef"
-            >
+            <q-table flat :columns="columns" :rows="rows" row-key="id" hide-pagination selection="multiple"
+              v-model:selected="selectedRows" v-model:pagination="pagination" @request="onRequest" ref="tableRef">
               <template #top>
                 <div class="row" style="width: 100%">
                   <div class="text-h6 col-12">在庫商品一覧</div>
-                  <q-input
-                    class="q-px-sm"
-                    v-model="searchParams.lotNumber"
-                    label="LOT番号"
-                    dense
-                    @keyup.enter="search"
-                    style="width: 100px;"
-                  ></q-input>
-                  <q-select
-                    class="q-px-sm"
-                    :model-value="searchParams.warehouse"
-                    @update:model-value="onChangeWarehouse"
-                    label="倉庫"
-                    dense
-                    :options="warehouseOptions"
-                    option-label="name"
-                    option-value="id"
-                    @filter="onFilterWarehouse"
-                    clearable
-                    use-input
-                    input-style="width: 0px"
-                  >
+                  <q-input class="q-px-sm" v-model="searchParams.lotNumber" label="LOT番号" dense @keyup.enter="search"
+                    style="width: 100px;"></q-input>
+                  <q-select class="q-px-sm" :model-value="searchParams.warehouse"
+                    @update:model-value="onChangeWarehouse" label="倉庫" dense :options="warehouseOptions"
+                    option-label="name" option-value="id" @filter="onFilterWarehouse" clearable use-input
+                    input-style="width: 0px">
                   </q-select>
-                  <q-select
-                    class="q-px-sm"
-                    :model-value="searchParams.product"
-                    @update:model-value="onChangeProduct"
-                    label="商品"
-                    dense
-                    :options="productOptions"
-                    option-label="name"
-                    option-value="id"
-                    @filter="onFilterProduct"
-                    clearable
-                    use-input
-                    input-style="width: 0px"
-                  >
+                  <q-select class="q-px-sm" :model-value="searchParams.product" @update:model-value="onChangeProduct"
+                    label="商品" dense :options="productOptions" option-label="name" option-value="id"
+                    @filter="onFilterProduct" clearable use-input input-style="width: 0px">
                   </q-select>
-                  <q-input
-                    class="q-px-sm"
-                    v-model="searchParams.inboundDateFrom"
-                    label="入庫日(From)"
-                    dense
-                    @keyup.enter="search"
-                    style="width: 120px;"
-                  ></q-input>
+                  <q-input class="q-px-sm" v-model="searchParams.inboundDateFrom" label="入庫日(From)" dense
+                    @keyup.enter="search" style="width: 120px;"></q-input>
                   <div style="display: flex; align-items: center;">
                     <span>～</span>
                   </div>
-                  <q-input
-                    class="q-px-sm"
-                    v-model="searchParams.inboundDateTo"
-                    label="入庫日(To)"
-                    dense
-                    @keyup.enter="search"
-                    style="width: 120px;"
-                  ></q-input>
-                  <q-space/>
+                  <q-input class="q-px-sm" v-model="searchParams.inboundDateTo" label="入庫日(To)" dense
+                    @keyup.enter="search" style="width: 120px;"></q-input>
+                  <q-space />
                   <div style="display: flex; align-items: center;">
-                    <q-btn
-                      size="sm"
-                      label="検索"
-                      color="primary"
-                      icon="sym_r_search"
-                      @click="search"
-                    />
+                    <q-btn size="sm" label="検索" color="primary" icon="sym_r_search" @click="search" />
                   </div>
                 </div>
                 <div class="row" style="width: 100%">
                   <template v-if="selectedRows.length > 0">
-                    <q-space/>
+                    <q-space />
                     <div style="display: flex; align-items: center;">
-                      <q-btn
-                        size="sm"
-                        label="出庫"
-                        color="red"
-                        class="float-right"
-                        icon="sym_r_outbound"
-                        @click="outbound(selectedRows)"
-                      />
+                      <q-btn size="sm" label="出庫" color="red" class="float-right" icon="sym_r_outbound"
+                        @click="outbound(selectedRows)" />
                     </div>
                   </template>
                 </div>
               </template>
               <template #[`body-cell-warehouse`]="{ row }: { row: InventoryItem }">
                 <q-td>
-                  <a :href="router.resolve({ name: 'warehouse-detail', params: { id: row.warehouse!.id }}).href" v-if="row.warehouse">
+                  <a :href="router.resolve({ name: 'warehouse-detail', params: { id: row.warehouse!.id } }).href"
+                    v-if="row.warehouse">
                     {{ row.warehouse?.name ?? '-' }}
                   </a>
                 </q-td>
               </template>
               <template #[`body-cell-product`]="{ row }: { row: InventoryItem }">
                 <q-td>
-                  <a :href="router.resolve({ name: 'product-detail', params: { id: row.product!.id }}).href" v-if="row.product">
+                  <a :href="router.resolve({ name: 'product-detail', params: { id: row.product!.id } }).href"
+                    v-if="row.product">
                     {{ row.product?.name ?? '-' }}
                   </a>
                 </q-td>
@@ -331,21 +274,16 @@ const outbound = async (rows: InventoryItem[]) => {
                   {{ row.bestBeforeDate }}
                 </q-td>
               </template>
-              <template #[`body-cell-actions`]>
+              <template #[`body-cell-actions`]="{ row }: { row: InventoryItem }">
                 <q-td class="text-right">
-                  <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_visibility" @click="toDetail" />
+                  <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_visibility" @click="toDetail(row)" />
                 </q-td>
               </template>
             </q-table>
-            <q-separator/>
+            <q-separator />
             <div class="row justify-center q-my-md">
-              <q-pagination
-                v-model="pagination.page"
-                color="primary"
-                :max="maxPage"
-                max-pages="9"
-                @update:model-value="onPageChange"
-              />
+              <q-pagination v-model="pagination.page" color="primary" :max="maxPage" max-pages="9"
+                @update:model-value="onPageChange" />
             </div>
           </q-card-section>
         </q-card>
