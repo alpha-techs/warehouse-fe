@@ -2,14 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title>
           {{ appName }}
@@ -19,17 +12,9 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
+        <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
       </q-list>
     </q-drawer>
 
@@ -58,27 +43,38 @@ const linksList: EssentialLinkProps[] = [
   },
   {
     title: '倉庫管理',
-    icon:'sym_r_warehouse',
+    icon: 'sym_r_warehouse',
     link: router.resolve({ name: 'warehouse-list' }).href,
   },
   {
     title: 'お客様管理',
-    icon:'sym_r_account_circle',
+    icon: 'sym_r_account_circle',
     link: router.resolve({ name: 'customer-list' }).href,
   },
   {
     title: 'コンテナ管理',
-    icon:'sym_r_package_2',
+    icon: 'sym_r_package_2',
     link: router.resolve({ name: 'container-list' }).href,
   },
   {
     title: '在庫管理',
-    icon:'sym_r_inventory',
-    link: router.resolve({ name: 'inventory-list' }).href,
+    icon: 'sym_r_inventory',
+    subMenu: [
+      {
+        'title': '在庫リスト',
+        'icon': 'sym_r_inventory_2',
+        'link': router.resolve({ name: 'inventory-list' }).href,
+      },
+      {
+        'title': '在庫報告書リスト',
+        'icon': 'sym_r_assignment',
+        'link': router.resolve({ name: 'inventory-report-list' }).href,
+      }
+    ],
   },
   {
     title: '入庫管理',
-    icon:'sym_r_move_to_inbox',
+    icon: 'sym_r_move_to_inbox',
     subMenu: [
       {
         'title': '入庫商品一覧',
@@ -94,7 +90,7 @@ const linksList: EssentialLinkProps[] = [
   },
   {
     title: '出庫管理',
-    icon:'sym_r_outbox',
+    icon: 'sym_r_outbox',
     subMenu: [
       {
         'title': '出庫商品一覧',
@@ -112,7 +108,7 @@ const linksList: EssentialLinkProps[] = [
 
 const leftDrawerOpen = ref(false);
 
-function toggleLeftDrawer () {
+function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
 

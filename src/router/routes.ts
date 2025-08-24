@@ -154,6 +154,11 @@ const routes: RouteRecordRaw[] = [
         name: 'inventory-item-detail',
         component: () => import('pages/inventory/InventoryItemDetailPage.vue'),
       },
+      {
+        path: 'inventory/reports',
+        name: 'inventory-report-list',
+        component: () => import('pages/inventory/InventoryReportListPage.vue'),
+      },
     ],
   },
 
