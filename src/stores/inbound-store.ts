@@ -1,5 +1,12 @@
 import { defineStore } from 'pinia'
-import type { Inbound, InboundItem, Product, Warehouse } from 'src/api/Api'
+import type {
+  Inbound,
+  InboundItem,
+  Product,
+  Warehouse,
+  InboundReport,
+  InboundReportReq,
+} from 'src/api/Api'
 import { defaultPagination } from 'src/utils/pagination'
 import { apiClient } from 'src/utils/api-client'
 import _ from 'lodash'
@@ -13,43 +20,55 @@ const emptyInbound: Inbound = {
 const emptyItem: InboundItem = {}
 
 interface GetInboundItemListQuery {
-  page?: number;
-  itemsPerPage?: number;
-  lotNumber?: string;
-  product?: Product;
-  inboundDateFrom?: string;
-  inboundDateTo?: string;
+  page?: number
+  itemsPerPage?: number
+  lotNumber?: string
+  product?: Product
+  inboundDateFrom?: string
+  inboundDateTo?: string
 }
 
 interface GetInboundListQuery {
-  page?: number;
-  itemsPerPage?: number;
-  inboundOrderId?: string;
-  inboundDateFrom?: string;
-  inboundDateTo?: string;
-  warehouse?: Warehouse;
-  status?: string;
+  page?: number
+  itemsPerPage?: number
+  inboundOrderId?: string
+  inboundDateFrom?: string
+  inboundDateTo?: string
+  warehouse?: Warehouse
+  status?: string
+}
+
+interface GetInboundReportListQuery {
+  page?: number
+  itemsPerPage?: number
+  warehouseId?: number
+  customerId?: number
+  status?: 'pending' | 'processing' | 'completed' | 'failed'
+  startDate?: string
+  endDate?: string
 }
 
 export const useInboundStore = defineStore('inbound', {
   state: () => ({
     inboundListQuery: {} as GetInboundListQuery,
     inboundList: [] as Inbound[],
-    inboundListPagination: {...defaultPagination},
+    inboundListPagination: { ...defaultPagination },
     formModel: _.cloneDeep(emptyInbound),
     itemModel: _.cloneDeep(emptyItem),
     inboundItemListQuery: {} as GetInboundItemListQuery,
     inboundItemList: [] as InboundItem[],
-    inboundItemListPagination: {...defaultPagination},
+    inboundItemListPagination: { ...defaultPagination },
+    // InboundReport related state
+    inboundReportList: [] as InboundReport[],
+    inboundReportListPagination: { ...defaultPagination },
+    inboundReportListQuery: {} as GetInboundReportListQuery,
   }),
   actions: {
-    async getInboundList(
-      query?: GetInboundListQuery,
-    ): Promise<void> {
+    async getInboundList(query?: GetInboundListQuery): Promise<void> {
       const payload = {
         ...query,
         warehouse: undefined,
-        warehouseId: query?.warehouse?.id
+        warehouseId: query?.warehouse?.id,
       }
       const resp = await apiClient.inventory.listInbounds(payload)
       this.inboundList = resp.data.items ?? []
@@ -90,13 +109,11 @@ export const useInboundStore = defineStore('inbound', {
       const id = this.formModel.id!
       await apiClient.inventory.updateInbound(id, this.formModel)
     },
-    async getInboundItemList(
-      query?: GetInboundItemListQuery,
-    ): Promise<void> {
+    async getInboundItemList(query?: GetInboundItemListQuery): Promise<void> {
       const payload = {
         ...query,
         product: undefined,
-        productId: query?.product?.id
+        productId: query?.product?.id,
       }
       const resp = await apiClient.inventory.listInboundItems(payload)
       this.inboundItemList = resp.data.items ?? []
@@ -105,10 +122,12 @@ export const useInboundStore = defineStore('inbound', {
         ...resp.data.pagination,
       }
     },
-    getStatusBadgeAttribute(): { color: string, label: string } {
+    getStatusBadgeAttribute(): { color: string; label: string } {
       return this.getStatusBadgeAttributeFromStatus(this.formModel.status)
     },
-    getStatusBadgeAttributeFromStatus: (status?: string): { color: string; label: string } => {
+    getStatusBadgeAttributeFromStatus: (
+      status?: string,
+    ): { color: string; label: string } => {
       switch (status) {
         case 'draft':
           return {
@@ -140,6 +159,39 @@ export const useInboundStore = defineStore('inbound', {
         color: 'grey',
         label: '未定義',
       }
-    }
-  }
-});
+    },
+
+    // InboundReport related actions
+    async getInboundReportList(
+      query?: GetInboundReportListQuery,
+    ): Promise<void> {
+      const resp = await apiClient.inventory.listInboundReports(query)
+      this.inboundReportList = resp.data.items ?? []
+      this.inboundReportListPagination = {
+        ...defaultPagination,
+        ...resp.data.pagination,
+      }
+    },
+    async generateInboundReport(request: InboundReportReq): Promise<string> {
+      const resp = await apiClient.inventory.generateInboundReport(request)
+      return resp.data.reportId ?? ''
+    },
+    async getInboundReportStatus(reportId: string): Promise<InboundReport> {
+      const resp = await apiClient.inventory.getInboundReportStatus(reportId)
+      return resp.data
+    },
+    async downloadInboundReport(reportId: string): Promise<File> {
+      const resp = await apiClient.inventory.downloadInboundReport(reportId)
+      return resp.data
+    },
+    getInboundReportDownloadUrl(reportId: string): string {
+      return (
+        apiClient.baseUrl + `/inventory/inboundReports/${reportId}/download`
+      )
+    },
+    resetReportList() {
+      this.inboundReportListPagination = { ...defaultPagination }
+      this.inboundReportList = []
+    },
+  },
+})

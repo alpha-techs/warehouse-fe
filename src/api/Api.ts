@@ -571,6 +571,92 @@ export type InventoryReportListResp = Pagination & {
   items?: InventoryReport[];
 };
 
+export interface InboundReportReq {
+  /** 入库记录ID */
+  inboundId: number;
+  /**
+   * 报告格式
+   * @default "pdf"
+   */
+  format?: "pdf" | "excel";
+}
+
+export interface InboundReportResp {
+  /** 入库报告ID */
+  reportId?: string;
+  /**
+   * 报告生成时间
+   * @format date-time
+   */
+  reportDate?: string;
+  warehouse?: {
+    /** 仓库ID */
+    id?: number;
+    /** 仓库名称 */
+    name?: string;
+  };
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  /**
+   * 下载链接过期时间
+   * @format date-time
+   */
+  expiresAt?: string;
+}
+
+export interface InboundReport {
+  /** 入库报告ID */
+  id?: string;
+  warehouse?: {
+    /** 仓库ID */
+    id?: number;
+    /** 仓库名称 */
+    name?: string;
+  };
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  /**
+   * 报告日期
+   * @format date
+   */
+  reportDate?: string;
+  /** 报告格式 */
+  format?: "pdf" | "excel";
+  /** 报告状态 */
+  status?: "pending" | "processing" | "completed" | "failed";
+  /** 报告下载URL（仅在completed状态时提供） */
+  downloadUrl?: string;
+  /** 错误信息（仅在failed状态时提供） */
+  errorMessage?: string;
+  /**
+   * 报告创建时间
+   * @format date-time
+   */
+  createdAt?: string;
+  /**
+   * 报告完成时间
+   * @format date-time
+   */
+  completedAt?: string;
+  /**
+   * 下载链接过期时间
+   * @format date-time
+   */
+  expiresAt?: string;
+}
+
+export type InboundReportListResp = Pagination & {
+  items?: InboundReport[];
+};
+
 export interface Container {
   /** 集装箱ID */
   id?: number;
@@ -1873,6 +1959,113 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     downloadInventoryReport: (reportId: string, params: RequestParams = {}) =>
       this.request<File, any>({
         path: `/inventory/reports/${reportId}/download`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description 获取入库报告的历史列表，支持按仓库、客户等条件筛选。
+     *
+     * @tags 入库报告
+     * @name ListInboundReports
+     * @summary 获取入库报告列表
+     * @request GET:/inventory/inboundReports
+     * @secure
+     */
+    listInboundReports: (
+      query?: {
+        /**
+         * 页码
+         * @min 1
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @min 1
+         * @max 100
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** 仓库ID筛选 */
+        warehouseId?: number;
+        /** 客户ID筛选 */
+        customerId?: number;
+        /** 报告状态筛选 */
+        status?: "pending" | "processing" | "completed" | "failed";
+        /**
+         * 开始日期筛选（报告生成时间）
+         * @format date
+         */
+        startDate?: string;
+        /**
+         * 结束日期筛选（报告生成时间）
+         * @format date
+         */
+        endDate?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<InboundReportListResp, void>({
+        path: `/inventory/inboundReports`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 生成指定入库记录的入库报告PDF/Excel。 报告将异步生成，返回报告ID用于查询生成状态和下载。
+     *
+     * @tags 入库报告
+     * @name GenerateInboundReport
+     * @summary 生成入库报告
+     * @request POST:/inventory/inboundReport/generate
+     * @secure
+     */
+    generateInboundReport: (data: InboundReportReq, params: RequestParams = {}) =>
+      this.request<InboundReportResp, void>({
+        path: `/inventory/inboundReport/generate`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 根据报告ID获取入库报告的生成状态。 可用于轮询检查报告是否生成完成。
+     *
+     * @tags 入库报告
+     * @name GetInboundReportStatus
+     * @summary 获取入库报告生成状态
+     * @request GET:/inventory/inboundReports/{reportId}/status
+     * @secure
+     */
+    getInboundReportStatus: (reportId: string, params: RequestParams = {}) =>
+      this.request<InboundReport, void>({
+        path: `/inventory/inboundReports/${reportId}/status`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 下载已生成的入库报告文件。 支持PDF和Excel格式的报告下载。
+     *
+     * @tags 入库报告
+     * @name DownloadInboundReport
+     * @summary 下载入库报告
+     * @request GET:/inventory/inboundReports/{reportId}/download
+     * @secure
+     */
+    downloadInboundReport: (reportId: string, params: RequestParams = {}) =>
+      this.request<File, void>({
+        path: `/inventory/inboundReports/${reportId}/download`,
         method: "GET",
         secure: true,
         ...params,
