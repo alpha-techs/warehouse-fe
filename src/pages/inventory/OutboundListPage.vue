@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Customer, Inbound, Warehouse } from 'src/api/Api'
+import type { Customer, Inbound, Warehouse, Outbound, OutboundReportReq } from 'src/api/Api'
 import { storeToRefs } from 'pinia'
 import { useOutboundStore } from 'stores/outbound-store'
 import type { QTable, QTableProps } from 'quasar'
@@ -9,8 +9,10 @@ import { useWarehouseStore } from 'stores/warehouse-store'
 import { useCustomerStore } from 'stores/customer-store'
 import type { FePagination } from 'src/utils/pagination'
 import { toastFormError } from 'src/utils/error-handler'
+import { Notify } from 'quasar'
 
 const loading = ref(false);
+const generateLoading = ref<number | null>(null); // Track loading state for each row
 const tableRef = useTemplateRef<QTable | undefined>('tableRef');
 const {
   outboundList: rows,
@@ -24,10 +26,10 @@ const {
 const onFilterWarehouse = async (inputValue: string, doneFn: (callbackFn: () => void) => void) => {
   if (!inputValue || !inputValue.length) {
     await useWarehouseStore().getWarehouseOptions()
-    doneFn(() => {});
+    doneFn(() => { });
   } else {
     await useWarehouseStore().getWarehouseOptions(inputValue)
-    doneFn(() => {});
+    doneFn(() => { });
   }
 }
 const onChangeWarehouse = (warehouse: Warehouse | undefined): void => {
@@ -38,10 +40,10 @@ const { customerOptions } = storeToRefs(useCustomerStore())
 const onFilterCustomer = async (inputValue: string, doneFn: (callbackFn: () => void) => void) => {
   if (!inputValue || !inputValue.length) {
     await useCustomerStore().getCustomerOptions()
-    doneFn(() => {});
+    doneFn(() => { });
   } else {
     await useCustomerStore().getCustomerOptions(inputValue)
-    doneFn(() => {});
+    doneFn(() => { });
   }
 }
 const onChangeCustomer = (customer: Customer | undefined): void => {
@@ -87,7 +89,7 @@ const columns: QTableProps['columns'] = [
   }
 ]
 
-onMounted (() => {
+onMounted(() => {
   tableRef.value?.requestServerInteraction();
 })
 
@@ -115,7 +117,7 @@ const onPageChange = () => {
   tableRef.value?.requestServerInteraction({ pagination: pagination.value });
 };
 
-const onRequest = async ({ pagination: _pagination }: { pagination: { page: number, rowsPerPage: number} }) => {
+const onRequest = async ({ pagination: _pagination }: { pagination: { page: number, rowsPerPage: number } }) => {
   try {
     loading.value = true;
     const { page, rowsPerPage } = _pagination;
@@ -168,6 +170,46 @@ const remove = async (row: any) => {
   await useOutboundStore().removeOutboundById(row.id)
   await useOutboundStore().getOutboundList()
 }
+
+// Generate report for specific outbound
+const generateReport = async (outbound: Outbound, format: 'pdf' | 'excel' = 'pdf') => {
+  if (!outbound.id) {
+    await toastFormError('出庫IDが無効です')
+    return
+  }
+
+  try {
+    generateLoading.value = outbound.id
+    const request: OutboundReportReq = {
+      outboundId: outbound.id,
+      format: format,
+    }
+    const reportId = await useOutboundStore().generateOutboundReport(request)
+    console.log('Report generated with ID:', reportId)
+
+    // Show success message using Quasar Notify
+    Notify.create({
+      type: 'positive',
+      message: `報告書が正常に生成されました。報告ID: ${reportId}`,
+      position: 'top',
+      timeout: 3000,
+      actions: [
+        {
+          label: '報告書一覧へ',
+          color: 'white',
+          handler: () => {
+            void router.push({ name: 'outbound-report-list' })
+          }
+        }
+      ]
+    })
+
+  } catch (error) {
+    await toastFormError(error)
+  } finally {
+    generateLoading.value = null
+  }
+}
 </script>
 
 <template>
@@ -176,93 +218,33 @@ const remove = async (row: any) => {
       <div class="col-12">
         <q-card bordered>
           <q-card-section class="q-pa-none">
-            <q-table
-              flat
-              :columns="columns"
-              :rows="rows"
-              row-key="id"
-              hide-pagination
-              v-model:pagination="pagination"
-              @request="onRequest"
-              ref="tableRef"
-            >
+            <q-table flat :columns="columns" :rows="rows" row-key="id" hide-pagination v-model:pagination="pagination"
+              @request="onRequest" ref="tableRef">
               <template #top>
                 <div class="row" style="width: 100%">
                   <div class="text-h6 col-12">出庫依頼一覧</div>
-                  <q-input
-                    class="q-px-sm"
-                    v-model="searchParams.outboundOrderId"
-                    label="オーダー番号"
-                    dense
-                    @keyup.enter="search"
-                    style="width: 120px;"
-                  ></q-input>
-                  <q-select
-                    class="q-px-sm"
-                    :model-value="searchParams.warehouse"
-                    @update:model-value="onChangeWarehouse"
-                    label="倉庫"
-                    dense
-                    :options="warehouseOptions"
-                    option-label="name"
-                    option-value="id"
-                    @filter="onFilterWarehouse"
-                    clearable
-                    use-input
-                    input-style="width: 0px"
-                  >
+                  <q-input class="q-px-sm" v-model="searchParams.outboundOrderId" label="オーダー番号" dense
+                    @keyup.enter="search" style="width: 120px;"></q-input>
+                  <q-select class="q-px-sm" :model-value="searchParams.warehouse"
+                    @update:model-value="onChangeWarehouse" label="倉庫" dense :options="warehouseOptions"
+                    option-label="name" option-value="id" @filter="onFilterWarehouse" clearable use-input
+                    input-style="width: 0px">
                   </q-select>
-                  <q-select
-                    class="q-px-sm"
-                    :model-value="searchParams.customer"
-                    @update:model-value="onChangeCustomer"
-                    label="お客様"
-                    dense
-                    :options="customerOptions"
-                    option-label="name"
-                    option-value="id"
-                    @filter="onFilterCustomer"
-                    clearable
-                    use-input
-                    input-style="width: 0px"
-                  >
+                  <q-select class="q-px-sm" :model-value="searchParams.customer" @update:model-value="onChangeCustomer"
+                    label="お客様" dense :options="customerOptions" option-label="name" option-value="id"
+                    @filter="onFilterCustomer" clearable use-input input-style="width: 0px">
                   </q-select>
-                  <q-input
-                    class="q-px-sm"
-                    v-model="searchParams.outboundDateFrom"
-                    label="出庫日(From)"
-                    dense
-                    @keyup.enter="search"
-                    style="width: 120px;"
-                  ></q-input>
+                  <q-input class="q-px-sm" v-model="searchParams.outboundDateFrom" label="出庫日(From)" dense
+                    @keyup.enter="search" style="width: 120px;"></q-input>
                   <div style="display: flex; align-items: center;">
                     <span>～</span>
                   </div>
-                  <q-input
-                    class="q-px-sm"
-                    v-model="searchParams.outboundDateTo"
-                    label="出庫日(To)"
-                    dense
-                    @keyup.enter="search"
-                    style="width: 120px;"
-                  ></q-input>
-                  <q-space/>
+                  <q-input class="q-px-sm" v-model="searchParams.outboundDateTo" label="出庫日(To)" dense
+                    @keyup.enter="search" style="width: 120px;"></q-input>
+                  <q-space />
                   <div style="display: flex; align-items: center;">
-                    <q-btn
-                      class="q-mx-sm"
-                      size="sm"
-                      label="検索"
-                      color="primary"
-                      icon="sym_r_search"
-                      @click="search"
-                    />
-                    <q-btn
-                      size="sm"
-                      label="新規"
-                      color="primary"
-                      icon="sym_r_add"
-                      @click="toCreate()"
-                    />
+                    <q-btn class="q-mx-sm" size="sm" label="検索" color="primary" icon="sym_r_search" @click="search" />
+                    <q-btn size="sm" label="新規" color="primary" icon="sym_r_add" @click="toCreate()" />
                   </div>
                 </div>
               </template>
@@ -272,7 +254,7 @@ const remove = async (row: any) => {
                 </q-td>
               </template>
               <template #[`body-cell-customer`]="{ row }: { row: Inbound }">
-                <q-td >
+                <q-td>
                   {{ row.customer?.name }}
                 </q-td>
               </template>
@@ -288,36 +270,46 @@ const remove = async (row: any) => {
               <template #[`body-cell-actions`]="{ key, row }">
                 <q-td class="text-right">
                   <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_visibility" @click="toDetail(key)" />
-                  <q-btn
-                    class="q-ml-sm"
-                    size="sm"
-                    flat
-                    dense
-                    icon="sym_r_edit"
-                    @click="toEdit(key)"
-                    v-if="row.status != 'approved'"
-                  />
-                  <q-btn
-                    class="q-ml-sm"
-                    size="sm"
-                    flat
-                    dense
-                    icon="sym_r_delete"
-                    @click="remove(row)"
-                    v-if="row.status != 'approved'"
-                  />
+                  <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_edit" @click="toEdit(key)"
+                    v-if="row.status != 'approved'" />
+                  <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_delete" @click="remove(row)"
+                    v-if="row.status != 'approved'" />
+                  <!-- Action Menu -->
+                  <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_more_vert" v-if="row.status === 'approved'">
+                    <q-menu>
+                      <q-list>
+                        <q-item clickable @click="generateReport(row, 'pdf')" :disable="generateLoading !== null">
+                          <q-item-section avatar>
+                            <q-icon name="sym_r_picture_as_pdf" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>PDF報告書生成</q-item-label>
+                          </q-item-section>
+                          <q-item-section side v-if="generateLoading === row.id">
+                            <q-spinner size="16px" />
+                          </q-item-section>
+                        </q-item>
+                        <q-item clickable @click="generateReport(row, 'excel')" :disable="generateLoading !== null">
+                          <q-item-section avatar>
+                            <q-icon name="sym_r_table_chart" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>Excel報告書生成</q-item-label>
+                          </q-item-section>
+                          <q-item-section side v-if="generateLoading === row.id">
+                            <q-spinner size="16px" />
+                          </q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
+                  </q-btn>
                 </q-td>
               </template>
             </q-table>
-            <q-separator/>
+            <q-separator />
             <div class="row justify-center q-my-md">
-              <q-pagination
-                v-model="pagination.page"
-                color="primary"
-                :max="maxPage"
-                max-pages="9"
-                @update:model-value="onPageChange"
-              />
+              <q-pagination v-model="pagination.page" color="primary" :max="maxPage" max-pages="9"
+                @update:model-value="onPageChange" />
             </div>
           </q-card-section>
         </q-card>

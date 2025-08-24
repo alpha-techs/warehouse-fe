@@ -6,6 +6,8 @@ import type {
   OutboundItem,
   Warehouse,
   Product,
+  OutboundReport,
+  OutboundReportReq,
 } from 'src/api/Api'
 import { defaultPagination } from 'src/utils/pagination'
 import { apiClient } from 'src/utils/api-client'
@@ -40,6 +42,16 @@ interface GetOutboundListQuery {
   status?: string
 }
 
+interface GetOutboundReportListQuery {
+  page?: number
+  itemsPerPage?: number
+  warehouseId?: number
+  customerId?: number
+  status?: 'pending' | 'processing' | 'completed' | 'failed'
+  startDate?: string
+  endDate?: string
+}
+
 export const useOutboundStore = defineStore('outbound', {
   state: () => ({
     outboundListQuery: {} as GetOutboundListQuery,
@@ -52,6 +64,10 @@ export const useOutboundStore = defineStore('outbound', {
     outboundItemListQuery: {} as GetOutboundItemListQuery,
     outboundItemList: [] as OutboundItem[],
     outboundItemListPagination: { ...defaultPagination },
+    // OutboundReport related state
+    outboundReportList: [] as OutboundReport[],
+    outboundReportListPagination: { ...defaultPagination },
+    outboundReportListQuery: {} as GetOutboundReportListQuery,
   }),
   actions: {
     async getOutboundList(query?: GetOutboundListQuery): Promise<void> {
@@ -154,6 +170,39 @@ export const useOutboundStore = defineStore('outbound', {
         color: 'grey',
         label: '未定義',
       }
+    },
+
+    // OutboundReport related actions
+    async getOutboundReportList(
+      query?: GetOutboundReportListQuery,
+    ): Promise<void> {
+      const resp = await apiClient.inventory.listOutboundReports(query)
+      this.outboundReportList = resp.data.items ?? []
+      this.outboundReportListPagination = {
+        ...defaultPagination,
+        ...resp.data.pagination,
+      }
+    },
+    async generateOutboundReport(request: OutboundReportReq): Promise<string> {
+      const resp = await apiClient.inventory.generateOutboundReport(request)
+      return resp.data.reportId ?? ''
+    },
+    async getOutboundReportStatus(reportId: string): Promise<OutboundReport> {
+      const resp = await apiClient.inventory.getOutboundReportStatus(reportId)
+      return resp.data
+    },
+    async downloadOutboundReport(reportId: string): Promise<File> {
+      const resp = await apiClient.inventory.downloadOutboundReport(reportId)
+      return resp.data
+    },
+    getOutboundReportDownloadUrl(reportId: string): string {
+      return (
+        apiClient.baseUrl + `/inventory/outboundReports/${reportId}/download`
+      )
+    },
+    resetOutboundReportList() {
+      this.outboundReportListPagination = { ...defaultPagination }
+      this.outboundReportList = []
     },
   },
 })

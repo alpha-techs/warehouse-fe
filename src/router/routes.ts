@@ -164,6 +164,11 @@ const routes: RouteRecordRaw[] = [
         name: 'inbound-report-list',
         component: () => import('pages/inventory/InboundReportListPage.vue'),
       },
+      {
+        path: 'inventory/outbound-reports',
+        name: 'outbound-report-list',
+        component: () => import('pages/inventory/OutboundReportListPage.vue'),
+      },
     ],
   },
 
