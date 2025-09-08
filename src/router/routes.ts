@@ -169,6 +169,31 @@ const routes: RouteRecordRaw[] = [
         name: 'outbound-report-list',
         component: () => import('pages/inventory/OutboundReportListPage.vue'),
       },
+      {
+        path: 'inventory/namechanges',
+        name: 'namechange-list',
+        component: () => import('pages/inventory/NameChangeListPage.vue'),
+      },
+      {
+        path: 'inventory/namechange/new',
+        name: 'namechange-create',
+        component: () => import('pages/inventory/CreateNameChangePage.vue'),
+      },
+      {
+        path: 'inventory/namechange/:id',
+        name: 'namechange-detail',
+        component: () => import('pages/inventory/NameChangeDetailPage.vue'),
+      },
+      {
+        path: 'inventory/namechange/:id/edit',
+        name: 'namechange-edit',
+        component: () => import('pages/inventory/EditNameChangePage.vue'),
+      },
+      {
+        path: 'inventory/namechange-reports',
+        name: 'namechange-report-list',
+        component: () => import('pages/inventory/NameChangeReportListPage.vue'),
+      },
     ],
   },
 

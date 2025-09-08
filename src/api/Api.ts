@@ -251,6 +251,7 @@ export interface InventoryItem {
 export type InventoryItemDetailResp = InventoryItem & {
   inboundItem?: InboundItem;
   outboundItems?: OutboundItem[];
+  nameChangeItems?: NameChangeItem[];
 };
 
 export type AgedInventoryItemListResp = Pagination & {
@@ -741,6 +742,208 @@ export interface OutboundReport {
 
 export type OutboundReportListResp = Pagination & {
   items?: OutboundReport[];
+};
+
+export interface NameChange {
+  /** 名义变更记录ID */
+  id?: number;
+  /** 名义变更订单ID */
+  nameChangeOrderId?: string;
+  /**
+   * 名义变更日期
+   * @format date
+   */
+  nameChangeDate?: string;
+  /** 名义变更时间 */
+  nameChangeTime?: string;
+  warehouse?: {
+    /** 仓库ID */
+    id?: number;
+    /** 仓库名称 */
+    name?: string;
+  };
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  /** 客户联系人ID */
+  customerContactId?: number;
+  /** 名义变更物品列表 */
+  items?: NameChangeItem[];
+  /** 名义变更状态 */
+  status?: "draft" | "pending" | "approved" | "rejected" | "cancelled";
+}
+
+export type ListNameChangesResp = Pagination & {
+  items?: NameChange[];
+};
+
+export type ListNameChangeItemsResp = Pagination & {
+  items?: NameChangeItem[];
+};
+
+export interface NameChangeItem {
+  /** 名义变更物品ID */
+  id?: number;
+  /** 名义变更记录ID */
+  nameChangeId?: number;
+  nameChange?: {
+    /** 名义变更记录ID */
+    id?: number;
+    /** 名义变更订单ID */
+    nameChangeOrderId?: string;
+    /**
+     * 名义变更日期
+     * @format date
+     */
+    nameChangeDate?: string;
+    warehouse?: {
+      /** 仓库ID */
+      id?: number;
+      /** 仓库名称 */
+      name?: string;
+    };
+    customer?: {
+      /** 客户ID */
+      id?: number;
+      /** 客户名称 */
+      name?: string;
+    };
+  };
+  /** 入库物品ID */
+  inboundItemId?: number;
+  /** 库存物品ID */
+  inventoryItemId?: number;
+  warehouse?: {
+    /** 仓库ID */
+    id?: number;
+    /** 仓库名称 */
+    name?: string;
+  };
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  product?: {
+    /** 商品ID */
+    id?: number;
+    /** 商品名称 */
+    name?: string;
+    dimension?: {
+      /** 尺寸描述 */
+      description?: string;
+      /** 长度 */
+      length?: number;
+      /** 宽度 */
+      width?: number;
+      /** 高度 */
+      height?: number;
+      /** 长度单位 */
+      lengthUnit?: "cm" | "m";
+      /** 重量 */
+      weight?: number;
+      /** 重量单位 */
+      weightUnit?: "kg" | "g";
+    };
+  };
+  /** 批次号 */
+  lotNumber?: string;
+  /** 库存数量 */
+  inventoryQuantity?: number;
+  /** 名义变更数量 */
+  quantity?: number;
+  /** 备注 */
+  note?: string;
+}
+
+export interface NameChangeReportReq {
+  /** 名义变更记录ID */
+  nameChangeId: number;
+  /**
+   * 报告格式
+   * @default "pdf"
+   */
+  format?: "pdf" | "excel";
+}
+
+export interface NameChangeReportResp {
+  /** 名义变更报告ID */
+  reportId?: string;
+  /**
+   * 报告生成时间
+   * @format date-time
+   */
+  reportDate?: string;
+  warehouse?: {
+    /** 仓库ID */
+    id?: number;
+    /** 仓库名称 */
+    name?: string;
+  };
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  /**
+   * 下载链接过期时间
+   * @format date-time
+   */
+  expiresAt?: string;
+}
+
+export interface NameChangeReport {
+  /** 名义变更报告ID */
+  id?: string;
+  warehouse?: {
+    /** 仓库ID */
+    id?: number;
+    /** 仓库名称 */
+    name?: string;
+  };
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  /**
+   * 报告日期
+   * @format date
+   */
+  reportDate?: string;
+  /** 报告格式 */
+  format?: "pdf" | "excel";
+  /** 报告状态 */
+  status?: "pending" | "processing" | "completed" | "failed";
+  /** 报告下载URL（仅在completed状态时提供） */
+  downloadUrl?: string;
+  /** 错误信息（仅在failed状态时提供） */
+  errorMessage?: string;
+  /**
+   * 报告创建时间
+   * @format date-time
+   */
+  createdAt?: string;
+  /**
+   * 报告完成时间
+   * @format date-time
+   */
+  completedAt?: string;
+  /**
+   * 下载链接过期时间
+   * @format date-time
+   */
+  expiresAt?: string;
+}
+
+export type NameChangeReportListResp = Pagination & {
+  items?: NameChangeReport[];
 };
 
 export interface Container {
@@ -2259,6 +2462,322 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     downloadOutboundReport: (reportId: string, params: RequestParams = {}) =>
       this.request<File, void>({
         path: `/inventory/outboundReports/${reportId}/download`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name ListNameChanges
+     * @summary 名义变更单列表
+     * @request GET:/inventory/nameChanges
+     * @secure
+     */
+    listNameChanges: (
+      query?: {
+        /**
+         * 页码
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @default 20
+         */
+        itemsPerPage?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListNameChangesResp, any>({
+        path: `/inventory/nameChanges`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name CreateNameChange
+     * @summary 创建名义变更单
+     * @request POST:/inventory/nameChange
+     * @secure
+     */
+    createNameChange: (data: NameChange, params: RequestParams = {}) =>
+      this.request<NameChange, any>({
+        path: `/inventory/nameChange`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name GetNameChange
+     * @summary 名义变更单详情
+     * @request GET:/inventory/nameChange/{id}
+     * @secure
+     */
+    getNameChange: (id: number, params: RequestParams = {}) =>
+      this.request<NameChange, any>({
+        path: `/inventory/nameChange/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name UpdateNameChange
+     * @summary 更新名义变更单
+     * @request PUT:/inventory/nameChange/{id}
+     * @secure
+     */
+    updateNameChange: (id: number, data: NameChange, params: RequestParams = {}) =>
+      this.request<NameChange, any>({
+        path: `/inventory/nameChange/${id}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name DeleteNameChange
+     * @summary 删除名义变更单
+     * @request DELETE:/inventory/nameChange/{id}
+     * @secure
+     */
+    deleteNameChange: (id: number, params: RequestParams = {}) =>
+      this.request<any, any>({
+        path: `/inventory/nameChange/${id}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name ApproveNameChange
+     * @summary 确认名义变更单
+     * @request POST:/inventory/nameChange/{id}/approve
+     * @secure
+     */
+    approveNameChange: (id: number, params: RequestParams = {}) =>
+      this.request<NameChange, any>({
+        path: `/inventory/nameChange/${id}/approve`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name RejectNameChange
+     * @summary 拒绝名义变更单
+     * @request POST:/inventory/nameChange/{id}/reject
+     * @secure
+     */
+    rejectNameChange: (id: number, params: RequestParams = {}) =>
+      this.request<NameChange, any>({
+        path: `/inventory/nameChange/${id}/reject`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name CancelNameChange
+     * @summary 取消名义变更单
+     * @request POST:/inventory/nameChange/{id}/cancel
+     * @secure
+     */
+    cancelNameChange: (id: number, params: RequestParams = {}) =>
+      this.request<NameChange, any>({
+        path: `/inventory/nameChange/${id}/cancel`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name ListNameChangeItems
+     * @summary 名义变更商品列表
+     * @request GET:/inventory/nameChangeItems
+     * @secure
+     */
+    listNameChangeItems: (
+      query?: {
+        /**
+         * 页码
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** 批次号 */
+        lotNumber?: string;
+        /** 商品ID */
+        productId?: number;
+        /**
+         * 名义变更日期(From)
+         * @format date
+         */
+        nameChangeDateFrom?: string;
+        /**
+         * 名义变更日期(To)
+         * @format date
+         */
+        nameChangeDateTo?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListNameChangeItemsResp, any>({
+        path: `/inventory/nameChangeItems`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 获取名义变更报告的历史列表，支持按仓库、客户等条件筛选。
+     *
+     * @tags 名义变更报告
+     * @name ListNameChangeReports
+     * @summary 获取名义变更报告列表
+     * @request GET:/inventory/nameChangeReports
+     * @secure
+     */
+    listNameChangeReports: (
+      query?: {
+        /**
+         * 页码
+         * @min 1
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @min 1
+         * @max 100
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** 仓库ID筛选 */
+        warehouseId?: number;
+        /** 客户ID筛选 */
+        customerId?: number;
+        /** 报告状态筛选 */
+        status?: "pending" | "processing" | "completed" | "failed";
+        /**
+         * 开始日期筛选（报告生成时间）
+         * @format date
+         */
+        startDate?: string;
+        /**
+         * 结束日期筛选（报告生成时间）
+         * @format date
+         */
+        endDate?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<NameChangeReportListResp, void>({
+        path: `/inventory/nameChangeReports`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 生成指定名义变更记录的名义变更报告PDF/Excel。 报告将异步生成，返回报告ID用于查询生成状态和下载。
+     *
+     * @tags 名义变更报告
+     * @name GenerateNameChangeReport
+     * @summary 生成名义变更报告
+     * @request POST:/inventory/nameChangeReport/generate
+     * @secure
+     */
+    generateNameChangeReport: (data: NameChangeReportReq, params: RequestParams = {}) =>
+      this.request<NameChangeReportResp, void>({
+        path: `/inventory/nameChangeReport/generate`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 根据报告ID获取名义变更报告的生成状态。 可用于轮询检查报告是否生成完成。
+     *
+     * @tags 名义变更报告
+     * @name GetNameChangeReportStatus
+     * @summary 获取名义变更报告生成状态
+     * @request GET:/inventory/nameChangeReports/{reportId}/status
+     * @secure
+     */
+    getNameChangeReportStatus: (reportId: string, params: RequestParams = {}) =>
+      this.request<NameChangeReport, void>({
+        path: `/inventory/nameChangeReports/${reportId}/status`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 下载已生成的名义变更报告文件。 支持PDF和Excel格式的报告下载。
+     *
+     * @tags 名义变更报告
+     * @name DownloadNameChangeReport
+     * @summary 下载名义变更报告
+     * @request GET:/inventory/nameChangeReports/{reportId}/download
+     * @secure
+     */
+    downloadNameChangeReport: (reportId: string, params: RequestParams = {}) =>
+      this.request<File, void>({
+        path: `/inventory/nameChangeReports/${reportId}/download`,
         method: "GET",
         secure: true,
         ...params,
