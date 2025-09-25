@@ -138,10 +138,6 @@ const getStatusLabel = (status?: Invoice['status']) => {
 }
 
 const router = useRouter()
-const toCreate = async () => {
-  await router.push({ name: 'invoice-create' })
-}
-
 const toDetail = async (id: number) => {
   await router.push({ name: 'invoice-detail', params: { id } })
 }
@@ -154,124 +150,130 @@ onMounted(async () => {
 
 <template>
   <q-page padding>
-    <q-card bordered>
-      <q-card-section>
-        <div class="row items-center q-col-gutter-md">
-          <div class="col-12 col-md-3">
-            <q-select
-              :model-value="searchParams.status"
-              @update:model-value="searchParams.status = $event || undefined"
-              :options="statusOptions"
-              label="状態"
-              emit-value
-              map-options
-              clearable
-            />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-select
-              :model-value="searchParams.customer"
-              @update:model-value="searchParams.customer = $event"
-              :options="customerOptions"
-              label="お客様"
-              option-label="name"
-              option-value="id"
-              use-input
-              clearable
-              @filter="async (val, update) => {
-                update(async () => {
-                  await customerStore.getCustomerOptions(val)
-                })
-              }"
-            />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-input
-              type="date"
-              :model-value="searchParams.outboundDateFrom"
-              @update:model-value="searchParams.outboundDateFrom = ($event as string || undefined)"
-              label="出庫日(開始)"
-              dense
-            />
-          </div>
-          <div class="col-12 col-md-3">
-            <q-input
-              type="date"
-              :model-value="searchParams.outboundDateTo"
-              @update:model-value="searchParams.outboundDateTo = ($event as string || undefined)"
-              label="出庫日(終了)"
-              dense
-            />
-          </div>
-        </div>
-        <div class="row justify-between q-mt-md">
-          <div class="col-auto">
-            <q-btn color="primary" label="検索" @click="search" :disable="loading" />
-          </div>
-          <div class="col-auto">
-            <q-btn color="primary" label="新規請求書" icon="sym_r_add" @click="toCreate" />
-          </div>
-        </div>
-      </q-card-section>
-      <q-separator />
-      <q-card-section>
-        <q-linear-progress indeterminate v-if="loading" />
-        <q-table
-          ref="tableRef"
-          :rows="rows"
-          :columns="columns"
-          row-key="id"
-          flat
-          :loading="loading"
-          :pagination="pagination"
-          @request="onRequest"
-        >
-          <template #body-cell-customer="{ row }">
-            <q-td>
-              {{ row.customer?.name ?? '-' }}
-            </q-td>
-          </template>
-          <template #body-cell-status="{ row }">
-            <q-td>
-              <q-badge v-bind="getStatusLabel(row.status)" />
-            </q-td>
-          </template>
-          <template #body-cell-totalAmount="{ row }">
-            <q-td class="text-right">
-              {{ formatAmount(row.totalAmount) }}
-            </q-td>
-          </template>
-          <template #body-cell-actions="{ row }">
-            <q-td class="text-right">
-              <q-btn
-                size="sm"
-                flat
-                dense
-                icon="sym_r_visibility"
-                @click="toDetail(row.id!)"
+    <div class="row q-col-gutter-md">
+      <div class="col-12">
+        <q-card bordered>
+          <q-card-section class="q-pa-none">
+            <q-table
+              ref="tableRef"
+              flat
+              :rows="rows"
+              :columns="columns"
+              row-key="id"
+              hide-pagination
+              :loading="loading"
+              v-model:pagination="pagination"
+              @request="onRequest"
+            >
+              <template #top>
+                <div class="row" style="width: 100%">
+                  <div class="text-h6 col-12">請求書一覧</div>
+                  <q-select
+                    class="q-px-sm"
+                    :model-value="searchParams.status"
+                    @update:model-value="searchParams.status = $event || undefined"
+                    :options="statusOptions"
+                    label="状態"
+                    dense
+                    emit-value
+                    map-options
+                    clearable
+                    style="width: 160px"
+                  />
+                  <q-select
+                    class="q-px-sm"
+                    :model-value="searchParams.customer"
+                    @update:model-value="searchParams.customer = $event"
+                    :options="customerOptions"
+                    label="お客様"
+                    option-label="name"
+                    option-value="id"
+                    dense
+                    use-input
+                    clearable
+                    input-style="width: 0px"
+                    style="width: 220px"
+                    @filter="async (val, update) => {
+                      update(async () => {
+                        await customerStore.getCustomerOptions(val)
+                      })
+                    }"
+                  />
+                  <q-input
+                    class="q-px-sm"
+                    type="date"
+                    :model-value="searchParams.outboundDateFrom"
+                    @update:model-value="searchParams.outboundDateFrom = ($event as string || undefined)"
+                    label="出庫日(開始)"
+                    dense
+                    style="width: 140px"
+                  />
+                  <div class="flex items-center" style="padding: 0 4px">
+                    ～
+                  </div>
+                  <q-input
+                    class="q-px-sm"
+                    type="date"
+                    :model-value="searchParams.outboundDateTo"
+                    @update:model-value="searchParams.outboundDateTo = ($event as string || undefined)"
+                    label="出庫日(終了)"
+                    dense
+                    style="width: 140px"
+                  />
+                  <q-space />
+                  <div style="display: flex; align-items: center">
+                    <q-btn
+                      class="q-mx-sm"
+                      size="sm"
+                      label="検索"
+                      color="primary"
+                      icon="sym_r_search"
+                      :disable="loading"
+                      @click="search"
+                    />
+                  </div>
+                </div>
+              </template>
+              <template #body-cell-customer="{ row }">
+                <q-td>
+                  {{ row.customer?.name ?? '-' }}
+                </q-td>
+              </template>
+              <template #body-cell-status="{ row }">
+                <q-td>
+                  <q-badge v-bind="getStatusLabel(row.status)" />
+                </q-td>
+              </template>
+              <template #body-cell-totalAmount="{ row }">
+                <q-td class="text-right">
+                  {{ formatAmount(row.totalAmount) }}
+                </q-td>
+              </template>
+              <template #body-cell-actions="{ row }">
+                <q-td class="text-right">
+                  <q-btn
+                    size="sm"
+                    flat
+                    dense
+                    icon="sym_r_visibility"
+                    @click="toDetail(row.id!)"
+                  />
+                </q-td>
+              </template>
+            </q-table>
+            <q-separator />
+            <div class="row justify-center q-my-md">
+              <q-pagination
+                v-model="pagination.page"
+                color="primary"
+                :max="maxPage"
+                max-pages="9"
+                @update:model-value="onPageChange"
               />
-            </q-td>
-          </template>
-        </q-table>
-        <div class="row items-center justify-end q-mt-md">
-          <q-pagination
-            v-model="pagination.page"
-            :max="maxPage"
-            direction-links
-            boundary-links
-            @update:model-value="onPageChange"
-          />
-          <q-select
-            class="q-ml-md"
-            v-model="pagination.rowsPerPage"
-            :options="[10, 15, 20, 30]"
-            style="width: 100px"
-            dense
-            borderless
-            @update:model-value="onPageChange"
-          />
-        </div>
-      </q-card-section>
-    </q-card>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
   </q-page>
 </template>
