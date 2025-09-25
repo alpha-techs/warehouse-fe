@@ -194,6 +194,21 @@ const routes: RouteRecordRaw[] = [
         name: 'namechange-report-list',
         component: () => import('pages/inventory/NameChangeReportListPage.vue'),
       },
+      {
+        path: 'billing/invoices',
+        name: 'invoice-list',
+        component: () => import('pages/invoice/InvoiceListPage.vue'),
+      },
+      {
+        path: 'billing/invoices/new',
+        name: 'invoice-create',
+        component: () => import('pages/invoice/CreateInvoicePage.vue'),
+      },
+      {
+        path: 'billing/invoices/:id',
+        name: 'invoice-detail',
+        component: () => import('pages/invoice/InvoiceDetailPage.vue'),
+      },
     ],
   },
 

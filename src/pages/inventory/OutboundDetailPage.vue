@@ -52,6 +52,13 @@ const approve = async () => {
 const reject = async () => {
   await useOutboundStore().rejectOutboundById(outboundId.value);
 }
+
+const toInvoiceCreate = async () => {
+  if (!outbound.value.id) {
+    return
+  }
+  await router.push({ name: 'invoice-create', query: { outboundId: outbound.value.id } });
+}
 </script>
 
 <template>
@@ -94,6 +101,15 @@ const reject = async () => {
           label="一覧へ"
           @click="backToList"
           :disable="loading"
+        />
+        <q-btn
+          v-if="outbound.status === 'approved'"
+          style="width: 140px"
+          color="primary"
+          label="請求書を作成"
+          flat
+          @click="toInvoiceCreate"
+          :disable="loading || !outbound.id"
         />
         <template v-if="outbound.status != 'approved'">
           <q-btn style="width: 100px" color="negative" label="編集" @click="toEdit" />

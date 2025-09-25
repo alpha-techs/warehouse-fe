@@ -128,6 +128,11 @@ const linksList: EssentialLinkProps[] = [
     ],
   },
   {
+    title: '請求管理',
+    icon: 'sym_r_receipt_long',
+    link: router.resolve({ name: 'invoice-list' }).href,
+  },
+  {
     title: '名義変更管理',
     icon: 'sym_r_partner_exchange',
     subMenu: [

@@ -396,6 +396,26 @@ export interface Outbound {
   items?: OutboundItem[];
   /** 出库状态 */
   status?: "draft" | "pending" | "approved" | "rejected" | "cancelled";
+  /**
+   * 结算币种，仅支持JPY
+   * @default "JPY"
+   */
+  currency?: "JPY";
+  /**
+   * 商品小计金额
+   * @format float
+   */
+  subtotalAmount?: number;
+  /**
+   * 税额
+   * @format float
+   */
+  taxAmount?: number;
+  /**
+   * 总金额
+   * @format float
+   */
+  totalAmount?: number;
   /** 创建时间 */
   createdAt?: string;
 }
@@ -480,6 +500,26 @@ export interface OutboundItem {
   inventoryQuantity?: number;
   /** 出库数量 */
   quantity?: number;
+  /**
+   * 商品单价
+   * @format float
+   */
+  unitPrice?: number;
+  /**
+   * 结算币种，仅支持JPY
+   * @default "JPY"
+   */
+  currency?: "JPY";
+  /**
+   * 行金额
+   * @format float
+   */
+  lineAmount?: number;
+  /**
+   * 行税额
+   * @format float
+   */
+  taxAmount?: number;
   /** 备注 */
   note?: string;
 }
@@ -945,6 +985,154 @@ export interface NameChangeReport {
 export type NameChangeReportListResp = Pagination & {
   items?: NameChangeReport[];
 };
+
+export interface Invoice {
+  /** 发票ID */
+  id?: number;
+  /** 发票编号 */
+  invoiceNumber?: string;
+  /** 发票状态 */
+  status?: "draft" | "issued" | "cancelled" | "paid";
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  /**
+   * 付款截止日期
+   * @format date
+   */
+  dueDate?: string;
+  /**
+   * 发票下发时间
+   * @format date-time
+   */
+  issueDate?: string;
+  /**
+   * 结算币种，仅支持JPY
+   * @default "JPY"
+   */
+  currency?: "JPY";
+  /**
+   * 商品小计金额
+   * @format float
+   */
+  subtotalAmount?: number;
+  /**
+   * 税额
+   * @format float
+   */
+  taxAmount?: number;
+  /**
+   * 总金额
+   * @format float
+   */
+  totalAmount?: number;
+  /** 关联的出库单ID */
+  outboundId?: number;
+  /** 发票明细行 */
+  items?: InvoiceLineItem[];
+  /** 备注 */
+  notes?: string;
+  /**
+   * 创建时间
+   * @format date-time
+   */
+  createdAt?: string;
+  /**
+   * 更新时间
+   * @format date-time
+   */
+  updatedAt?: string;
+}
+
+export interface InvoiceLineItem {
+  /** 发票明细ID */
+  id?: number;
+  /** 出库记录ID */
+  outboundId?: number;
+  /** 出库订单编号 */
+  outboundOrderId?: string;
+  /**
+   * 出库日期
+   * @format date
+   */
+  outboundDate?: string;
+  product?: {
+    /** 商品ID */
+    id?: number;
+    /** 商品名称 */
+    name?: string;
+  };
+  /** 计费数量 */
+  quantity?: number;
+  /**
+   * 计费单价
+   * @format float
+   */
+  unitPrice?: number;
+  /**
+   * 结算币种，仅支持JPY
+   * @default "JPY"
+   */
+  currency?: "JPY";
+  /**
+   * 行金额
+   * @format float
+   */
+  lineAmount?: number;
+  /**
+   * 行税额
+   * @format float
+   */
+  taxAmount?: number;
+  /** 备注 */
+  note?: string;
+}
+
+export interface CreateInvoiceReq {
+  /** 客户ID */
+  customerId: number;
+  /** 需要生成发票的出库单ID */
+  outboundId: number;
+  /**
+   * 付款截止日期
+   * @format date
+   */
+  dueDate?: string;
+  /**
+   * 结算币种，仅支持JPY，缺省为JPY
+   * @default "JPY"
+   */
+  currency?: "JPY";
+  /**
+   * 创建后是否自动下发
+   * @default false
+   */
+  autoIssue?: boolean;
+  /** 补充说明 */
+  notes?: string;
+}
+
+export type ListInvoicesResp = Pagination & {
+  items?: Invoice[];
+};
+
+export interface IssueInvoiceReq {
+  /**
+   * 发票下发时间
+   * @format date-time
+   */
+  issueDate?: string;
+  /** 下发时附带的消息 */
+  message?: string;
+}
+
+export interface CancelInvoiceReq {
+  /** 取消原因 */
+  reason?: string;
+}
 
 export interface Container {
   /** 集装箱ID */
@@ -2780,6 +2968,135 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/inventory/nameChangeReports/${reportId}/download`,
         method: "GET",
         secure: true,
+        ...params,
+      }),
+  };
+  billing = {
+    /**
+     * No description
+     *
+     * @tags 结算
+     * @name ListInvoices
+     * @summary 发票列表
+     * @request GET:/billing/invoices
+     * @secure
+     */
+    listInvoices: (
+      query?: {
+        /**
+         * 页码
+         * @min 1
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @min 1
+         * @max 100
+         * @default 20
+         */
+        pageSize?: number;
+        /** 客户ID */
+        customerId?: number;
+        /** 发票状态 */
+        status?: "draft" | "issued" | "cancelled" | "paid";
+        /**
+         * 出库日期（起）
+         * @format date
+         */
+        outboundDateFrom?: string;
+        /**
+         * 出库日期（止）
+         * @format date
+         */
+        outboundDateTo?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListInvoicesResp, any>({
+        path: `/billing/invoices`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 结算
+     * @name CreateInvoice
+     * @summary 创建发票
+     * @request POST:/billing/invoice
+     * @secure
+     */
+    createInvoice: (data: CreateInvoiceReq, params: RequestParams = {}) =>
+      this.request<Invoice, any>({
+        path: `/billing/invoice`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 结算
+     * @name GetInvoice
+     * @summary 发票详情
+     * @request GET:/billing/invoice/{id}
+     * @secure
+     */
+    getInvoice: (id: number, params: RequestParams = {}) =>
+      this.request<Invoice, any>({
+        path: `/billing/invoice/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 结算
+     * @name IssueInvoice
+     * @summary 下发发票
+     * @request POST:/billing/invoice/{id}/issue
+     * @secure
+     */
+    issueInvoice: (id: number, data?: IssueInvoiceReq, params: RequestParams = {}) =>
+      this.request<Invoice, any>({
+        path: `/billing/invoice/${id}/issue`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 结算
+     * @name CancelInvoice
+     * @summary 取消发票
+     * @request POST:/billing/invoice/{id}/cancel
+     * @secure
+     */
+    cancelInvoice: (id: number, data?: CancelInvoiceReq, params: RequestParams = {}) =>
+      this.request<Invoice, any>({
+        path: `/billing/invoice/${id}/cancel`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };

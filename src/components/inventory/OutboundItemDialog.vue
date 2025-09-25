@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 import type { PropType } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useOutboundStore } from 'stores/outbound-store'
 import type { InboundItem, InventoryItem } from 'src/api/Api'
 import PickInventoryItemDialog from 'components/inventory/PickInventoryItemDialog.vue'
 import type { ComponentExposed } from 'vue-component-type-helpers'
+import Big from 'big.js'
 
 defineProps({
   show: {
@@ -53,10 +54,25 @@ const onSubmit = (data: InventoryItem) => {
   model.value.warehouse = data.warehouse
   model.value.product = data.product
   model.value.lotNumber = data.lotNumber
-  model.value.quantity = 0
+  model.value.quantity = model.value.quantity ?? 0
   model.value.inventoryQuantity = data.leftQuantity
   model.value.note = undefined
+  model.value.currency = model.value.currency ?? 'JPY'
+  model.value.unitPrice = model.value.unitPrice ?? 0
+  model.value.lineAmount = model.value.lineAmount ?? 0
+  model.value.taxAmount = model.value.taxAmount ?? 0
 }
+
+watch(
+  () => [model.value.quantity, model.value.unitPrice],
+  ([quantity, unitPrice]) => {
+    if (quantity != null && unitPrice != null) {
+      const computed = new Big(unitPrice).times(quantity)
+      model.value.lineAmount = computed.toNumber()
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -89,15 +105,60 @@ const onSubmit = (data: InventoryItem) => {
             </q-item>
             <q-item class="col-6">
               <q-item-section>
-                <q-input :model-value="model.quantity"
-                  @update:model-value="model.quantity = ($event as number || undefined)" label="出庫数" />
+                <q-input
+                  type="number"
+                  :model-value="model.quantity"
+                  @update:model-value="(val) => { model.quantity = Number(val ?? 0) }"
+                  label="出庫数"
+                />
               </q-item-section>
             </q-item>
             <q-item class="col-6">
               <q-item-section>
-                <q-input :model-value="model.inventoryQuantity"
-                  @update:model-value="model.inventoryQuantity = ($event as number || undefined)" label="在庫数"
-                  readonly />
+                <q-input
+                  type="number"
+                  :model-value="model.inventoryQuantity"
+                  label="在庫数"
+                  readonly
+                />
+              </q-item-section>
+            </q-item>
+            <q-item class="col-6">
+              <q-item-section>
+                <q-input
+                  type="number"
+                  :model-value="model.unitPrice"
+                  @update:model-value="(val) => { model.unitPrice = Number(val ?? 0) }"
+                  label="単価"
+                  :step="0.01"
+                />
+              </q-item-section>
+            </q-item>
+            <q-item class="col-6">
+              <q-item-section>
+                <q-input
+                  type="number"
+                  :model-value="model.lineAmount"
+                  @update:model-value="(val) => { model.lineAmount = Number(val ?? 0) }"
+                  label="金額"
+                  :step="0.01"
+                />
+              </q-item-section>
+            </q-item>
+            <q-item class="col-6">
+              <q-item-section>
+                <q-input
+                  type="number"
+                  :model-value="model.taxAmount"
+                  @update:model-value="(val) => { model.taxAmount = Number(val ?? 0) }"
+                  label="税額"
+                  :step="0.01"
+                />
+              </q-item-section>
+            </q-item>
+            <q-item class="col-6">
+              <q-item-section>
+                <q-input :model-value="model.currency" label="通貨" readonly />
               </q-item-section>
             </q-item>
             <q-item class="col-12">
