@@ -130,7 +130,18 @@ const linksList: EssentialLinkProps[] = [
   {
     title: '請求管理',
     icon: 'sym_r_receipt_long',
-    link: router.resolve({ name: 'invoice-list' }).href,
+    subMenu: [
+      {
+        title: '請求書一覧',
+        icon: 'sym_r_receipt_long',
+        link: router.resolve({ name: 'invoice-list' }).href,
+      },
+      {
+        title: '請求書Excel出力',
+        icon: 'sym_r_table_view',
+        link: router.resolve({ name: 'invoice-print-list' }).href,
+      },
+    ],
   },
   {
     title: '名義変更管理',

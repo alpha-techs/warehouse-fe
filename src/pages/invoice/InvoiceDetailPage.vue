@@ -6,6 +6,7 @@ import { useInvoiceStore } from 'stores/invoice-store'
 import { toastFormError } from 'src/utils/error-handler'
 import { Notify } from 'quasar'
 import type { Invoice } from 'src/api/Api'
+import { useInvoicePrintStore } from 'stores/invoice-print-store'
 
 const loading = ref(false)
 const issueDialog = ref(false)
@@ -13,6 +14,7 @@ const cancelDialog = ref(false)
 const issueDate = ref<string | undefined>(undefined)
 const issueMessage = ref<string | undefined>(undefined)
 const cancelReason = ref<string | undefined>(undefined)
+const generatingPrint = ref(false)
 
 const router = useRouter()
 const route = useRoute()
@@ -21,6 +23,7 @@ const invoiceId = computed(() => Number(route.params.id))
 
 const invoiceStore = useInvoiceStore()
 const { invoiceDetail: invoice } = storeToRefs(invoiceStore)
+const invoicePrintStore = useInvoicePrintStore()
 
 const getStatusBadge = (status?: Invoice['status']) => {
   switch (status) {
@@ -66,6 +69,10 @@ const toList = async () => {
   await router.push({ name: 'invoice-list' })
 }
 
+const toPrintList = async () => {
+  await router.push({ name: 'invoice-print-list' })
+}
+
 const toOutboundDetail = async (outboundId?: number) => {
   if (!outboundId) {
     return
@@ -95,6 +102,38 @@ const cancelInvoice = async () => {
     Notify.create({ type: 'positive', message: '請求書を取消しました' })
   } catch (error) {
     await toastFormError(error)
+  }
+}
+
+const generateInvoiceExcel = async () => {
+  if (!invoice.value?.id) {
+    return
+  }
+  try {
+    generatingPrint.value = true
+    const resp = await invoicePrintStore.generateInvoicePrint({
+      invoiceId: invoice.value.id,
+      format: 'excel',
+    })
+    const printId = resp.printId
+    Notify.create({
+      type: 'positive',
+      message: 'Excel出力を受け付けました',
+      caption: printId ? `タスクID: ${printId}` : undefined,
+      actions: [
+        {
+          label: 'タスク一覧',
+          color: 'white',
+          handler: () => {
+            void router.push({ name: 'invoice-print-list' })
+          },
+        },
+      ],
+    })
+  } catch (error) {
+    await toastFormError(error)
+  } finally {
+    generatingPrint.value = false
   }
 }
 
@@ -189,6 +228,21 @@ onMounted(async () => {
       </q-card-section>
       <q-separator />
       <q-card-actions align="right">
+        <q-btn
+          label="Excel出力"
+          color="primary"
+          outline
+          icon="sym_r_table_view"
+          :loading="generatingPrint"
+          @click="generateInvoiceExcel"
+        />
+        <q-btn
+          flat
+          label="Excel出力履歴"
+          color="primary"
+          icon="sym_r_history"
+          @click="toPrintList"
+        />
         <q-btn label="一覧へ" color="primary" @click="toList" />
         <q-btn
           v-if="invoice?.status === 'draft'"

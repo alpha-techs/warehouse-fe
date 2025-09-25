@@ -1134,6 +1134,112 @@ export interface CancelInvoiceReq {
   reason?: string;
 }
 
+export interface InvoicePrintReq {
+  /** 需要生成打印版的发票ID */
+  invoiceId: number;
+  /**
+   * 打印文件格式
+   * @default "excel"
+   */
+  format?: "excel";
+}
+
+export interface InvoicePrintResp {
+  /** 打印任务ID */
+  printId?: string;
+  /** 发票关键信息 */
+  invoice?: {
+    /** 发票ID */
+    id?: number;
+    /** 发票编号 */
+    invoiceNumber?: string;
+    /** 发票状态 */
+    status?: "draft" | "issued" | "cancelled" | "paid";
+  };
+  /** 打印文件格式 */
+  format?: "excel";
+  /**
+   * 下载链接过期时间
+   * @format date-time
+   */
+  expiresAt?: string;
+}
+
+export interface InvoicePrint {
+  /** 发票打印任务ID */
+  id?: string;
+  /** 发票关键信息 */
+  invoice?: {
+    /** 发票ID */
+    id?: number;
+    /** 发票编号 */
+    invoiceNumber?: string;
+    /** 发票状态 */
+    status?: "draft" | "issued" | "cancelled" | "paid";
+    /** 发票对应客户信息 */
+    customer?: {
+      /** 客户ID */
+      id?: number;
+      /** 客户名称 */
+      name?: string;
+    };
+    /**
+     * 付款截止日期
+     * @format date
+     */
+    dueDate?: string;
+    /**
+     * 发票下发时间
+     * @format date-time
+     */
+    issueDate?: string;
+    /** 结算币种 */
+    currency?: string;
+    /**
+     * 商品小计金额
+     * @format float
+     */
+    subtotalAmount?: number;
+    /**
+     * 税额
+     * @format float
+     */
+    taxAmount?: number;
+    /**
+     * 总金额
+     * @format float
+     */
+    totalAmount?: number;
+  };
+  /** 打印文件格式 */
+  format?: "excel";
+  /** 打印任务状态 */
+  status?: "pending" | "processing" | "completed" | "failed";
+  /** 下载链接（仅在completed状态时提供） */
+  downloadUrl?: string;
+  /** 错误信息（仅在failed状态时提供） */
+  errorMessage?: string;
+  /**
+   * 任务创建时间
+   * @format date-time
+   */
+  createdAt?: string;
+  /**
+   * 任务完成时间
+   * @format date-time
+   */
+  completedAt?: string;
+  /**
+   * 下载链接过期时间
+   * @format date-time
+   */
+  expiresAt?: string;
+}
+
+export type InvoicePrintListResp = Pagination & {
+  items?: InvoicePrint[];
+};
+
 export interface Container {
   /** 集装箱ID */
   id?: number;
@@ -3097,6 +3203,113 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 获取发票打印版Excel生成任务的列表，支持按发票编号、客户和状态等条件筛选。
+     *
+     * @tags 结算
+     * @name ListInvoicePrints
+     * @summary 获取发票打印任务列表
+     * @request GET:/billing/invoicePrints
+     * @secure
+     */
+    listInvoicePrints: (
+      query?: {
+        /**
+         * 页码
+         * @min 1
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @min 1
+         * @max 100
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** 发票编号筛选 */
+        invoiceNumber?: string;
+        /** 客户ID筛选 */
+        customerId?: number;
+        /** 打印任务状态筛选 */
+        status?: "pending" | "processing" | "completed" | "failed";
+        /**
+         * 开始日期筛选（任务创建时间）
+         * @format date
+         */
+        startDate?: string;
+        /**
+         * 结束日期筛选（任务创建时间）
+         * @format date
+         */
+        endDate?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<InvoicePrintListResp, void>({
+        path: `/billing/invoicePrints`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 生成指定发票的打印版Excel文件。 打印任务将异步执行，返回任务ID用于查询状态和下载。
+     *
+     * @tags 结算
+     * @name GenerateInvoicePrint
+     * @summary 生成发票打印版Excel
+     * @request POST:/billing/invoicePrint/generate
+     * @secure
+     */
+    generateInvoicePrint: (data: InvoicePrintReq, params: RequestParams = {}) =>
+      this.request<InvoicePrintResp, void>({
+        path: `/billing/invoicePrint/generate`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 根据打印任务ID获取生成状态。 可用于轮询检查发票打印版是否生成完成。
+     *
+     * @tags 结算
+     * @name GetInvoicePrintStatus
+     * @summary 获取发票打印任务状态
+     * @request GET:/billing/invoicePrints/{printId}/status
+     * @secure
+     */
+    getInvoicePrintStatus: (printId: string, params: RequestParams = {}) =>
+      this.request<InvoicePrint, void>({
+        path: `/billing/invoicePrints/${printId}/status`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 下载已生成的发票打印版Excel文件。
+     *
+     * @tags 结算
+     * @name DownloadInvoicePrint
+     * @summary 下载发票打印版
+     * @request GET:/billing/invoicePrints/{printId}/download
+     * @secure
+     */
+    downloadInvoicePrint: (printId: string, params: RequestParams = {}) =>
+      this.request<File, void>({
+        path: `/billing/invoicePrints/${printId}/download`,
+        method: "GET",
+        secure: true,
         ...params,
       }),
   };

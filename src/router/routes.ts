@@ -200,6 +200,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/invoice/InvoiceListPage.vue'),
       },
       {
+        path: 'billing/invoice-prints',
+        name: 'invoice-print-list',
+        component: () => import('pages/invoice/InvoicePrintListPage.vue'),
+      },
+      {
         path: 'billing/invoices/new',
         name: 'invoice-create',
         component: () => import('pages/invoice/CreateInvoicePage.vue'),
