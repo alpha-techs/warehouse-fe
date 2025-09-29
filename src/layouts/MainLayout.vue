@@ -15,7 +15,41 @@
           {{ appName }}
         </q-toolbar-title>
 
-        <div>{{ appVersion }}</div>
+        <q-space />
+
+        <div v-if="appVersionLabel" class="text-caption q-mr-md">
+          {{ appVersionLabel }}
+        </div>
+
+        <q-btn
+          flat
+          dense
+          no-caps
+          icon="sym_r_account_circle"
+          :label="userDisplayName"
+        >
+          <q-menu anchor="bottom end" self="top end">
+            <q-list padding>
+              <q-item>
+                <q-item-section>
+                  <q-item-label>{{ userDisplayName }}</q-item-label>
+                  <q-item-label v-if="userEmail" caption>{{
+                    userEmail
+                  }}</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-separator spaced />
+
+              <q-item clickable v-close-popup @click="handleLogout">
+                <q-item-section avatar>
+                  <q-icon name="logout" />
+                </q-item-section>
+                <q-item-section>ログアウト</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -37,12 +71,16 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import EssentialLink, {
   type EssentialLinkProps,
 } from 'components/EssentialLink.vue'
+import { useAuthStore } from 'src/stores/auth-store'
 
 const router = useRouter()
+const $q = useQuasar()
+const authStore = useAuthStore()
 const linksList: EssentialLinkProps[] = [
   {
     title: 'ダッシュボード',
@@ -185,4 +223,17 @@ function toggleLeftDrawer() {
 
 const appName = computed(() => import.meta.env.VITE_APP_NAME)
 const appVersion = computed(() => import.meta.env.VITE_APP_VERSION)
+const appVersionLabel = computed(() =>
+  appVersion.value ? `v${appVersion.value}` : '',
+)
+const userDisplayName = computed(
+  () => authStore.profile?.name || authStore.profile?.email || 'マイアカウント',
+)
+const userEmail = computed(() => authStore.profile?.email || '')
+
+async function handleLogout() {
+  await authStore.logout()
+  await router.replace({ name: 'login' })
+  $q.notify({ type: 'info', message: 'ログアウトしました' })
+}
 </script>

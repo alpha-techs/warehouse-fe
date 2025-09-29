@@ -9,6 +9,119 @@
  * ---------------------------------------------------------------
  */
 
+/** JWT令牌信息 */
+export interface AuthTokens {
+  /**
+   * 令牌类型，通常为Bearer
+   * @example "Bearer"
+   */
+  tokenType: string;
+  /**
+   * Access Token
+   * @example "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+   */
+  accessToken: string;
+  /**
+   * Access Token有效期（秒）
+   * @format int64
+   * @example 3600
+   */
+  expiresIn: number;
+  /**
+   * Refresh Token
+   * @example "dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu"
+   */
+  refreshToken: string;
+  /**
+   * Refresh Token有效期（秒）
+   * @format int64
+   * @example 604800
+   */
+  refreshTokenExpiresIn: number;
+}
+
+/** 员工基础信息 */
+export interface EmployeeProfile {
+  /**
+   * 员工ID
+   * @example "emp_12345"
+   */
+  id: string;
+  /**
+   * 员工邮箱
+   * @format email
+   * @example "employee@example.com"
+   */
+  email: string;
+  /**
+   * 员工姓名
+   * @example "张三"
+   */
+  name: string;
+  /**
+   * 员工角色列表
+   * @example ["admin","warehouse_manager"]
+   */
+  roles: string[];
+  /**
+   * 上次登录时间
+   * @format date-time
+   * @example "2024-05-06T03:20:00Z"
+   */
+  lastLoginAt?: string;
+  /**
+   * 员工头像链接
+   * @format uri
+   * @example "https://cdn.example.com/avatar/emp_12345.png"
+   */
+  avatarUrl?: string;
+}
+
+export interface LoginReq {
+  /**
+   * 员工邮箱
+   * @format email
+   * @example "employee@example.com"
+   */
+  email: string;
+  /**
+   * 登录密码
+   * @format password
+   * @example "Secret123!"
+   */
+  password: string;
+}
+
+/** @example {"tokens":{"tokenType":"Bearer","accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9","expiresIn":3600,"refreshToken":"dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu","refreshTokenExpiresIn":604800},"employee":{"id":"emp_12345","email":"employee@example.com","name":"张三","roles":["admin","warehouse_manager"],"lastLoginAt":"2024-05-06T03:20:00Z","avatarUrl":"https://cdn.example.com/avatar/emp_12345.png"}} */
+export interface LoginResp {
+  /** JWT令牌信息 */
+  tokens: AuthTokens;
+  /** 员工基础信息 */
+  employee: EmployeeProfile;
+}
+
+export interface RefreshTokenReq {
+  /**
+   * Refresh Token
+   * @example "dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu"
+   */
+  refreshToken: string;
+}
+
+export interface LogoutReq {
+  /**
+   * 需要失效的Refresh Token
+   * @example "dGhpc19pc19hX3NhbXBsZV9yZWZyZXNoX3Rva2Vu"
+   */
+  refreshToken: string;
+}
+
+/** @example {"employee":{"id":"emp_12345","email":"employee@example.com","name":"张三","roles":["admin","warehouse_manager"],"lastLoginAt":"2024-05-06T03:20:00Z","avatarUrl":"https://cdn.example.com/avatar/emp_12345.png"}} */
+export interface AuthProfileResp {
+  /** 员工基础信息 */
+  employee: EmployeeProfile;
+}
+
 /** 地址 */
 export interface Address {
   /** 邮政编码 */
@@ -1799,6 +1912,84 @@ export class HttpClient<SecurityDataType = unknown> {
  * @baseUrl https://development.gigantic-server.com/v1
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+  auth = {
+    /**
+     * No description
+     *
+     * @tags 认证
+     * @name Login
+     * @summary 用户登录
+     * @request POST:/auth/login
+     * @secure
+     */
+    login: (data: LoginReq, params: RequestParams = {}) =>
+      this.request<LoginResp, any>({
+        path: `/auth/login`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 认证
+     * @name RefreshToken
+     * @summary 刷新访问令牌
+     * @request POST:/auth/refresh
+     * @secure
+     */
+    refreshToken: (data: RefreshTokenReq, params: RequestParams = {}) =>
+      this.request<LoginResp, any>({
+        path: `/auth/refresh`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 认证
+     * @name Logout
+     * @summary 用户登出
+     * @request POST:/auth/logout
+     * @secure
+     */
+    logout: (data: LogoutReq, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/auth/logout`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 认证
+     * @name GetAuthProfile
+     * @summary 获取当前登录员工信息
+     * @request GET:/auth/profile
+     * @secure
+     */
+    getAuthProfile: (params: RequestParams = {}) =>
+      this.request<AuthProfileResp, any>({
+        path: `/auth/profile`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
   dashboard = {
     /**
      * No description
@@ -3949,7 +4140,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @secure
      */
     getContainer: (id: number, params: RequestParams = {}) =>
-      this.request<GetCustomerResp, any>({
+      this.request<GetContainerResp, any>({
         path: `/container/${id}`,
         method: "GET",
         secure: true,
