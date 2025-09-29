@@ -1240,6 +1240,256 @@ export type InvoicePrintListResp = Pagination & {
   items?: InvoicePrint[];
 };
 
+export interface Order {
+  /** 注文ID */
+  id?: number;
+  /** 注文编号 */
+  orderNumber?: string;
+  /** 状态 */
+  status?: "draft" | "requested" | "sent" | "completed" | "cancelled";
+  /** 客户信息 */
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  /**
+   * 纳期
+   * @format date
+   */
+  deliveryDueDate?: string;
+  /** 地址 */
+  deliveryAddress?: Address;
+  /** 负责人姓名 */
+  contactName?: string;
+  /** 联系电话 */
+  contactPhone?: string;
+  /** 注文明细列表 */
+  items?: OrderItem[];
+  /**
+   * 总金额（未含税）
+   * @format float
+   */
+  totalAmount?: number;
+  /**
+   * 货币，仅支持JPY
+   * @default "JPY"
+   */
+  currency?: "JPY";
+  /** 备注 */
+  notes?: string;
+  /**
+   * 创建时间
+   * @format date-time
+   */
+  createdAt?: string;
+  /**
+   * 更新时间
+   * @format date-time
+   */
+  updatedAt?: string;
+}
+
+export interface OrderItem {
+  /** 注文明细ID */
+  id?: number;
+  /** 商品信息 */
+  product?: {
+    /** 商品ID */
+    id?: number;
+    /** 商品名称 */
+    name?: string;
+    /** 商品SKU */
+    sku?: string;
+  };
+  /**
+   * 订购数量
+   * @format float
+   */
+  quantity?: number;
+  /** 计量单位 */
+  unit?: string;
+  /**
+   * 单价（未含税）
+   * @format float
+   */
+  unitPrice?: number;
+  /**
+   * 货币，仅支持JPY
+   * @default "JPY"
+   */
+  currency?: "JPY";
+  /**
+   * 明细金额（未含税）
+   * @format float
+   */
+  lineAmount?: number;
+  /** 明细备注 */
+  note?: string;
+}
+
+export interface OrderItemInput {
+  /** 商品ID */
+  productId: number;
+  /**
+   * 订购数量
+   * @format float
+   */
+  quantity: number;
+  /** 计量单位 */
+  unit: string;
+  /**
+   * 单价（未含税）
+   * @format float
+   */
+  unitPrice: number;
+  /**
+   * 货币，仅支持JPY
+   * @default "JPY"
+   */
+  currency?: "JPY";
+  /** 明细备注 */
+  note?: string;
+}
+
+export interface CreateOrderReq {
+  /** 客户ID */
+  customerId: number;
+  /**
+   * 纳期
+   * @format date
+   */
+  deliveryDueDate: string;
+  /** 地址 */
+  deliveryAddress: Address;
+  /** 负责人姓名 */
+  contactName: string;
+  /** 联系电话 */
+  contactPhone: string;
+  /**
+   * 注文明细
+   * @minItems 1
+   */
+  items: OrderItemInput[];
+  /** 备注 */
+  notes?: string;
+}
+
+/** 注文更新请求，可部分更新字段 */
+export interface UpdateOrderReq {
+  /**
+   * 纳期
+   * @format date
+   */
+  deliveryDueDate?: string;
+  /** 地址 */
+  deliveryAddress?: Address;
+  /** 负责人姓名 */
+  contactName?: string;
+  /** 联系电话 */
+  contactPhone?: string;
+  /**
+   * 注文明细
+   * @minItems 1
+   */
+  items?: OrderItemInput[];
+  /** 备注 */
+  notes?: string;
+}
+
+export type ListOrdersResp = Pagination & {
+  items?: Order[];
+};
+
+export interface OrderPrintReq {
+  /** 需要生成打印版的注文ID */
+  orderId: number;
+  /**
+   * 打印文件格式
+   * @default "excel"
+   */
+  format?: "excel";
+}
+
+export interface OrderPrintResp {
+  /** 打印任务ID */
+  printId?: string;
+  /** 注文关键信息 */
+  order?: {
+    /** 注文ID */
+    id?: number;
+    /** 注文编号 */
+    orderNumber?: string;
+    /** 注文状态 */
+    status?: "draft" | "requested" | "sent" | "completed" | "cancelled";
+  };
+  /** 打印文件格式 */
+  format?: "excel";
+  /**
+   * 下载链接过期时间
+   * @format date-time
+   */
+  expiresAt?: string;
+}
+
+export interface OrderPrint {
+  /** 注文打印任务ID */
+  id?: string;
+  /** 注文关键信息 */
+  order?: {
+    /** 注文ID */
+    id?: number;
+    /** 注文编号 */
+    orderNumber?: string;
+    /** 注文状态 */
+    status?: "draft" | "requested" | "sent" | "completed" | "cancelled";
+    /** 客户信息 */
+    customer?: {
+      /** 客户ID */
+      id?: number;
+      /** 客户名称 */
+      name?: string;
+    };
+    /**
+     * 纳期
+     * @format date
+     */
+    deliveryDueDate?: string;
+    /** 负责人姓名 */
+    contactName?: string;
+    /** 联系电话 */
+    contactPhone?: string;
+  };
+  /** 打印文件格式 */
+  format?: "excel";
+  /** 打印任务状态 */
+  status?: "pending" | "processing" | "completed" | "failed";
+  /** 下载链接（仅在completed状态时提供） */
+  downloadUrl?: string;
+  /** 错误信息（仅在failed状态时提供） */
+  errorMessage?: string;
+  /**
+   * 任务创建时间
+   * @format date-time
+   */
+  createdAt?: string;
+  /**
+   * 任务完成时间
+   * @format date-time
+   */
+  completedAt?: string;
+  /**
+   * 下载链接过期时间
+   * @format date-time
+   */
+  expiresAt?: string;
+}
+
+export type OrderPrintListResp = Pagination & {
+  items?: OrderPrint[];
+};
+
 export interface Container {
   /** 集装箱ID */
   id?: number;
@@ -3308,6 +3558,314 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     downloadInvoicePrint: (printId: string, params: RequestParams = {}) =>
       this.request<File, void>({
         path: `/billing/invoicePrints/${printId}/download`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+  };
+  procurement = {
+    /**
+     * @description 获取注文书列表，支持按订单编号、客户和状态等条件筛选。
+     *
+     * @tags 采购
+     * @name ListOrders
+     * @summary 获取注文列表
+     * @request GET:/procurement/orders
+     * @secure
+     */
+    listOrders: (
+      query?: {
+        /**
+         * 页码
+         * @min 1
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @min 1
+         * @max 100
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** 注文编号筛选 */
+        orderNumber?: string;
+        /** 客户ID筛选 */
+        customerId?: number;
+        /** 状态筛选 */
+        status?: "draft" | "requested" | "sent" | "completed" | "cancelled";
+        /**
+         * 纳期开始筛选
+         * @format date
+         */
+        deliveryDueStart?: string;
+        /**
+         * 纳期结束筛选
+         * @format date
+         */
+        deliveryDueEnd?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListOrdersResp, void>({
+        path: `/procurement/orders`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 采购
+     * @name CreateOrder
+     * @summary 创建注文书
+     * @request POST:/procurement/order
+     * @secure
+     */
+    createOrder: (data: CreateOrderReq, params: RequestParams = {}) =>
+      this.request<Order, void>({
+        path: `/procurement/order`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 采购
+     * @name GetOrder
+     * @summary 注文详情
+     * @request GET:/procurement/order/{id}
+     * @secure
+     */
+    getOrder: (id: number, params: RequestParams = {}) =>
+      this.request<Order, void>({
+        path: `/procurement/order/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 采购
+     * @name UpdateOrder
+     * @summary 更新注文书
+     * @request PUT:/procurement/order/{id}
+     * @secure
+     */
+    updateOrder: (id: number, data: UpdateOrderReq, params: RequestParams = {}) =>
+      this.request<Order, void>({
+        path: `/procurement/order/${id}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 采购
+     * @name CancelOrder
+     * @summary 取消注文书
+     * @request DELETE:/procurement/order/{id}
+     * @secure
+     */
+    cancelOrder: (id: number, params: RequestParams = {}) =>
+      this.request<Order, void>({
+        path: `/procurement/order/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 采购
+     * @name SubmitOrder
+     * @summary 提交注文书
+     * @request POST:/procurement/order/{id}/submit
+     * @secure
+     */
+    submitOrder: (id: number, params: RequestParams = {}) =>
+      this.request<Order, void>({
+        path: `/procurement/order/${id}/submit`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 采购
+     * @name SendOrder
+     * @summary 下发注文书
+     * @request POST:/procurement/order/{id}/send
+     * @secure
+     */
+    sendOrder: (id: number, params: RequestParams = {}) =>
+      this.request<Order, void>({
+        path: `/procurement/order/${id}/send`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 采购
+     * @name CompleteOrder
+     * @summary 完成注文书
+     * @request POST:/procurement/order/{id}/complete
+     * @secure
+     */
+    completeOrder: (id: number, params: RequestParams = {}) =>
+      this.request<Order, void>({
+        path: `/procurement/order/${id}/complete`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 采购
+     * @name CancelOrderAction
+     * @summary 取消注文书
+     * @request POST:/procurement/order/{id}/cancel
+     * @secure
+     */
+    cancelOrderAction: (id: number, params: RequestParams = {}) =>
+      this.request<Order, void>({
+        path: `/procurement/order/${id}/cancel`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 获取注文打印版Excel生成任务的列表，支持按订单编号、客户和状态等条件筛选。
+     *
+     * @tags 采购
+     * @name ListOrderPrints
+     * @summary 获取注文打印任务列表
+     * @request GET:/procurement/orderPrints
+     * @secure
+     */
+    listOrderPrints: (
+      query?: {
+        /**
+         * 页码
+         * @min 1
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @min 1
+         * @max 100
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** 注文编号筛选 */
+        orderNumber?: string;
+        /** 客户ID筛选 */
+        customerId?: number;
+        /** 打印任务状态筛选 */
+        status?: "pending" | "processing" | "completed" | "failed";
+        /**
+         * 开始日期筛选（任务创建时间）
+         * @format date
+         */
+        startDate?: string;
+        /**
+         * 结束日期筛选（任务创建时间）
+         * @format date
+         */
+        endDate?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<OrderPrintListResp, void>({
+        path: `/procurement/orderPrints`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 生成指定注文书的打印版Excel文件。 打印任务将异步执行，返回任务ID用于查询状态和下载。
+     *
+     * @tags 采购
+     * @name GenerateOrderPrint
+     * @summary 生成注文打印版Excel
+     * @request POST:/procurement/orderPrint/generate
+     * @secure
+     */
+    generateOrderPrint: (data: OrderPrintReq, params: RequestParams = {}) =>
+      this.request<OrderPrintResp, void>({
+        path: `/procurement/orderPrint/generate`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 根据打印任务ID获取生成状态。 可用于轮询检查注文打印版是否生成完成。
+     *
+     * @tags 采购
+     * @name GetOrderPrintStatus
+     * @summary 获取注文打印任务状态
+     * @request GET:/procurement/orderPrints/{printId}/status
+     * @secure
+     */
+    getOrderPrintStatus: (printId: string, params: RequestParams = {}) =>
+      this.request<OrderPrint, void>({
+        path: `/procurement/orderPrints/${printId}/status`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 下载已生成的注文打印版Excel文件。
+     *
+     * @tags 采购
+     * @name DownloadOrderPrint
+     * @summary 下载注文打印版
+     * @request GET:/procurement/orderPrints/{printId}/download
+     * @secure
+     */
+    downloadOrderPrint: (printId: string, params: RequestParams = {}) =>
+      this.request<File, void>({
+        path: `/procurement/orderPrints/${printId}/download`,
         method: "GET",
         secure: true,
         ...params,

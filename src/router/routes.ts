@@ -195,6 +195,31 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/inventory/NameChangeReportListPage.vue'),
       },
       {
+        path: 'procurement/orders',
+        name: 'order-list',
+        component: () => import('pages/procurement/OrderListPage.vue'),
+      },
+      {
+        path: 'procurement/orders/new',
+        name: 'order-create',
+        component: () => import('pages/procurement/CreateOrderPage.vue'),
+      },
+      {
+        path: 'procurement/orders/:id',
+        name: 'order-detail',
+        component: () => import('pages/procurement/OrderDetailPage.vue'),
+      },
+      {
+        path: 'procurement/orders/:id/edit',
+        name: 'order-edit',
+        component: () => import('pages/procurement/OrderEditPage.vue'),
+      },
+      {
+        path: 'procurement/order-prints',
+        name: 'order-print-list',
+        component: () => import('pages/procurement/OrderPrintListPage.vue'),
+      },
+      {
         path: 'billing/invoices',
         name: 'invoice-list',
         component: () => import('pages/invoice/InvoiceListPage.vue'),

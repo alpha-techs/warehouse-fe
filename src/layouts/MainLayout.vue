@@ -159,6 +159,22 @@ const linksList: EssentialLinkProps[] = [
       },
     ],
   },
+  {
+    title: '注文書管理',
+    icon: 'sym_r_contract_edit',
+    subMenu: [
+      {
+        title: '注文一覧',
+        icon: 'sym_r_content_paste',
+        link: router.resolve({ name: 'order-list' }).href,
+      },
+      {
+        title: '注文印刷ジョブ',
+        icon: 'sym_r_table_view',
+        link: router.resolve({ name: 'order-print-list' }).href,
+      },
+    ],
+  },
 ]
 
 const leftDrawerOpen = ref(false)
