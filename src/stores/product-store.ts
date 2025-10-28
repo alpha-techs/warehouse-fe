@@ -8,6 +8,37 @@ const emptyProduct: Product = {
   dimension: {} as Product['dimension'],
   hasSubPackage: false,
   isFixedWeight: true,
+  images: [],
+}
+
+const normalizeProduct = (product?: Product): Product => {
+  const base = _.cloneDeep(emptyProduct)
+  if (!product) {
+    return base
+  }
+
+  const normalized: Product = {
+    ...base,
+    ...product,
+  }
+
+  normalized.dimension = {
+    ...base.dimension,
+    ...product.dimension,
+  }
+
+  const sortedImages = [...(product.images ?? [])].sort((a, b) => {
+    const orderA = a.order ?? 0
+    const orderB = b.order ?? 0
+    return orderA - orderB
+  })
+
+  normalized.images = sortedImages.map((image, index) => ({
+    ...image,
+    order: index,
+  }))
+
+  return normalized
 }
 
 interface GetProductListQuery {
@@ -38,7 +69,7 @@ export const useProductStore = defineStore('product', {
       }
     },
     resetFormModel() {
-      this.formModel = _.cloneDeep(emptyProduct)
+      this.formModel = normalizeProduct()
     },
     async createProduct(): Promise<Product> {
       const resp = await apiClient.product.createProduct(this.formModel)
@@ -49,7 +80,7 @@ export const useProductStore = defineStore('product', {
     },
     async getProductById(id: number): Promise<Product> {
       const resp = await apiClient.product.getProduct(id)
-      this.formModel = resp.data
+      this.formModel = normalizeProduct(resp.data)
       return resp.data
     },
     async getProductOptions(name?: string): Promise<void> {

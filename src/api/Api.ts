@@ -202,6 +202,8 @@ export interface Product {
   categoryRoute?: ProductCategory[];
   /** 货物标记 */
   cargoMark?: string;
+  /** 商品图片列表 */
+  images?: ProductImage[];
   dimension?: {
     /** 尺寸描述 */
     description?: string;
@@ -230,6 +232,17 @@ export interface Product {
   isActive?: boolean;
 }
 
+export interface ProductImage {
+  /** 商品图片记录ID */
+  id?: string;
+  /** 媒体图片ID，用于通过媒体服务访问 */
+  mediaId: string;
+  /** 图片顺序，值越小越靠前 */
+  order?: number;
+  /** 图片替代文本 */
+  altText?: string;
+}
+
 export interface ProductCategory {
   /** 商品种类ID */
   id?: number;
@@ -248,6 +261,25 @@ export type GetProductResp = Product;
 export type ListProductsResp = Pagination & {
   items?: Product[];
 };
+
+export interface UploadedImage {
+  /** 媒体图片ID，用于后续访问或绑定商品 */
+  mediaId: string;
+  /**
+   * 图片访问地址（通过媒体服务代理访问，可能受权限控制）
+   * @format uri
+   */
+  url?: string;
+  /** 原始文件名 */
+  fileName?: string;
+  /** 文件MIME类型 */
+  contentType?: string;
+  /**
+   * 文件大小（字节）
+   * @format int64
+   */
+  size?: number;
+}
 
 export interface Customer {
   /** 客户ID */
@@ -2236,6 +2268,54 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "DELETE",
         secure: true,
         format: "json",
+        ...params,
+      }),
+  };
+  media = {
+    /**
+     * No description
+     *
+     * @tags 媒体
+     * @name UploadMediaImage
+     * @summary 上传图片
+     * @request POST:/media/images
+     * @secure
+     */
+    uploadMediaImage: (
+      data: {
+        /**
+         * 图片文件
+         * @format binary
+         */
+        file: File;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<UploadedImage, any>({
+        path: `/media/images`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.FormData,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 媒体
+     * @name GetMediaImage
+     * @summary 获取图片内容
+     * @request GET:/media/images/{imageId}
+     * @secure
+     */
+    getMediaImage: (imageId: string, params: RequestParams = {}) =>
+      this.request<File, any>({
+        path: `/media/images/${imageId}`,
+        method: "GET",
+        secure: true,
+        format: "blob",
         ...params,
       }),
   };
