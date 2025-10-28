@@ -284,7 +284,10 @@ const getStatusLabel = (status: string) => {
                     ]"
                     option-label="label"
                     option-value="value"
+                    map-options
+                    emit-value
                     clearable
+                    style="width: 120px"
                   >
                   </q-select>
                   <q-input

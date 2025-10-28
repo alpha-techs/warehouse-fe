@@ -55,7 +55,13 @@ const statusOptions = [
 ]
 
 const columns: QTableProps['columns'] = [
-  { label: 'タスクID', name: 'id', field: 'id', align: 'left' },
+  {
+    label: 'タスクID',
+    name: 'id',
+    /** Head of task id column */
+    field: (row) => row.id.substring(0, 8),
+    align: 'left',
+  },
   {
     label: '注文番号',
     name: 'orderNumber',
@@ -64,7 +70,7 @@ const columns: QTableProps['columns'] = [
   },
   { label: 'お客様', name: 'customer', field: 'customer', align: 'left' },
   { label: 'フォーマット', name: 'format', field: 'format', align: 'left' },
-  { label: 'ステータス', name: 'status', field: 'status', align: 'left' },
+  { label: '状態', name: 'status', field: 'status', align: 'left' },
   { label: '作成日時', name: 'createdAt', field: 'createdAt', align: 'left' },
   {
     label: '完了日時',
@@ -272,7 +278,7 @@ onMounted(async () => {
                 label="状態"
                 dense
                 clearable
-                style="width: 160px"
+                style="width: 120px"
               />
               <q-input
                 class="q-px-sm"
