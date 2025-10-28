@@ -669,6 +669,256 @@ export interface OutboundItem {
   note?: string;
 }
 
+/** Express sample urgent shipment record */
+export interface ExpressSampleShipment {
+  /** Express sample shipment ID */
+  id?: number;
+  /** Express sample order number */
+  expressSampleOrderId?: string;
+  /** Express sample shipment status */
+  status?: "draft" | "pending" | "approved" | "rejected" | "cancelled" | "booked" | "dispatched" | "delivered";
+  /**
+   * 希望出库日期
+   * @format date
+   */
+  requestedShipDate?: string;
+  /**
+   * 希望送达日期
+   * @format date
+   */
+  desiredDeliveryDate?: string;
+  /** 希望送达时间段 */
+  desiredDeliveryTimeWindow?: "morning" | "noon" | "afternoon" | "evening" | "anytime";
+  /** 发货仓库信息 */
+  warehouse?: {
+    /** 仓库ID */
+    id?: number;
+    /** 仓库名称 */
+    name?: string;
+  };
+  /** 归属客户信息 */
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  /** 客户联系人ID */
+  customerContactId?: number;
+  /** 收件人信息 */
+  recipient?: {
+    /** 收件公司名称 */
+    companyName?: string;
+    /** 收件部门 */
+    department?: string;
+    /** 收件人姓名 */
+    name?: string;
+    /** 收件人电话 */
+    phoneNumber?: string;
+    /** 邮政编码 */
+    postalCode?: string;
+    /** 都道府县 */
+    prefecture?: string;
+    /** 市区町村 */
+    city?: string;
+    /** 地址行1 */
+    addressLine1?: string;
+    /** 地址行2 */
+    addressLine2?: string;
+  };
+  /**
+   * Express courier service type
+   * @default "regular"
+   */
+  deliveryService?: "regular" | "cool" | "frozen" | "timeValue";
+  /**
+   * 包裹箱数
+   * @min 1
+   */
+  packageCount?: number;
+  /** 包装类型说明 */
+  packageType?: string;
+  /** 运费承担方 */
+  deliveryFeePayer?: "sender" | "recipient" | "thirdParty";
+  /** 样品发送目的 */
+  samplePurpose?: string;
+  /** 紧急联系人信息 */
+  emergencyContact?: {
+    /** 紧急联系人姓名 */
+    name?: string;
+    /** 紧急联系电话 */
+    phoneNumber?: string;
+  };
+  /** 承运商名称 */
+  carrierName?: string;
+  /** 追踪编号 */
+  trackingNumber?: string;
+  /** 备注 */
+  note?: string;
+  /** Express sample shipment item list */
+  items?: ExpressSampleShipmentItem[];
+  /**
+   * 创建时间
+   * @format date-time
+   */
+  createdAt?: string;
+  /**
+   * 更新时间
+   * @format date-time
+   */
+  updatedAt?: string;
+  /**
+   * 实际发货时间
+   * @format date-time
+   */
+  dispatchedAt?: string;
+  /**
+   * 实际送达时间
+   * @format date-time
+   */
+  deliveredAt?: string;
+}
+
+export type ListExpressSampleShipmentsResp = Pagination & {
+  items?: ExpressSampleShipment[];
+};
+
+export type ListExpressSampleShipmentItemsResp = Pagination & {
+  items?: ExpressSampleShipmentItem[];
+};
+
+/** Express sample shipment item */
+export interface ExpressSampleShipmentItem {
+  /** Express sample shipment item ID */
+  id?: number;
+  /** Express sample shipment ID */
+  expressSampleShipmentId?: number;
+  /** 库存物品ID */
+  inventoryItemId?: number;
+  /** 库存物品详情 */
+  inventoryItem?: {
+    /** 库存物品ID */
+    id?: number;
+    /** 批次号 */
+    lotNumber?: string;
+    /** 入库编号 */
+    inboundNo?: string;
+    /**
+     * 入库日期
+     * @format date
+     */
+    inboundDate?: string;
+  };
+  /** 商品信息 */
+  product?: {
+    /** 商品ID */
+    id?: number;
+    /** SKU 编码 */
+    sku?: string;
+    /** 商品名称 */
+    name?: string;
+    /** 规格说明 */
+    specification?: string;
+  };
+  /**
+   * 发货数量
+   * @min 1
+   */
+  quantity?: number;
+  /** 数量单位 */
+  quantityUnit?: string;
+  /** 样品包装说明 */
+  samplePackaging?: string;
+  /** 备注 */
+  note?: string;
+}
+
+export interface ExpressSampleShipmentReportReq {
+  /** Express sample shipment ID */
+  expressSampleShipmentId: number;
+  /**
+   * Report format
+   * @default "excel"
+   */
+  format?: "excel";
+}
+
+export interface ExpressSampleShipmentReportResp {
+  /** Express sample shipment report ID */
+  reportId?: string;
+  /**
+   * 报告创建时间
+   * @format date-time
+   */
+  reportDate?: string;
+  warehouse?: {
+    /** 仓库ID */
+    id?: number;
+    /** 仓库名称 */
+    name?: string;
+  };
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  /**
+   * 下载链接过期时间
+   * @format date-time
+   */
+  expiresAt?: string;
+}
+
+export interface ExpressSampleShipmentReport {
+  /** Express sample shipment report ID */
+  id?: string;
+  warehouse?: {
+    /** 仓库ID */
+    id?: number;
+    /** 仓库名称 */
+    name?: string;
+  };
+  customer?: {
+    /** 客户ID */
+    id?: number;
+    /** 客户名称 */
+    name?: string;
+  };
+  /**
+   * 报告日期
+   * @format date
+   */
+  reportDate?: string;
+  /** 报告格式 */
+  format?: "excel";
+  /** 报告状态 */
+  status?: "pending" | "processing" | "completed" | "failed";
+  /** 报告下载URL（仅在completed状态时提供） */
+  downloadUrl?: string;
+  /** 错误信息（仅在failed状态时提供） */
+  errorMessage?: string;
+  /**
+   * 报告创建时间
+   * @format date-time
+   */
+  createdAt?: string;
+  /**
+   * 报告完成时间
+   * @format date-time
+   */
+  completedAt?: string;
+  /**
+   * 下载链接过期时间
+   * @format date-time
+   */
+  expiresAt?: string;
+}
+
+export type ExpressSampleShipmentReportListResp = Pagination & {
+  items?: ExpressSampleShipmentReport[];
+};
+
 export interface InventoryReportReq {
   /** 仓库ID */
   warehouseId: number;
@@ -2865,6 +3115,331 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         query: query,
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name ListExpressSampleShipments
+     * @summary Express sample shipment list
+     * @request GET:/inventory/expressSampleShipments
+     * @secure
+     */
+    listExpressSampleShipments: (
+      query?: {
+        /**
+         * 页码
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** Express sample shipment status */
+        status?: "draft" | "pending" | "approved" | "rejected" | "cancelled" | "booked" | "dispatched" | "delivered";
+        /** 客户ID */
+        customerId?: number;
+        /**
+         * 送达日期起始
+         * @format date
+         */
+        desiredDeliveryDateFrom?: string;
+        /**
+         * 送达日期结束
+         * @format date
+         */
+        desiredDeliveryDateTo?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListExpressSampleShipmentsResp, any>({
+        path: `/inventory/expressSampleShipments`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name CreateExpressSampleShipment
+     * @summary 创建急送样品出库
+     * @request POST:/inventory/expressSampleShipment
+     * @secure
+     */
+    createExpressSampleShipment: (data: ExpressSampleShipment, params: RequestParams = {}) =>
+      this.request<ExpressSampleShipment, any>({
+        path: `/inventory/expressSampleShipment`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name GetExpressSampleShipment
+     * @summary Express sample shipment detail
+     * @request GET:/inventory/expressSampleShipment/{id}
+     * @secure
+     */
+    getExpressSampleShipment: (id: number, params: RequestParams = {}) =>
+      this.request<ExpressSampleShipment, any>({
+        path: `/inventory/expressSampleShipment/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name UpdateExpressSampleShipment
+     * @summary 更新Express Sample出库
+     * @request PUT:/inventory/expressSampleShipment/{id}
+     * @secure
+     */
+    updateExpressSampleShipment: (id: number, data: ExpressSampleShipment, params: RequestParams = {}) =>
+      this.request<ExpressSampleShipment, any>({
+        path: `/inventory/expressSampleShipment/${id}`,
+        method: "PUT",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name DeleteExpressSampleShipment
+     * @summary 删除Express Sample出库
+     * @request DELETE:/inventory/expressSampleShipment/{id}
+     * @secure
+     */
+    deleteExpressSampleShipment: (id: number, params: RequestParams = {}) =>
+      this.request<any, any>({
+        path: `/inventory/expressSampleShipment/${id}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name ApproveExpressSampleShipment
+     * @summary 确认Express Sample出库
+     * @request POST:/inventory/expressSampleShipment/{id}/approve
+     * @secure
+     */
+    approveExpressSampleShipment: (id: number, params: RequestParams = {}) =>
+      this.request<ExpressSampleShipment, any>({
+        path: `/inventory/expressSampleShipment/${id}/approve`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name RejectExpressSampleShipment
+     * @summary 驳回Express Sample出库
+     * @request POST:/inventory/expressSampleShipment/{id}/reject
+     * @secure
+     */
+    rejectExpressSampleShipment: (id: number, params: RequestParams = {}) =>
+      this.request<ExpressSampleShipment, any>({
+        path: `/inventory/expressSampleShipment/${id}/reject`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name CancelExpressSampleShipment
+     * @summary 取消Express Sample出库
+     * @request POST:/inventory/expressSampleShipment/{id}/cancel
+     * @secure
+     */
+    cancelExpressSampleShipment: (id: number, params: RequestParams = {}) =>
+      this.request<ExpressSampleShipment, any>({
+        path: `/inventory/expressSampleShipment/${id}/cancel`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags 库存
+     * @name ListExpressSampleShipmentItems
+     * @summary Express sample shipment item list
+     * @request GET:/inventory/expressSampleShipmentItems
+     * @secure
+     */
+    listExpressSampleShipmentItems: (
+      query?: {
+        /**
+         * 页码
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** Express sample shipment ID */
+        expressSampleShipmentId?: number;
+        /** 商品ID */
+        productId?: number;
+        /**
+         * 希望送达日期
+         * @format date
+         */
+        desiredDeliveryDate?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ListExpressSampleShipmentItemsResp, any>({
+        path: `/inventory/expressSampleShipmentItems`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 获取Express Sample出库的历史报告列表，支持按仓库、客户和状态筛选。
+     *
+     * @tags Express Sample报告
+     * @name ListExpressSampleShipmentReports
+     * @summary 获取Express Sample出库报告列表
+     * @request GET:/inventory/expressSampleShipmentReports
+     * @secure
+     */
+    listExpressSampleShipmentReports: (
+      query?: {
+        /**
+         * 页码
+         * @min 1
+         * @default 1
+         */
+        page?: number;
+        /**
+         * 每页数量
+         * @min 1
+         * @max 100
+         * @default 20
+         */
+        itemsPerPage?: number;
+        /** 仓库ID筛选 */
+        warehouseId?: number;
+        /** 客户ID筛选 */
+        customerId?: number;
+        /** 报告状态筛选 */
+        status?: "pending" | "processing" | "completed" | "failed";
+        /**
+         * 报告生成开始日期
+         * @format date
+         */
+        startDate?: string;
+        /**
+         * 报告生成结束日期
+         * @format date
+         */
+        endDate?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ExpressSampleShipmentReportListResp, void>({
+        path: `/inventory/expressSampleShipmentReports`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 提交生成Express Sample出库的Excel报告任务。
+     *
+     * @tags Express Sample报告
+     * @name GenerateExpressSampleShipmentReport
+     * @summary 生成Express Sample出库报告
+     * @request POST:/inventory/expressSampleShipmentReport/generate
+     * @secure
+     */
+    generateExpressSampleShipmentReport: (data: ExpressSampleShipmentReportReq, params: RequestParams = {}) =>
+      this.request<ExpressSampleShipmentReportResp, void>({
+        path: `/inventory/expressSampleShipmentReport/generate`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 根据报告ID获取Express Sample出库报告的生成状态。
+     *
+     * @tags Express Sample报告
+     * @name GetExpressSampleShipmentReportStatus
+     * @summary 获取Express Sample出库报告生成状态
+     * @request GET:/inventory/expressSampleShipmentReports/{reportId}/status
+     * @secure
+     */
+    getExpressSampleShipmentReportStatus: (reportId: string, params: RequestParams = {}) =>
+      this.request<ExpressSampleShipmentReport, void>({
+        path: `/inventory/expressSampleShipmentReports/${reportId}/status`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description 直接返回已生成的Express Sample出库报告Excel文件内容。
+     *
+     * @tags Express Sample报告
+     * @name DownloadExpressSampleShipmentReport
+     * @summary 下载Express Sample出库报告
+     * @request GET:/inventory/expressSampleShipmentReports/{reportId}/download
+     * @secure
+     */
+    downloadExpressSampleShipmentReport: (reportId: string, params: RequestParams = {}) =>
+      this.request<File, void>({
+        path: `/inventory/expressSampleShipmentReports/${reportId}/download`,
+        method: "GET",
+        secure: true,
         ...params,
       }),
 

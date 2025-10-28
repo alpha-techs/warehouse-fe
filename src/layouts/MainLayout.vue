@@ -182,6 +182,22 @@ const linksList: EssentialLinkProps[] = [
     ],
   },
   {
+    title: '宅急便管理',
+    icon: 'sym_r_local_shipping',
+    subMenu: [
+      {
+        title: '宅急便依頼一覧',
+        icon: 'sym_r_local_shipping',
+        link: router.resolve({ name: 'express-sample-list' }).href,
+      },
+      {
+        title: '宅急便報告書リスト',
+        icon: 'sym_r_assignment',
+        link: router.resolve({ name: 'express-sample-report-list' }).href,
+      },
+    ],
+  },
+  {
     title: '名義変更管理',
     icon: 'sym_r_partner_exchange',
     subMenu: [

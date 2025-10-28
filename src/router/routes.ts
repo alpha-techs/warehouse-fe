@@ -171,6 +171,36 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/inventory/OutboundReportListPage.vue'),
       },
       {
+        path: 'inventory/express-sample-shipments',
+        name: 'express-sample-list',
+        component: () =>
+          import('pages/inventory/ExpressSampleListPage.vue'),
+      },
+      {
+        path: 'inventory/express-sample/new',
+        name: 'express-sample-create',
+        component: () =>
+          import('pages/inventory/CreateExpressSamplePage.vue'),
+      },
+      {
+        path: 'inventory/express-sample/:id',
+        name: 'express-sample-detail',
+        component: () =>
+          import('pages/inventory/ExpressSampleDetailPage.vue'),
+      },
+      {
+        path: 'inventory/express-sample/:id/edit',
+        name: 'express-sample-edit',
+        component: () =>
+          import('pages/inventory/EditExpressSamplePage.vue'),
+      },
+      {
+        path: 'inventory/express-sample-reports',
+        name: 'express-sample-report-list',
+        component: () =>
+          import('pages/inventory/ExpressSampleReportListPage.vue'),
+      },
+      {
         path: 'inventory/namechanges',
         name: 'namechange-list',
         component: () => import('pages/inventory/NameChangeListPage.vue'),
