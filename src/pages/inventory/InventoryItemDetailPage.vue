@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useInventoryStore } from 'stores/inventory-store'
 import { storeToRefs } from 'pinia'
-import type { OutboundItem } from 'src/api/Api'
+import type { OutboundItem, NameChangeItem } from 'src/api/Api'
 
 const loading = ref(false)
 const router = useRouter()
@@ -52,6 +52,10 @@ const toInboundDetail = async (inboundId: number) => {
 const toOutboundDetail = async (outboundId: number) => {
   await router.push({ name: 'outbound-detail', params: { id: outboundId } });
 }
+
+const toNameChangeDetail = async (nameChangeId: number) => {
+  await router.push({ name: 'namechange-detail', params: { id: nameChangeId } });
+}
 </script>
 
 <template>
@@ -76,15 +80,9 @@ const toOutboundDetail = async (outboundId: number) => {
             <div class="col-12">
               <div class="text-caption text-grey-7 q-mb-xs">倉庫</div>
               <div class="text-body2">
-                <q-btn
-                  v-if="inventoryItemDetail.warehouse"
-                  @click="toWarehouseDetail(inventoryItemDetail.warehouse!.id!)"
-                  color="primary"
-                  flat
-                  no-caps
-                  class="text-weight-bold q-pa-none"
-                  size="sm"
-                >
+                <q-btn v-if="inventoryItemDetail.warehouse"
+                  @click="toWarehouseDetail(inventoryItemDetail.warehouse!.id!)" color="primary" flat no-caps
+                  class="text-weight-bold q-pa-none" size="sm">
                   {{ inventoryItemDetail.warehouse.name }}
                 </q-btn>
                 <span v-else class="text-grey-6">-</span>
@@ -93,15 +91,8 @@ const toOutboundDetail = async (outboundId: number) => {
             <div class="col-12 col-md-6">
               <div class="text-caption text-grey-7 q-mb-xs">商品</div>
               <div class="text-body2">
-                <q-btn
-                  v-if="inventoryItemDetail.product"
-                  @click="toProductDetail(inventoryItemDetail.product!.id!)"
-                  color="primary"
-                  flat
-                  no-caps
-                  class="text-weight-bold q-pa-none"
-                  size="sm"
-                >
+                <q-btn v-if="inventoryItemDetail.product" @click="toProductDetail(inventoryItemDetail.product!.id!)"
+                  color="primary" flat no-caps class="text-weight-bold q-pa-none" size="sm">
                   {{ inventoryItemDetail.product.name }}
                 </q-btn>
                 <span v-else class="text-grey-6">-</span>
@@ -110,15 +101,8 @@ const toOutboundDetail = async (outboundId: number) => {
             <div class="col-12 col-md-6">
               <div class="text-caption text-grey-7 q-mb-xs">お客様</div>
               <div class="text-body2">
-                <q-btn
-                  v-if="inventoryItemDetail.customer"
-                  @click="toCustomerDetail(inventoryItemDetail.customer!.id!)"
-                  color="primary"
-                  flat
-                  no-caps
-                  class="text-weight-bold q-pa-none"
-                  size="sm"
-                >
+                <q-btn v-if="inventoryItemDetail.customer" @click="toCustomerDetail(inventoryItemDetail.customer!.id!)"
+                  color="primary" flat no-caps class="text-weight-bold q-pa-none" size="sm">
                   {{ inventoryItemDetail.customer.name }}
                 </q-btn>
                 <span v-else class="text-grey-6">-</span>
@@ -168,25 +152,29 @@ const toOutboundDetail = async (outboundId: number) => {
             <div class="col-6 col-md-3">
               <div class="text-caption text-grey-7 q-mb-xs">長さ</div>
               <div class="text-body2 text-weight-medium">
-                {{ inventoryItemDetail.product.dimension.length || 0 }} {{inventoryItemDetail.product.dimension.lengthUnit || 'cm' }}
+                {{ inventoryItemDetail.product.dimension.length || 0 }}
+                {{ inventoryItemDetail.product.dimension.lengthUnit || 'cm' }}
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="text-caption text-grey-7 q-mb-xs">幅</div>
               <div class="text-body2 text-weight-medium">
-                {{ inventoryItemDetail.product.dimension.width || 0 }} {{ inventoryItemDetail.product.dimension.lengthUnit || 'cm' }}
+                {{ inventoryItemDetail.product.dimension.width || 0 }} {{
+                  inventoryItemDetail.product.dimension.lengthUnit || 'cm' }}
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="text-caption text-grey-7 q-mb-xs">高さ</div>
               <div class="text-body2 text-weight-medium">
-                {{ inventoryItemDetail.product.dimension.height || 0 }} {{ inventoryItemDetail.product.dimension.lengthUnit || 'cm' }}
+                {{ inventoryItemDetail.product.dimension.height || 0 }} {{
+                  inventoryItemDetail.product.dimension.lengthUnit || 'cm' }}
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="text-caption text-grey-7 q-mb-xs">重量</div>
               <div class="text-body2 text-weight-medium">
-                {{ inventoryItemDetail.product.dimension.weight || 0 }} {{ inventoryItemDetail.product.dimension.weightUnit || 'kg' }}
+                {{ inventoryItemDetail.product.dimension.weight || 0 }} {{
+                  inventoryItemDetail.product.dimension.weightUnit || 'kg' }}
               </div>
             </div>
           </div>
@@ -226,15 +214,8 @@ const toOutboundDetail = async (outboundId: number) => {
             <div class="col-12 col-md-4">
               <div class="text-caption text-grey-7 q-mb-xs">入庫記録ID</div>
               <div class="text-body2">
-                <q-btn
-                  v-if="inventoryItemDetail.inboundId"
-                  @click="toInboundDetail(inventoryItemDetail.inboundId!)"
-                  color="purple"
-                  flat
-                  no-caps
-                  class="text-weight-bold q-pa-none"
-                  size="sm"
-                >
+                <q-btn v-if="inventoryItemDetail.inboundId" @click="toInboundDetail(inventoryItemDetail.inboundId!)"
+                  color="purple" flat no-caps class="text-weight-bold q-pa-none" size="sm">
                   {{ inventoryItemDetail.inboundId }}
                 </q-btn>
                 <span v-else class="text-grey-6">-</span>
@@ -269,30 +250,22 @@ const toOutboundDetail = async (outboundId: number) => {
       </section>
 
       <!-- 出庫記録 -->
-      <section class="q-mb-md"
-               v-if="inventoryItemDetail.outboundItems && inventoryItemDetail.outboundItems.length > 0">
+      <section class="q-mb-md" v-if="inventoryItemDetail.outboundItems && inventoryItemDetail.outboundItems.length > 0">
         <div class="row items-center q-mb-sm">
           <h3 class="text-subtitle2 text-weight-bold text-red-8 q-ma-none">出庫記録</h3>
         </div>
         <div class="q-pa-md" style="border-radius: 8px; border: 1px solid #e0e0e0;">
           <q-table :rows="inventoryItemDetail.outboundItems" :columns="[
-                        { name: 'outboundId', label: '出庫記録ID', field: 'outboundId', align: 'left' },
-                        { name: 'outboundOrderId', label: '出庫オーダーID', field: 'outbound.outboundOrderId', align: 'left' },
-                        { name: 'outboundDate', label: '出庫日', field: 'outbound.outboundDate', align: 'left' },
-                        { name: 'quantity', label: '出庫数量', field: 'quantity', align: 'right' },
-                        { name: 'note', label: '備考', field: 'note', align: 'left' }
-                    ]" row-key="id" hide-pagination flat class="bg-transparent" dense>
+            { name: 'outboundId', label: '出庫記録ID', field: 'outboundId', align: 'left' },
+            { name: 'outboundOrderId', label: '出庫オーダーID', field: 'outbound.outboundOrderId', align: 'left' },
+            { name: 'outboundDate', label: '出庫日', field: 'outbound.outboundDate', align: 'left' },
+            { name: 'quantity', label: '出庫数量', field: 'quantity', align: 'right' },
+            { name: 'note', label: '備考', field: 'note', align: 'left' }
+          ]" row-key="id" hide-pagination flat class="bg-transparent" dense>
             <template #[`body-cell-outboundId`]="{ row }: { row: OutboundItem }">
               <q-td>
-                <q-btn
-                  v-if="row.outboundId"
-                  @click="toOutboundDetail(row.outboundId!)"
-                  color="red"
-                  flat
-                  no-caps
-                  size="sm"
-                  class="text-weight-medium q-pa-none"
-                >
+                <q-btn v-if="row.outboundId" @click="toOutboundDetail(row.outboundId!)" color="red" flat no-caps
+                  size="sm" class="text-weight-medium q-pa-none">
                   {{ row.outboundId }}
                 </q-btn>
                 <span v-else class="text-grey-6">-</span>
@@ -335,16 +308,69 @@ const toOutboundDetail = async (outboundId: number) => {
         </div>
       </section>
 
+      <!-- 名義変更記録 -->
+      <section class="q-mb-md"
+        v-if="inventoryItemDetail.nameChangeItems && inventoryItemDetail.nameChangeItems.length > 0">
+        <div class="row items-center q-mb-sm">
+          <h3 class="text-subtitle2 text-weight-bold text-orange-8 q-ma-none">名義変更記録</h3>
+        </div>
+        <div class="q-pa-md" style="border-radius: 8px; border: 1px solid #e0e0e0;">
+          <q-table :rows="inventoryItemDetail.nameChangeItems" :columns="[
+            { name: 'nameChangeId', label: '名義変更記録ID', field: 'nameChangeId', align: 'left' },
+            { name: 'nameChangeOrderId', label: '名義変更オーダーID', field: 'nameChange.nameChangeOrderId', align: 'left' },
+            { name: 'nameChangeDate', label: '名義変更日', field: 'nameChange.nameChangeDate', align: 'left' },
+            { name: 'quantity', label: '名義変更数量', field: 'quantity', align: 'right' },
+            { name: 'note', label: '備考', field: 'note', align: 'left' }
+          ]" row-key="id" hide-pagination flat class="bg-transparent" dense>
+            <template #[`body-cell-nameChangeId`]="{ row }: { row: NameChangeItem }">
+              <q-td>
+                <q-btn v-if="row.nameChangeId" @click="toNameChangeDetail(row.nameChangeId!)" color="orange" flat
+                  no-caps size="sm" class="text-weight-medium q-pa-none">
+                  {{ row.nameChangeId }}
+                </q-btn>
+                <span v-else class="text-grey-6">-</span>
+              </q-td>
+            </template>
+            <template #[`body-cell-nameChangeOrderId`]="{ row }: { row: NameChangeItem }">
+              <q-td>
+                <span class="text-weight-medium">{{ row.nameChange?.nameChangeOrderId || '-' }}</span>
+              </q-td>
+            </template>
+            <template #[`body-cell-nameChangeDate`]="{ row }: { row: NameChangeItem }">
+              <q-td>
+                <span class="text-weight-medium">{{ row.nameChange?.nameChangeDate || '-' }}</span>
+              </q-td>
+            </template>
+            <template #[`body-cell-quantity`]="{ row }: { row: NameChangeItem }">
+              <q-td class="text-right">
+                {{ row.quantity || 0 }}
+              </q-td>
+            </template>
+            <template #[`body-cell-note`]="{ row }: { row: NameChangeItem }">
+              <q-td>
+                <span class="text-caption text-grey-7">{{ row.note || '-' }}</span>
+              </q-td>
+            </template>
+          </q-table>
+        </div>
+      </section>
+
+      <!-- 无名义变更记录时的提示 -->
+      <section class="q-mb-md" v-else>
+        <div class="row items-center q-mb-sm">
+          <h3 class="text-subtitle2 text-grey-8 q-ma-none">名義変更記録</h3>
+        </div>
+        <div class="q-pa-md" style="border-radius: 8px; border: 1px solid #e0e0e0;">
+          <div class="text-center q-pa-lg">
+            <q-icon name="swap_horiz" size="48px" color="grey-4" />
+            <div class="text-grey-6 q-mt-sm text-body2">名義変更記録がありません</div>
+          </div>
+        </div>
+      </section>
+
       <!-- 操作按钮 -->
       <div class="row justify-end q-mt-md">
-        <q-btn
-          style="width: 100px"
-          color="primary"
-          label="一覧に戻る"
-          @click="backToList"
-          :disable="loading"
-          size="sm"
-        />
+        <q-btn style="width: 100px" color="primary" label="一覧に戻る" @click="backToList" :disable="loading" size="sm" />
       </div>
     </div>
   </q-page>

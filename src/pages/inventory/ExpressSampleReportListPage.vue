@@ -1,31 +1,44 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { useInventoryStore } from 'stores/inventory-store'
+import { computed, onMounted, ref, type Ref, useTemplateRef } from 'vue'
 import type { QTable, QTableProps } from 'quasar'
-import { computed, onMounted, type Ref, ref, useTemplateRef } from 'vue'
+import { storeToRefs } from 'pinia'
 import type {
-  InventoryReport,
+  ExpressSampleShipmentReport,
   Warehouse,
   Customer,
-  InventoryReportReq,
 } from 'src/api/Api'
-import { useRouter } from 'vue-router'
 import type { FePagination } from 'src/utils/pagination'
+import { toastFormError } from 'src/utils/error-handler'
+import { useExpressSampleStore } from 'stores/express-sample-store'
 import { useWarehouseStore } from 'stores/warehouse-store'
 import { useCustomerStore } from 'stores/customer-store'
-import { toastFormError } from 'src/utils/error-handler'
+import { useRouter } from 'vue-router'
 
 const loading = ref(false)
-const generateLoading = ref(false)
 const tableRef = useTemplateRef<QTable | undefined>('tableRef')
 const router = useRouter()
-const {
-  inventoryReportList: rows,
-  inventoryReportListPagination,
-  inventoryReportListQuery: searchParams,
-} = storeToRefs(useInventoryStore())
 
+const {
+  expressSampleShipmentReportList: rows,
+  expressSampleShipmentReportListPagination,
+  expressSampleShipmentReportListQuery: searchParams,
+} = storeToRefs(useExpressSampleStore())
+
+const { warehouseOptions } = storeToRefs(useWarehouseStore())
 const { customerOptions } = storeToRefs(useCustomerStore())
+
+const onFilterWarehouse = async (
+  inputValue: string,
+  doneFn: (callbackFn: () => void) => void,
+) => {
+  if (!inputValue || !inputValue.length) {
+    await useWarehouseStore().getWarehouseOptions()
+    doneFn(() => {})
+  } else {
+    await useWarehouseStore().getWarehouseOptions(inputValue)
+    doneFn(() => {})
+  }
+}
 
 const onFilterCustomer = async (
   inputValue: string,
@@ -39,25 +52,13 @@ const onFilterCustomer = async (
     doneFn(() => {})
   }
 }
-const onChangeCustomer = (customer: Customer | undefined): void => {
-  searchParams.value.customerId = customer?.id
+
+const onChangeWarehouse = (warehouse: Warehouse | undefined) => {
+  searchParams.value.warehouseId = warehouse?.id
 }
 
-const { warehouseOptions } = storeToRefs(useWarehouseStore())
-const onFilterWarehouse = async (
-  inputValue: string,
-  doneFn: (callbackFn: () => void) => void,
-) => {
-  if (!inputValue || !inputValue.length) {
-    await useWarehouseStore().getWarehouseOptions()
-    doneFn(() => {})
-  } else {
-    await useWarehouseStore().getWarehouseOptions(inputValue)
-    doneFn(() => {})
-  }
-}
-const onChangeWarehouse = (warehouse: Warehouse | undefined): void => {
-  searchParams.value.warehouseId = warehouse?.id
+const onChangeCustomer = (customer: Customer | undefined) => {
+  searchParams.value.customerId = customer?.id
 }
 
 const columns: QTableProps['columns'] = [
@@ -115,12 +116,6 @@ onMounted(() => {
   tableRef.value?.requestServerInteraction()
 })
 
-const search = () => {
-  tableRef.value?.requestServerInteraction({
-    pagination: { ...pagination.value, page: 1 },
-  })
-}
-
 const pagination: Ref<FePagination> = ref({
   sortBy: undefined,
   descending: false,
@@ -135,6 +130,12 @@ const maxPage = computed(() => {
   }
   return Math.ceil(pagination.value.rowsNumber / pagination.value.rowsPerPage)
 })
+
+const search = () => {
+  tableRef.value?.requestServerInteraction({
+    pagination: { ...pagination.value, page: 1 },
+  })
+}
 
 const onPageChange = () => {
   tableRef.value?.requestServerInteraction({ pagination: pagination.value })
@@ -153,11 +154,13 @@ const onRequest = async ({
       page,
       itemsPerPage: rowsPerPage,
     }
-    await useInventoryStore().getInventoryReportList(query)
+    await useExpressSampleStore().getExpressSampleShipmentReportList(query)
     pagination.value = {
-      page: inventoryReportListPagination.value.page,
-      rowsPerPage: inventoryReportListPagination.value.itemsPerPage,
-      rowsNumber: inventoryReportListPagination.value.totalItems,
+      page: expressSampleShipmentReportListPagination.value.page,
+      rowsPerPage:
+        expressSampleShipmentReportListPagination.value.itemsPerPage,
+      rowsNumber:
+        expressSampleShipmentReportListPagination.value.totalItems,
       sortBy: undefined,
       descending: false,
     }
@@ -168,54 +171,21 @@ const onRequest = async ({
   }
 }
 
-// Generate new inventory report
-const generateReport = async () => {
-  if (!selectedWarehouse.value || !selectedCustomer.value) {
-    await toastFormError('報告を生成するには倉庫とお客様を選択してください')
-    return
-  }
-
-  try {
-    generateLoading.value = true
-    const request: InventoryReportReq = {
-      warehouseId: selectedWarehouse.value.id!,
-      customerId: selectedCustomer.value.id!,
-      format: selectedFormat.value,
-    }
-    const reportId = await useInventoryStore().generateInventoryReport(request)
-    console.log('Report generated with ID:', reportId)
-    // Refresh the report list
-    tableRef.value?.requestServerInteraction()
-  } catch (error) {
-    await toastFormError(error)
-  } finally {
-    generateLoading.value = false
-  }
-}
-
-// Download report
-const downloadReport = async (report: InventoryReport) => {
+const downloadReport = async (report: ExpressSampleShipmentReport) => {
   if (report.status !== 'completed' || !report.id) {
     return
   }
-
   try {
-    // Open download URL in new tab
-    const downloadUrl = useInventoryStore().getInventoryReportDownloadUrl(
-      report.id,
-    )
+    const downloadUrl =
+      useExpressSampleStore().getExpressSampleShipmentReportDownloadUrl(
+        report.id,
+      )
     window.open(downloadUrl, '_blank')
   } catch (error) {
     await toastFormError(error)
   }
 }
 
-// Generate report form state
-const selectedWarehouse = ref<Warehouse | undefined>()
-const selectedCustomer = ref<Customer | undefined>()
-const selectedFormat = ref<'pdf' | 'excel'>('pdf')
-
-// Status badge color
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'completed':
@@ -231,7 +201,6 @@ const getStatusColor = (status: string) => {
   }
 }
 
-// Status badge label
 const getStatusLabel = (status: string) => {
   switch (status) {
     case 'completed':
@@ -251,72 +220,6 @@ const getStatusLabel = (status: string) => {
 <template>
   <q-page padding>
     <div class="row q-col-gutter-md">
-      <!-- Generate Report Section -->
-      <div class="col-12">
-        <q-card bordered>
-          <q-card-section>
-            <div class="text-h6 q-mb-md">新しい在庫報告書を生成</div>
-            <div class="row q-col-gutter-md">
-              <div class="col-md-3 col-sm-6 col-xs-12">
-                <q-select
-                  v-model="selectedWarehouse"
-                  label="倉庫"
-                  dense
-                  :options="warehouseOptions"
-                  option-label="name"
-                  option-value="id"
-                  @filter="onFilterWarehouse"
-                  clearable
-                  use-input
-                  input-style="width: 0px"
-                >
-                </q-select>
-              </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
-                <q-select
-                  v-model="selectedCustomer"
-                  label="お客様"
-                  dense
-                  :options="customerOptions"
-                  option-label="name"
-                  option-value="id"
-                  @filter="onFilterCustomer"
-                  clearable
-                  use-input
-                  input-style="width: 0px"
-                >
-                </q-select>
-              </div>
-              <div class="col-md-2 col-sm-6 col-xs-12">
-                <q-select
-                  v-model="selectedFormat"
-                  label="フォーマット"
-                  dense
-                  :options="[
-                    { label: 'PDF', value: 'pdf' },
-                    { label: 'Excel', value: 'excel' },
-                  ]"
-                  option-label="label"
-                  option-value="value"
-                >
-                </q-select>
-              </div>
-              <div class="col-md-2 col-sm-6 col-xs-12 flex items-center">
-                <q-btn
-                  label="報告書生成"
-                  color="primary"
-                  icon="sym_r_description"
-                  @click="generateReport"
-                  :loading="generateLoading"
-                  :disable="!selectedWarehouse || !selectedCustomer"
-                />
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <!-- Reports List Section -->
       <div class="col-12">
         <q-card bordered>
           <q-card-section class="q-pa-none">
@@ -333,7 +236,7 @@ const getStatusLabel = (status: string) => {
             >
               <template #top>
                 <div class="row" style="width: 100%">
-                  <div class="text-h6 col-12">在庫報告書一覧</div>
+                  <div class="text-h6 col-12">宅急便報告書一覧</div>
                   <q-select
                     class="q-px-sm"
                     :model-value="
@@ -351,8 +254,7 @@ const getStatusLabel = (status: string) => {
                     clearable
                     use-input
                     input-style="width: 0px"
-                  >
-                  </q-select>
+                  />
                   <q-select
                     class="q-px-sm"
                     :model-value="
@@ -370,8 +272,7 @@ const getStatusLabel = (status: string) => {
                     clearable
                     use-input
                     input-style="width: 0px"
-                  >
-                  </q-select>
+                  />
                   <q-select
                     class="q-px-sm"
                     v-model="searchParams.status"
@@ -385,9 +286,11 @@ const getStatusLabel = (status: string) => {
                     ]"
                     option-label="label"
                     option-value="value"
+                    map-options
+                    emit-value
                     clearable
-                  >
-                  </q-select>
+                    style="width: 120px"
+                  />
                   <q-input
                     class="q-px-sm"
                     v-model="searchParams.startDate"
@@ -396,8 +299,7 @@ const getStatusLabel = (status: string) => {
                     type="date"
                     @keyup.enter="search"
                     style="width: 140px"
-                  >
-                  </q-input>
+                  />
                   <q-input
                     class="q-px-sm"
                     v-model="searchParams.endDate"
@@ -406,8 +308,7 @@ const getStatusLabel = (status: string) => {
                     type="date"
                     @keyup.enter="search"
                     style="width: 140px"
-                  >
-                  </q-input>
+                  />
                   <q-space />
                   <div style="display: flex; align-items: center">
                     <q-btn
@@ -421,7 +322,7 @@ const getStatusLabel = (status: string) => {
                 </div>
               </template>
               <template
-                #[`body-cell-warehouse`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-warehouse`]="{ row }: { row: ExpressSampleShipmentReport }"
               >
                 <q-td>
                   <a
@@ -439,7 +340,7 @@ const getStatusLabel = (status: string) => {
                 </q-td>
               </template>
               <template
-                #[`body-cell-customer`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-customer`]="{ row }: { row: ExpressSampleShipmentReport }"
               >
                 <q-td>
                   <a
@@ -457,7 +358,7 @@ const getStatusLabel = (status: string) => {
                 </q-td>
               </template>
               <template
-                #[`body-cell-status`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-status`]="{ row }: { row: ExpressSampleShipmentReport }"
               >
                 <q-td>
                   <q-badge
@@ -467,14 +368,14 @@ const getStatusLabel = (status: string) => {
                 </q-td>
               </template>
               <template
-                #[`body-cell-format`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-format`]="{ row }: { row: ExpressSampleShipmentReport }"
               >
                 <q-td>
                   <q-chip :label="row.format?.toUpperCase()" dense />
                 </q-td>
               </template>
               <template
-                #[`body-cell-createdAt`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-createdAt`]="{ row }: { row: ExpressSampleShipmentReport }"
               >
                 <q-td>
                   {{
@@ -485,7 +386,7 @@ const getStatusLabel = (status: string) => {
                 </q-td>
               </template>
               <template
-                #[`body-cell-actions`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-actions`]="{ row }: { row: ExpressSampleShipmentReport }"
               >
                 <q-td class="text-right">
                   <q-btn

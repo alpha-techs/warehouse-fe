@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Customer, Inbound, Warehouse, Outbound, OutboundReportReq } from 'src/api/Api'
+import type { Customer, Warehouse, Outbound, OutboundReportReq } from 'src/api/Api'
 import { storeToRefs } from 'pinia'
 import { useOutboundStore } from 'stores/outbound-store'
 import type { QTable, QTableProps } from 'quasar'
@@ -76,6 +76,12 @@ const columns: QTableProps['columns'] = [
     align: 'left',
   },
   {
+    label: '合計金額',
+    name: 'totalAmount',
+    field: 'totalAmount',
+    align: 'right',
+  },
+  {
     label: '状態',
     name: 'status',
     field: 'status',
@@ -116,6 +122,13 @@ const maxPage = computed(() => {
 const onPageChange = () => {
   tableRef.value?.requestServerInteraction({ pagination: pagination.value });
 };
+
+const formatAmount = (value?: number) => {
+  if (value === undefined || value === null) {
+    return '-'
+  }
+  return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(value)
+}
 
 const onRequest = async ({ pagination: _pagination }: { pagination: { page: number, rowsPerPage: number } }) => {
   try {
@@ -248,17 +261,22 @@ const generateReport = async (outbound: Outbound, format: 'pdf' | 'excel' = 'pdf
                   </div>
                 </div>
               </template>
-              <template #[`body-cell-warehouse`]="{ row }: { row: Inbound }">
+              <template #[`body-cell-warehouse`]="{ row }: { row: Outbound }">
                 <q-td>
                   {{ row.warehouse?.name }}
                 </q-td>
               </template>
-              <template #[`body-cell-customer`]="{ row }: { row: Inbound }">
+              <template #[`body-cell-customer`]="{ row }: { row: Outbound }">
                 <q-td>
                   {{ row.customer?.name }}
                 </q-td>
               </template>
-              <template #[`body-cell-status`]="{ row }: { row: Inbound }">
+              <template #[`body-cell-totalAmount`]="{ row }: { row: Outbound }">
+                <q-td class="text-right">
+                  {{ formatAmount(row.totalAmount) }}
+                </q-td>
+              </template>
+              <template #[`body-cell-status`]="{ row }: { row: Outbound }">
                 <q-td>
                   <q-chip color="teal" label="下書き" dark v-if="row.status == 'draft'" />
                   <q-chip color="warning" label="未確認" dark v-if="row.status == 'pending'" />

@@ -41,6 +41,24 @@ const columns: QTableProps['columns'] = [
     align: 'right',
   },
   {
+    label: '単価',
+    name: 'unitPrice',
+    field: 'unitPrice',
+    align: 'right',
+  },
+  {
+    label: '金額',
+    name: 'lineAmount',
+    field: 'lineAmount',
+    align: 'right',
+  },
+  {
+    label: '税額',
+    name: 'taxAmount',
+    field: 'taxAmount',
+    align: 'right',
+  },
+  {
     label: 'LOT番号',
     name: 'lotNumber',
     field: 'lotNumber',
@@ -71,6 +89,16 @@ const showDialog = ref(false);
 const dialogMode = ref<'add' | 'edit'>('add');
 const editItemIndex = ref<number>(-1);
 
+const formatAmount = (value?: number, currency?: string) => {
+  if (value === undefined || value === null) {
+    return '-'
+  }
+  return new Intl.NumberFormat('ja-JP', {
+    style: 'currency',
+    currency: currency ?? outbound.value.currency ?? 'JPY',
+  }).format(value)
+}
+
 const showAddingDialog = () => {
   useOutboundStore().resetItemModel();
   dialogMode.value = 'add';
@@ -93,6 +121,8 @@ const onSubmit = (data: OutboundItem) => {
   if (outbound.value.warehouse == undefined) {
     outbound.value.warehouse = data.warehouse;
   }
+
+  useOutboundStore().recalculateTotals();
 }
 
 const onEditItem = (data: OutboundItem, rowIndex: number) => {
@@ -107,6 +137,7 @@ const onDeleteItem = (data: OutboundItem) => {
   if (index != undefined && index >= 0) {
     outbound.value.items?.splice(index, 1);
   }
+  useOutboundStore().recalculateTotals();
 }
 </script>
 
@@ -140,6 +171,21 @@ const onDeleteItem = (data: OutboundItem) => {
     <template #[`body-cell-dimension`]="{ row }: { row: OutboundItem }">
       <td>
         {{ row.product?.dimension?.description }}
+      </td>
+    </template>
+    <template #[`body-cell-unitPrice`]="{ row }: { row: OutboundItem }">
+      <td class="text-right">
+        {{ formatAmount(row.unitPrice, row.currency) }}
+      </td>
+    </template>
+    <template #[`body-cell-lineAmount`]="{ row }: { row: OutboundItem }">
+      <td class="text-right">
+        {{ formatAmount(row.lineAmount, row.currency) }}
+      </td>
+    </template>
+    <template #[`body-cell-taxAmount`]="{ row }: { row: OutboundItem }">
+      <td class="text-right">
+        {{ formatAmount(row.taxAmount, row.currency) }}
       </td>
     </template>
     <template #[`body-cell-actions`]="{ row, rowIndex }: { row: OutboundItem, rowIndex: number }">

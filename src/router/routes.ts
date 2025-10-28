@@ -4,6 +4,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
     children: [
       {
         path: '',
@@ -168,6 +169,119 @@ const routes: RouteRecordRaw[] = [
         path: 'inventory/outbound-reports',
         name: 'outbound-report-list',
         component: () => import('pages/inventory/OutboundReportListPage.vue'),
+      },
+      {
+        path: 'inventory/express-sample-shipments',
+        name: 'express-sample-list',
+        component: () =>
+          import('pages/inventory/ExpressSampleListPage.vue'),
+      },
+      {
+        path: 'inventory/express-sample/new',
+        name: 'express-sample-create',
+        component: () =>
+          import('pages/inventory/CreateExpressSamplePage.vue'),
+      },
+      {
+        path: 'inventory/express-sample/:id',
+        name: 'express-sample-detail',
+        component: () =>
+          import('pages/inventory/ExpressSampleDetailPage.vue'),
+      },
+      {
+        path: 'inventory/express-sample/:id/edit',
+        name: 'express-sample-edit',
+        component: () =>
+          import('pages/inventory/EditExpressSamplePage.vue'),
+      },
+      {
+        path: 'inventory/express-sample-reports',
+        name: 'express-sample-report-list',
+        component: () =>
+          import('pages/inventory/ExpressSampleReportListPage.vue'),
+      },
+      {
+        path: 'inventory/namechanges',
+        name: 'namechange-list',
+        component: () => import('pages/inventory/NameChangeListPage.vue'),
+      },
+      {
+        path: 'inventory/namechange/new',
+        name: 'namechange-create',
+        component: () => import('pages/inventory/CreateNameChangePage.vue'),
+      },
+      {
+        path: 'inventory/namechange/:id',
+        name: 'namechange-detail',
+        component: () => import('pages/inventory/NameChangeDetailPage.vue'),
+      },
+      {
+        path: 'inventory/namechange/:id/edit',
+        name: 'namechange-edit',
+        component: () => import('pages/inventory/EditNameChangePage.vue'),
+      },
+      {
+        path: 'inventory/namechange-reports',
+        name: 'namechange-report-list',
+        component: () => import('pages/inventory/NameChangeReportListPage.vue'),
+      },
+      {
+        path: 'procurement/orders',
+        name: 'order-list',
+        component: () => import('pages/procurement/OrderListPage.vue'),
+      },
+      {
+        path: 'procurement/orders/new',
+        name: 'order-create',
+        component: () => import('pages/procurement/CreateOrderPage.vue'),
+      },
+      {
+        path: 'procurement/orders/:id',
+        name: 'order-detail',
+        component: () => import('pages/procurement/OrderDetailPage.vue'),
+      },
+      {
+        path: 'procurement/orders/:id/edit',
+        name: 'order-edit',
+        component: () => import('pages/procurement/OrderEditPage.vue'),
+      },
+      {
+        path: 'procurement/order-prints',
+        name: 'order-print-list',
+        component: () => import('pages/procurement/OrderPrintListPage.vue'),
+      },
+      {
+        path: 'billing/invoices',
+        name: 'invoice-list',
+        component: () => import('pages/invoice/InvoiceListPage.vue'),
+      },
+      {
+        path: 'billing/invoice-prints',
+        name: 'invoice-print-list',
+        component: () => import('pages/invoice/InvoicePrintListPage.vue'),
+      },
+      {
+        path: 'billing/invoices/new',
+        name: 'invoice-create',
+        component: () => import('pages/invoice/CreateInvoicePage.vue'),
+      },
+      {
+        path: 'billing/invoices/:id',
+        name: 'invoice-detail',
+        component: () => import('pages/invoice/InvoiceDetailPage.vue'),
+      },
+    ],
+  },
+
+  {
+    path: '/auth',
+    component: () => import('layouts/AuthLayout.vue'),
+    meta: { requiresGuest: true },
+    children: [
+      {
+        path: 'login',
+        name: 'login',
+        component: () => import('pages/auth/LoginPage.vue'),
       },
     ],
   },

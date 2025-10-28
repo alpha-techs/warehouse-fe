@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useInventoryStore } from 'stores/inventory-store'
+import { useNameChangeStore } from 'stores/namechange-store'
 import type { QTable, QTableProps } from 'quasar'
 import { computed, onMounted, type Ref, ref, useTemplateRef } from 'vue'
-import type {
-  InventoryReport,
-  Warehouse,
-  Customer,
-  InventoryReportReq,
-} from 'src/api/Api'
+import type { NameChangeReport, Warehouse, Customer } from 'src/api/Api'
 import { useRouter } from 'vue-router'
 import type { FePagination } from 'src/utils/pagination'
 import { useWarehouseStore } from 'stores/warehouse-store'
@@ -16,14 +11,13 @@ import { useCustomerStore } from 'stores/customer-store'
 import { toastFormError } from 'src/utils/error-handler'
 
 const loading = ref(false)
-const generateLoading = ref(false)
 const tableRef = useTemplateRef<QTable | undefined>('tableRef')
 const router = useRouter()
 const {
-  inventoryReportList: rows,
-  inventoryReportListPagination,
-  inventoryReportListQuery: searchParams,
-} = storeToRefs(useInventoryStore())
+  nameChangeReportList: rows,
+  nameChangeReportListPagination,
+  nameChangeReportListQuery: searchParams,
+} = storeToRefs(useNameChangeStore())
 
 const { customerOptions } = storeToRefs(useCustomerStore())
 
@@ -153,11 +147,11 @@ const onRequest = async ({
       page,
       itemsPerPage: rowsPerPage,
     }
-    await useInventoryStore().getInventoryReportList(query)
+    await useNameChangeStore().getNameChangeReportList(query)
     pagination.value = {
-      page: inventoryReportListPagination.value.page,
-      rowsPerPage: inventoryReportListPagination.value.itemsPerPage,
-      rowsNumber: inventoryReportListPagination.value.totalItems,
+      page: nameChangeReportListPagination.value.page,
+      rowsPerPage: nameChangeReportListPagination.value.itemsPerPage,
+      rowsNumber: nameChangeReportListPagination.value.totalItems,
       sortBy: undefined,
       descending: false,
     }
@@ -168,40 +162,15 @@ const onRequest = async ({
   }
 }
 
-// Generate new inventory report
-const generateReport = async () => {
-  if (!selectedWarehouse.value || !selectedCustomer.value) {
-    await toastFormError('報告を生成するには倉庫とお客様を選択してください')
-    return
-  }
-
-  try {
-    generateLoading.value = true
-    const request: InventoryReportReq = {
-      warehouseId: selectedWarehouse.value.id!,
-      customerId: selectedCustomer.value.id!,
-      format: selectedFormat.value,
-    }
-    const reportId = await useInventoryStore().generateInventoryReport(request)
-    console.log('Report generated with ID:', reportId)
-    // Refresh the report list
-    tableRef.value?.requestServerInteraction()
-  } catch (error) {
-    await toastFormError(error)
-  } finally {
-    generateLoading.value = false
-  }
-}
-
 // Download report
-const downloadReport = async (report: InventoryReport) => {
+const downloadReport = async (report: NameChangeReport) => {
   if (report.status !== 'completed' || !report.id) {
     return
   }
 
   try {
     // Open download URL in new tab
-    const downloadUrl = useInventoryStore().getInventoryReportDownloadUrl(
+    const downloadUrl = useNameChangeStore().getNameChangeReportDownloadUrl(
       report.id,
     )
     window.open(downloadUrl, '_blank')
@@ -209,11 +178,6 @@ const downloadReport = async (report: InventoryReport) => {
     await toastFormError(error)
   }
 }
-
-// Generate report form state
-const selectedWarehouse = ref<Warehouse | undefined>()
-const selectedCustomer = ref<Customer | undefined>()
-const selectedFormat = ref<'pdf' | 'excel'>('pdf')
 
 // Status badge color
 const getStatusColor = (status: string) => {
@@ -251,71 +215,6 @@ const getStatusLabel = (status: string) => {
 <template>
   <q-page padding>
     <div class="row q-col-gutter-md">
-      <!-- Generate Report Section -->
-      <div class="col-12">
-        <q-card bordered>
-          <q-card-section>
-            <div class="text-h6 q-mb-md">新しい在庫報告書を生成</div>
-            <div class="row q-col-gutter-md">
-              <div class="col-md-3 col-sm-6 col-xs-12">
-                <q-select
-                  v-model="selectedWarehouse"
-                  label="倉庫"
-                  dense
-                  :options="warehouseOptions"
-                  option-label="name"
-                  option-value="id"
-                  @filter="onFilterWarehouse"
-                  clearable
-                  use-input
-                  input-style="width: 0px"
-                >
-                </q-select>
-              </div>
-              <div class="col-md-3 col-sm-6 col-xs-12">
-                <q-select
-                  v-model="selectedCustomer"
-                  label="お客様"
-                  dense
-                  :options="customerOptions"
-                  option-label="name"
-                  option-value="id"
-                  @filter="onFilterCustomer"
-                  clearable
-                  use-input
-                  input-style="width: 0px"
-                >
-                </q-select>
-              </div>
-              <div class="col-md-2 col-sm-6 col-xs-12">
-                <q-select
-                  v-model="selectedFormat"
-                  label="フォーマット"
-                  dense
-                  :options="[
-                    { label: 'PDF', value: 'pdf' },
-                    { label: 'Excel', value: 'excel' },
-                  ]"
-                  option-label="label"
-                  option-value="value"
-                >
-                </q-select>
-              </div>
-              <div class="col-md-2 col-sm-6 col-xs-12 flex items-center">
-                <q-btn
-                  label="報告書生成"
-                  color="primary"
-                  icon="sym_r_description"
-                  @click="generateReport"
-                  :loading="generateLoading"
-                  :disable="!selectedWarehouse || !selectedCustomer"
-                />
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-
       <!-- Reports List Section -->
       <div class="col-12">
         <q-card bordered>
@@ -333,7 +232,7 @@ const getStatusLabel = (status: string) => {
             >
               <template #top>
                 <div class="row" style="width: 100%">
-                  <div class="text-h6 col-12">在庫報告書一覧</div>
+                  <div class="text-h6 col-12">名義変更報告書一覧</div>
                   <q-select
                     class="q-px-sm"
                     :model-value="
@@ -385,7 +284,10 @@ const getStatusLabel = (status: string) => {
                     ]"
                     option-label="label"
                     option-value="value"
+                    map-options
+                    emit-value
                     clearable
+                    style="width: 120px"
                   >
                   </q-select>
                   <q-input
@@ -421,7 +323,7 @@ const getStatusLabel = (status: string) => {
                 </div>
               </template>
               <template
-                #[`body-cell-warehouse`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-warehouse`]="{ row }: { row: NameChangeReport }"
               >
                 <q-td>
                   <a
@@ -439,7 +341,7 @@ const getStatusLabel = (status: string) => {
                 </q-td>
               </template>
               <template
-                #[`body-cell-customer`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-customer`]="{ row }: { row: NameChangeReport }"
               >
                 <q-td>
                   <a
@@ -457,7 +359,7 @@ const getStatusLabel = (status: string) => {
                 </q-td>
               </template>
               <template
-                #[`body-cell-status`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-status`]="{ row }: { row: NameChangeReport }"
               >
                 <q-td>
                   <q-badge
@@ -467,14 +369,14 @@ const getStatusLabel = (status: string) => {
                 </q-td>
               </template>
               <template
-                #[`body-cell-format`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-format`]="{ row }: { row: NameChangeReport }"
               >
                 <q-td>
                   <q-chip :label="row.format?.toUpperCase()" dense />
                 </q-td>
               </template>
               <template
-                #[`body-cell-createdAt`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-createdAt`]="{ row }: { row: NameChangeReport }"
               >
                 <q-td>
                   {{
@@ -485,7 +387,7 @@ const getStatusLabel = (status: string) => {
                 </q-td>
               </template>
               <template
-                #[`body-cell-actions`]="{ row }: { row: InventoryReport }"
+                #[`body-cell-actions`]="{ row }: { row: NameChangeReport }"
               >
                 <q-td class="text-right">
                   <q-btn
