@@ -991,10 +991,10 @@
     typescript-eslint "^8.35.1"
     vue-eslint-parser "^10.2.0"
 
-"@vue/language-core@3.1.1":
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/@vue/language-core/-/language-core-3.1.1.tgz#29f32ca1fc5f1393f20e3eb9154a18914c813354"
-  integrity sha512-qjMY3Q+hUCjdH+jLrQapqgpsJ0rd/2mAY02lZoHG3VFJZZZKLjAlV+Oo9QmWIT4jh8+Rx8RUGUi++d7T9Wb6Mw==
+"@vue/language-core@3.1.4":
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/@vue/language-core/-/language-core-3.1.4.tgz#17ae7a20b0c401a8665655366af4e0ce4980344a"
+  integrity sha512-n/58wm8SkmoxMWkUNUH/PwoovWe4hmdyPJU2ouldr3EPi1MLoS7iDN46je8CsP95SnVBs2axInzRglPNKvqMcg==
   dependencies:
     "@volar/language-core" "2.4.23"
     "@vue/compiler-dom" "^3.5.0"
@@ -3899,13 +3899,13 @@ vue-router@^4.6.3:
   dependencies:
     "@vue/devtools-api" "^6.6.4"
 
-vue-tsc@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/vue-tsc/-/vue-tsc-3.1.1.tgz#66a5a9965a81d8cae03dd2c0350e2c05b24a2a4d"
-  integrity sha512-fyixKxFniOVgn+L/4+g8zCG6dflLLt01Agz9jl3TO45Bgk87NZJRmJVPsiK+ouq3LB91jJCbOV+pDkzYTxbI7A==
+vue-tsc@^3.1.4:
+  version "3.1.4"
+  resolved "https://registry.yarnpkg.com/vue-tsc/-/vue-tsc-3.1.4.tgz#a2a4d2123a1089e7c0a63c872ddb39f6119eb232"
+  integrity sha512-GsRJxttj4WkmXW/zDwYPGMJAN3np/4jTzoDFQTpTsI5Vg/JKMWamBwamlmLihgSVHO66y9P7GX+uoliYxeI4Hw==
   dependencies:
     "@volar/typescript" "2.4.23"
-    "@vue/language-core" "3.1.1"
+    "@vue/language-core" "3.1.4"
 
 vue@^3.5.22:
   version "3.5.22"
