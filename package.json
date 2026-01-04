@@ -14,6 +14,7 @@
     "build": "quasar build",
     "build-dev": "ENV=dev quasar build",
     "build-stg": "ENV=stg quasar build",
+    "build-beta": "ENV=beta quasar build",
     "postinstall": "quasar prepare"
   },
   "dependencies": {
