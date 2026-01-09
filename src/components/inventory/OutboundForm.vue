@@ -38,6 +38,13 @@ const onFilterCustomer = async (inputValue: string, doneFn: (callbackFn: () => v
     doneFn(() => {});
   }
 }
+
+const formatAmount = (value?: number) => {
+  if (value === undefined || value === null) {
+    return '-'
+  }
+  return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: outbound.value.currency ?? 'JPY' }).format(value)
+}
 </script>
 
 <template>
@@ -107,6 +114,34 @@ const onFilterCustomer = async (inputValue: string, doneFn: (callbackFn: () => v
           label="取扱便"
           :readonly="readonly"
         />
+      </q-item-section>
+    </q-item>
+    <q-item class="col-12 col-md-3">
+      <q-item-section>
+        <q-select
+          :model-value="outbound.currency ?? 'JPY'"
+          @update:model-value="(val) => { outbound.currency = val === 'JPY' ? 'JPY' : undefined }"
+          :options="[{ label: 'JPY', value: 'JPY' }]"
+          label="通貨"
+          emit-value
+          map-options
+          :readonly="readonly"
+        />
+      </q-item-section>
+    </q-item>
+    <q-item class="col-12 col-md-3">
+      <q-item-section>
+        <q-input :model-value="formatAmount(outbound.subtotalAmount)" label="小計" readonly />
+      </q-item-section>
+    </q-item>
+    <q-item class="col-12 col-md-3">
+      <q-item-section>
+        <q-input :model-value="formatAmount(outbound.taxAmount)" label="税額" readonly />
+      </q-item-section>
+    </q-item>
+    <q-item class="col-12 col-md-3">
+      <q-item-section>
+        <q-input :model-value="formatAmount(outbound.totalAmount)" label="合計" readonly />
       </q-item-section>
     </q-item>
   </q-list>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useProductStore } from 'stores/product-store'
 import { storeToRefs } from 'pinia'
+import ProductImageManager from 'components/product/ProductImageManager.vue'
 
 defineProps({
   readonly: {
@@ -193,6 +194,11 @@ const { formModel: product } = storeToRefs(useProductStore());
           label="定貫"
           :disable="readonly"
         />
+      </q-item-section>
+    </q-item>
+    <q-item class="col-12">
+      <q-item-section>
+        <product-image-manager :readonly="readonly" />
       </q-item-section>
     </q-item>
   </q-list>
