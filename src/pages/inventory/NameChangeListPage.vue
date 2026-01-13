@@ -172,7 +172,7 @@ const remove = async (row: any) => {
 }
 
 // Generate report for specific namechange
-const generateReport = async (nameChange: NameChange, format: 'pdf' | 'excel' = 'pdf') => {
+const generateReport = async (nameChange: NameChange) => {
     if (!nameChange.id) {
         await toastFormError('名義変更IDが無効です')
         return
@@ -182,7 +182,7 @@ const generateReport = async (nameChange: NameChange, format: 'pdf' | 'excel' = 
         generateLoading.value = nameChange.id
         const request: NameChangeReportReq = {
             nameChangeId: nameChange.id,
-            format: format,
+            format: 'excel',
         }
         const reportId = await useNameChangeStore().generateNameChangeReport(request)
         console.log('Report generated with ID:', reportId)
@@ -283,19 +283,7 @@ const generateReport = async (nameChange: NameChange, format: 'pdf' | 'excel' = 
                                         v-if="row.status === 'approved'">
                                         <q-menu>
                                             <q-list>
-                                                <q-item clickable @click="generateReport(row, 'pdf')"
-                                                    :disable="generateLoading !== null">
-                                                    <q-item-section avatar>
-                                                        <q-icon name="sym_r_picture_as_pdf" />
-                                                    </q-item-section>
-                                                    <q-item-section>
-                                                        <q-item-label>PDF報告書生成</q-item-label>
-                                                    </q-item-section>
-                                                    <q-item-section side v-if="generateLoading === row.id">
-                                                        <q-spinner size="16px" />
-                                                    </q-item-section>
-                                                </q-item>
-                                                <q-item clickable @click="generateReport(row, 'excel')"
+                                                <q-item clickable @click="generateReport(row)"
                                                     :disable="generateLoading !== null">
                                                     <q-item-section avatar>
                                                         <q-icon name="sym_r_table_chart" />
