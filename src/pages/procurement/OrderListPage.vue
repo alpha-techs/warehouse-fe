@@ -137,6 +137,8 @@ const canSubmitOrder = (status?: Order['status']) => status === 'draft'
 const canSendOrder = (status?: Order['status']) => status === 'requested'
 const canCompleteOrder = (status?: Order['status']) => status === 'sent'
 const isCancelDisabled = (status?: Order['status']) => status === 'cancelled' || status === 'completed'
+const canGeneratePrint = (status?: Order['status']) =>
+  status === 'sent' || status === 'completed'
 
 const onRequest = async ({
   pagination: _pagination,
@@ -226,6 +228,10 @@ const cancelOrder = async (order: Order) => {
 const generatePrint = async (order: Order, format: 'excel' = 'excel') => {
   if (!order.id) {
     await toastFormError('注文IDが無効です')
+    return
+  }
+  if (!canGeneratePrint(order.status)) {
+    await toastFormError('送付済または完了の注文のみ印刷ジョブを作成できます')
     return
   }
   const request: OrderPrintReq = {
@@ -474,7 +480,7 @@ const isTransitionLoading = (orderId: number | undefined, action: 'submit' | 'se
                     <q-separator />
                     <q-item
                       clickable
-                      :disable="generateLoading === row.id"
+                      :disable="generateLoading === row.id || !canGeneratePrint(row.status)"
                       v-close-popup
                       @click="generatePrint(row)"
                     >

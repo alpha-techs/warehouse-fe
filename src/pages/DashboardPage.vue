@@ -3,7 +3,7 @@
     <!-- 统计卡片 -->
     <div class="row q-col-gutter-md q-mb-lg">
       <div class="col-12 col-sm-6 col-md-4">
-        <q-card class="bg-primary text-white">
+        <q-card class="bg-positive text-white">
           <q-card-section>
             <div class="text-h6">総在庫数量</div>
             <div class="text-h4">
@@ -23,7 +23,7 @@
         </q-card>
       </div>
       <div class="col-12 col-sm-6 col-md-4">
-        <q-card class="bg-negative text-white">
+        <q-card class="bg-positive text-white">
           <q-card-section>
             <div class="text-h6">今月出庫</div>
             <div class="text-h4">
@@ -37,7 +37,7 @@
     <!-- 第二行统计卡片 -->
     <div class="row q-col-gutter-md q-mb-lg">
       <div class="col-12 col-sm-6 col-md-6">
-        <q-card class="bg-warning text-white">
+        <q-card class="bg-positive text-white">
           <q-card-section>
             <div class="text-h6">処理待ち入庫</div>
             <div class="text-h4">
@@ -47,7 +47,7 @@
         </q-card>
       </div>
       <div class="col-12 col-sm-6 col-md-6">
-        <q-card class="bg-info text-white">
+        <q-card class="bg-positive text-white">
           <q-card-section>
             <div class="text-h6">処理待ち出庫</div>
             <div class="text-h4">
@@ -85,7 +85,7 @@
             <div class="row q-col-gutter-md">
               <div class="col-4">
                 <div class="text-center">
-                  <div class="text-h5 text-secondary">
+                  <div class="text-h5 text-grey-9">
                     {{ dashboardStore.stats.productCount || 0 }}
                   </div>
                   <div class="text-caption">商品</div>
@@ -93,7 +93,7 @@
               </div>
               <div class="col-4">
                 <div class="text-center">
-                  <div class="text-h5 text-accent">
+                  <div class="text-h5 text-grey-9">
                     {{ dashboardStore.stats.warehouseCount || 0 }}
                   </div>
                   <div class="text-caption">倉庫</div>
@@ -101,7 +101,7 @@
               </div>
               <div class="col-4">
                 <div class="text-center">
-                  <div class="text-h5 text-deep-purple">
+                  <div class="text-h5 text-grey-9">
                     {{ dashboardStore.stats.customerCount || 0 }}
                   </div>
                   <div class="text-caption">お客様</div>
@@ -114,12 +114,12 @@
     </div>
 
     <!-- 库存过久商品警告 -->
-    <div class="row q-col-gutter-md">
+    <div class="row q-col-gutter-md" v-if="hasAgedInventory">
       <div class="col-12">
-        <q-card class="bg-red-1">
+        <q-card class="dashboard-alert-card">
           <q-card-section>
-            <div class="text-h6 text-red-8">
-              <q-icon name="warning" class="q-mr-sm" />
+            <div class="text-h6 text-grey-9">
+              <q-icon name="warning" class="q-mr-sm text-negative" />
               長期在庫商品アラート
             </div>
             <div class="text-caption text-grey-7 q-mt-sm">
@@ -131,7 +131,7 @@
     </div>
 
     <!-- 库存过久商品列表 -->
-    <div class="row q-col-gutter-md q-mt-md">
+    <div class="row q-col-gutter-md q-mt-md" v-if="hasAgedInventory">
       <div class="col-12">
         <q-card>
           <q-card-section>
@@ -201,6 +201,9 @@ import type { InventoryItem } from '../api/Api'
 const router = useRouter()
 const $q = useQuasar()
 const dashboardStore = useDashboardStore()
+const hasAgedInventory = computed(
+  () => (dashboardStore.agedInventoryItems?.length ?? 0) > 0,
+)
 
 // 分页配置
 const pagination = computed(() => ({
@@ -360,3 +363,11 @@ onMounted(async () => {
   await Promise.all([fetchDashboardStats(), fetchAgedInventory()])
 })
 </script>
+
+<style scoped>
+.dashboard-alert-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #d97706;
+}
+</style>
