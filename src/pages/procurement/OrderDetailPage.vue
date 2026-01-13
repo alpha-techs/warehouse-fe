@@ -19,6 +19,9 @@ const router = useRouter()
 const orderId = computed(() => Number(route.params.id))
 const orderStore = useOrderStore()
 const { formModel: order } = storeToRefs(orderStore)
+const canGeneratePrint = computed(() =>
+  ['sent', 'completed'].includes(order.value.status ?? ''),
+)
 
 const loadOrder = async () => {
   const id = orderId.value
@@ -103,6 +106,10 @@ const generatePrint = async () => {
     await toastFormError('注文IDが無効です')
     return
   }
+  if (!canGeneratePrint.value) {
+    await toastFormError('送付済または完了の注文のみ印刷ジョブを作成できます')
+    return
+  }
   const request: OrderPrintReq = {
     orderId: id,
     format: 'excel',
@@ -182,7 +189,7 @@ const goBack = () => {
               icon="sym_r_table_view"
               @click="generatePrint"
               :loading="generateLoading"
-              :disable="loading || order.status === 'cancelled'"
+              :disable="loading || !canGeneratePrint"
             />
             <q-btn
               color="negative"

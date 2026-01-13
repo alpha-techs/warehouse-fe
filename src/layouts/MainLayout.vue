@@ -159,7 +159,7 @@ const linksList: EssentialLinkProps[] = [
         link: router.resolve({ name: 'outbound-list' }).href,
       },
       {
-        title: '出庫報告書リスト',
+        title: '出庫依頼書リスト',
         icon: 'sym_r_assignment',
         link: router.resolve({ name: 'outbound-report-list' }).href,
       },

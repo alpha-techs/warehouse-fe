@@ -25,7 +25,8 @@ const {
   inventoryReportListQuery: searchParams,
 } = storeToRefs(useInventoryStore())
 
-const { customerOptions } = storeToRefs(useCustomerStore())
+const customerStore = useCustomerStore()
+const { customerOptions } = storeToRefs(customerStore)
 
 const onFilterCustomer = async (
   inputValue: string,
@@ -111,7 +112,11 @@ const columns: QTableProps['columns'] = [
   },
 ]
 
-onMounted(() => {
+onMounted(async () => {
+  await customerStore.getCustomerOptions()
+  selectedCustomer.value =
+    customerOptions.value.find((customer) => customer.id === 1) ??
+    selectedCustomer.value
   tableRef.value?.requestServerInteraction()
 })
 
@@ -281,9 +286,9 @@ const getStatusLabel = (status: string) => {
                   option-label="name"
                   option-value="id"
                   @filter="onFilterCustomer"
-                  clearable
                   use-input
                   input-style="width: 0px"
+                  disable
                 >
                 </q-select>
               </div>
@@ -294,10 +299,10 @@ const getStatusLabel = (status: string) => {
                   dense
                   :options="[
                     { label: 'PDF', value: 'pdf' },
-                    { label: 'Excel', value: 'excel' },
                   ]"
                   option-label="label"
                   option-value="value"
+                  disable
                 >
                 </q-select>
               </div>

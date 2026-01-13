@@ -232,7 +232,7 @@ const getStatusLabel = (status: string) => {
             >
               <template #top>
                 <div class="row" style="width: 100%">
-                  <div class="text-h6 col-12">出庫報告書一覧</div>
+                  <div class="text-h6 col-12">出庫依頼書一覧</div>
                   <q-select
                     class="q-px-sm"
                     :model-value="

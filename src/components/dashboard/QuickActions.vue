@@ -12,34 +12,38 @@
             color="primary"
             icon="sym_r_move_to_inbox"
             label="入庫作成"
-            class="full-width"
+            class="full-width quick-action-btn"
+            outline
             @click="createInbound"
           />
         </div>
         <div class="col-6 col-sm-3">
           <q-btn
-            color="negative"
+            color="primary"
             icon="sym_r_outbox"
             label="出庫作成"
-            class="full-width"
+            class="full-width quick-action-btn"
+            outline
             @click="createOutbound"
           />
         </div>
         <div class="col-6 col-sm-3">
           <q-btn
-            color="secondary"
+            color="primary"
             icon="sym_r_dns"
             label="商品追加"
-            class="full-width"
+            class="full-width quick-action-btn"
+            outline
             @click="createProduct"
           />
         </div>
         <div class="col-6 col-sm-3">
           <q-btn
-            color="accent"
+            color="primary"
             icon="sym_r_account_circle"
             label="お客様追加"
-            class="full-width"
+            class="full-width quick-action-btn"
+            outline
             @click="createCustomer"
           />
         </div>
@@ -47,6 +51,12 @@
     </q-card-section>
   </q-card>
 </template>
+
+<style scoped>
+.quick-action-btn {
+  border-width: 1px;
+}
+</style>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'

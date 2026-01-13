@@ -157,7 +157,7 @@ const remove = async (row: any) => {
 }
 
 // Generate report for specific inbound
-const generateReport = async (inbound: Inbound, format: 'pdf' | 'excel' = 'pdf') => {
+const generateReport = async (inbound: Inbound) => {
   if (!inbound.id) {
     await toastFormError('入庫IDが無効です')
     return
@@ -167,7 +167,7 @@ const generateReport = async (inbound: Inbound, format: 'pdf' | 'excel' = 'pdf')
     generateLoading.value = inbound.id
     const request: InboundReportReq = {
       inboundId: inbound.id,
-      format: format,
+      format: 'pdf',
     }
     const reportId = await useInboundStore().generateInboundReport(request)
     console.log('Report generated with ID:', reportId)
@@ -259,23 +259,12 @@ const generateReport = async (inbound: Inbound, format: 'pdf' | 'excel' = 'pdf')
                   <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_more_vert" v-if="row.status === 'approved'">
                     <q-menu>
                       <q-list>
-                        <q-item clickable @click="generateReport(row, 'pdf')" :disable="generateLoading !== null">
+                        <q-item clickable @click="generateReport(row)" :disable="generateLoading !== null">
                           <q-item-section avatar>
                             <q-icon name="sym_r_picture_as_pdf" />
                           </q-item-section>
                           <q-item-section>
                             <q-item-label>PDF報告書生成</q-item-label>
-                          </q-item-section>
-                          <q-item-section side v-if="generateLoading === row.id">
-                            <q-spinner size="16px" />
-                          </q-item-section>
-                        </q-item>
-                        <q-item clickable @click="generateReport(row, 'excel')" :disable="generateLoading !== null">
-                          <q-item-section avatar>
-                            <q-icon name="sym_r_table_chart" />
-                          </q-item-section>
-                          <q-item-section>
-                            <q-item-label>Excel報告書生成</q-item-label>
                           </q-item-section>
                           <q-item-section side v-if="generateLoading === row.id">
                             <q-spinner size="16px" />

@@ -179,13 +179,20 @@ const toEdit = async (key: number) => {
   });
 }
 
+const toInvoiceCreate = async (outboundId?: number) => {
+  if (!outboundId) {
+    return
+  }
+  await router.push({ name: 'invoice-create', query: { outboundId } })
+}
+
 const remove = async (row: any) => {
   await useOutboundStore().removeOutboundById(row.id)
   await useOutboundStore().getOutboundList()
 }
 
 // Generate report for specific outbound
-const generateReport = async (outbound: Outbound, format: 'pdf' | 'excel' = 'pdf') => {
+const generateReport = async (outbound: Outbound) => {
   if (!outbound.id) {
     await toastFormError('出庫IDが無効です')
     return
@@ -195,7 +202,7 @@ const generateReport = async (outbound: Outbound, format: 'pdf' | 'excel' = 'pdf
     generateLoading.value = outbound.id
     const request: OutboundReportReq = {
       outboundId: outbound.id,
-      format: format,
+      format: 'pdf',
     }
     const reportId = await useOutboundStore().generateOutboundReport(request)
     console.log('Report generated with ID:', reportId)
@@ -296,23 +303,20 @@ const generateReport = async (outbound: Outbound, format: 'pdf' | 'excel' = 'pdf
                   <q-btn class="q-ml-sm" size="sm" flat dense icon="sym_r_more_vert" v-if="row.status === 'approved'">
                     <q-menu>
                       <q-list>
-                        <q-item clickable @click="generateReport(row, 'pdf')" :disable="generateLoading !== null">
+                        <q-item clickable @click="toInvoiceCreate(row.id)">
+                          <q-item-section avatar>
+                            <q-icon name="sym_r_receipt_long" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-item-label>請求書を作成</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                        <q-item clickable @click="generateReport(row)" :disable="generateLoading !== null">
                           <q-item-section avatar>
                             <q-icon name="sym_r_picture_as_pdf" />
                           </q-item-section>
                           <q-item-section>
                             <q-item-label>PDF報告書生成</q-item-label>
-                          </q-item-section>
-                          <q-item-section side v-if="generateLoading === row.id">
-                            <q-spinner size="16px" />
-                          </q-item-section>
-                        </q-item>
-                        <q-item clickable @click="generateReport(row, 'excel')" :disable="generateLoading !== null">
-                          <q-item-section avatar>
-                            <q-icon name="sym_r_table_chart" />
-                          </q-item-section>
-                          <q-item-section>
-                            <q-item-label>Excel報告書生成</q-item-label>
                           </q-item-section>
                           <q-item-section side v-if="generateLoading === row.id">
                             <q-spinner size="16px" />

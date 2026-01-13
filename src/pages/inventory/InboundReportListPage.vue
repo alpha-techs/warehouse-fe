@@ -19,7 +19,8 @@ const {
   inboundReportListQuery: searchParams,
 } = storeToRefs(useInboundStore())
 
-const { customerOptions } = storeToRefs(useCustomerStore())
+const customerStore = useCustomerStore()
+const { customerOptions } = storeToRefs(customerStore)
 
 const onFilterCustomer = async (
   inputValue: string,
@@ -105,7 +106,9 @@ const columns: QTableProps['columns'] = [
   },
 ]
 
-onMounted(() => {
+onMounted(async () => {
+  await customerStore.getCustomerOptions()
+  searchParams.value.customerId = 1
   tableRef.value?.requestServerInteraction()
 })
 
@@ -264,25 +267,7 @@ const getStatusLabel = (status: string) => {
                     option-label="name"
                     option-value="id"
                     @filter="onFilterCustomer"
-                    clearable
-                    use-input
-                    input-style="width: 0px"
-                  >
-                  </q-select>
-                  <q-select
-                    class="q-px-sm"
-                    v-model="searchParams.status"
-                    label="ステータス"
-                    dense
-                    :options="[
-                      { label: '待機中', value: 'pending' },
-                      { label: '処理中', value: 'processing' },
-                      { label: '完了', value: 'completed' },
-                      { label: '失敗', value: 'failed' },
-                    ]"
-                    option-label="label"
-                    option-value="value"
-                    clearable
+                    disable
                   >
                   </q-select>
                   <q-input
