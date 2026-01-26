@@ -38,7 +38,7 @@
     "eslint": "^9.39.2",
     "eslint-plugin-vue": "^10.6.2",
     "globals": "^17.0.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "postcss": "^8.5.6",
     "prettier": "^3.7.4",
     "typescript": "~5.8.3",
